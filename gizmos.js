@@ -93,6 +93,13 @@ function (dojo, declare) {
         //
         onEnteringState: function( stateName, args )
         {
+			if (args && args.args && args.args.tg_gizmo_id && $(Gizmo.getEleId(args.args.tg_gizmo_id) )) {
+				dojo.removeClass( Gizmo.getEleId(args.args.tg_gizmo_id), 'triggerable' );
+				dojo.addClass( Gizmo.getEleId(args.args.tg_gizmo_id), 'half_selected' );
+			} else {
+				dojo.query('.half_selected').removeClass('half_selected');
+			}
+
 			Game.stateName = stateName;
             console.log( 'Entering state: '+stateName );
 			
@@ -189,17 +196,21 @@ function (dojo, declare) {
 					dojo.query('.half_selected').removeClass('half_selected');
 					dojo.query('.discount').removeClass('selectable');
 					dojo.query('.tempnrg').forEach(dojo.destroy);
-					dojo.empty('researched_gizmos');
-					dojo.style('researched_gizmos', 'display', 'none');
-					Game.repositionEnergyRing();
+					if (!Game.waitHideResearch) {
+						dojo.empty('researched_gizmos');
+						dojo.style('researched_gizmos', 'display', 'none');
+						Game.repositionEnergyRing();
+					}
 					Builder.resetVars();					
 					break;
 				case 'triggerSelect':
 					break;
 				case 'research':
-					dojo.empty('researched_gizmos');
-					dojo.style('researched_gizmos', 'display', 'none');
-					Game.repositionEnergyRing();
+					if (!Game.waitHideResearch) {
+						dojo.empty('researched_gizmos');
+						dojo.style('researched_gizmos', 'display', 'none');
+						Game.repositionEnergyRing();
+					}
 					break;					
 				default:
 					break;
@@ -259,6 +270,11 @@ function (dojo, declare) {
 						this.addActionButton( 'button_build', _('Build'), 'buildLevel1For0' );
 						this.addActionButton( 'button_cancel', _('Cancel'), 'cancel' );
 						dojo.addClass( 'button_build', 'disabled');
+						break;	
+					case 'triggerFile':	
+						this.addActionButton( 'button_file', _('File'), 'fileSelectedCard' );
+						this.addActionButton( 'button_cancel', _('Cancel'), 'cancel' );
+						dojo.addClass( 'button_file', 'disabled');
 						break;					
 					default:
 						break;
@@ -490,7 +506,9 @@ function (dojo, declare) {
 			if ( this.checkAction("cardBuilt")
 				&& Builder.validateSpending() ) {
 				let s_spheres = Builder.selected_spheres.join(',');
+				console.log(s_spheres);
 				let s_converters = JSON.stringify( Builder.active_converters );
+				console.log(s_converters);
 				this.ajaxcall( "/gizmos/gizmos/buildSelectedCard.html", {
 					"spheres": s_spheres,
 					"converters": s_converters,
@@ -517,7 +535,8 @@ function (dojo, declare) {
 					this.showMessage(_("Your archive is full"), "error");
 				} else {
 					this.ajaxcall( "/gizmos/gizmos/fileSelectedCard.html", {
-						"lock": true
+						"lock": true,
+						"selected_card_id": this.selected_card_id
 					}, this, function( result ) {} );					
 				}
 			}
@@ -572,19 +591,6 @@ function (dojo, declare) {
 				if (Game.selected_card_id > 100) {
 					let mt_card = this.gamedatas.mt_gizmos[Game.selected_card_id];
 					Builder.spend_spheres[mt_card.color] = mt_card.cost;
-					
-					// Game.zones[ele_id] = new ebg.zone();
-					// Game.zones[ele_id].create( this, ele_id, 50, 50 );
-					// Game.zones[ele_id].setPattern( 'ellipticalfit' );
-					// console.log('created zone, ' + ele_id + '; getting spend spheres for player');
-					// let arr_spheres = this.getEnergyForBuildCard(false);
-					// console.log(arr_spheres);
-					// for (let i=0; i<arr_spheres.length; i++) {
-						// let sphere_ele_id = Energy.getEleId(arr_spheres[i]);
-						// console.log('sliding ' + sphere_ele_id + ' to zone: ' + ele_id);
-						// this.slideToObject( sphere_ele_id, $(ele_id) ).play();
-						// Game.zones[ele_id].placeInZone(sphere_ele_id);
-					// }
 				}
 			}
 		},
@@ -634,19 +640,6 @@ function (dojo, declare) {
 			console.log("placed " + new_gizmo_id + " in zone");
 			this.connect($(new_gizmo_id), 'onclick', 'onCardSelect');
 			console.log("and connected onCardSelect");			
-		},
-		makeGizmoCardHtml: function(gizmo_id) {
-			var other_class = '';
-			var mt_gizmo = this.gamedatas.mt_gizmos[gizmo_id];
-			if (mt_gizmo['effect_type'] == 'converter') {
-				other_class += ' converter';
-			}
-			var gizmoDetails = {
-				'id': gizmo_id,
-				'level': mt_gizmo.level,
-				'other_class': other_class
-			};			
-			return this.format_block('jstpl_card', gizmoDetails);
 		},
 		setupDeckTooltips: function() {
 			for (var level=1; level<=3; level++) {
@@ -841,30 +834,12 @@ function (dojo, declare) {
 
 		
 		onEnergySelect: function( evt ) {
-			// if (Game.isMoved) {
-			// 	dojo.removeClass(evt.target, 'convert_from');
-			// 	dojo.place(evt.target, 'energy_ring');
-			// 	Game.zones['energy_ring'].placeInZone(evt.target.id);
-			// 	Game.isMoved = false;
-			// } else {
-			// 	dojo.place(evt.target, 'card_303');
-			// 	Game.zones['energy_ring'].removeFromZone(evt.target.id, false, 'card_303');
-			// 	evt.target.classList.add('convert_from');
-			// 	Game.isMoved = true;
-			// }
-			// return;
 
 			let sphere_id = Energy.getIdOfEle(evt.target.id);
 			if (evt.target.classList.contains('convert_from')) { 
 				let gizmo_id = evt.target.parentNode.id;
-				// Check if this is on a duplicator - if so create a temp energy to use
-				// if (Builder.picking > 0) {
-				// 	if (Builder.tryUseFromEnergy( Gizmo.getIdOfEle(gizmo_id) )) {
-				// 		Builder.toggleConverter( Builder.picking, this, sphere_id );
-				// 	}
-				// } else {
+				console.log(Builder.active_converters);
 				Builder.deselectConverter( Gizmo.getIdOfEle(gizmo_id), this );
-				//}
 			} else if (evt.target.classList.contains('ring')) {
 				if (Builder.picking > 0) {
 					Builder.spendEnergy( sphere_id );
@@ -888,13 +863,14 @@ function (dojo, declare) {
 				}
 			} else if (evt.target.classList.contains('picker')) {
 				if (Builder.picking > 0) {
-					let anim = this.slideToObjectPos( evt.target.id, Gizmo.getEleId(Builder.picking), this.card_height-50);
 					let nrgEle = evt.target;
+					this.attachToNewParent( $(nrgEle.id), $(Gizmo.getEleId(Builder.picking)) );
+					dojo.addClass( nrgEle.id, 'convert_to' );
+					dojo.removeClass( nrgEle.id, 'picker' );
+					let anim = this.slideToObjectPos( evt.target.id, Gizmo.getEleId(Builder.picking), this.card_height-50);
 					anim.onEnd = function(parent) {
 						return function() {
-							dojo.addClass( nrgEle.id, 'convert_to' );
-							dojo.removeClass( nrgEle.id, 'picker' );
-							dojo.place( nrgEle, $(Gizmo.getEleId(Builder.picking)) );
+							dojo.attr(nrgEle.id, 'style', 'position:absolute;');
 							Builder.applyColorConverter( Builder.picking, null, Energy.getEleColor(nrgEle), null, parent );
 							Energy.hidePicker(parent);
 							Builder.temp_energy.push(nrgEle.id);
@@ -948,6 +924,25 @@ function (dojo, declare) {
 						this.selected_card_id = selected_card_id;
 						dojo.addClass(card_ele.id, 'selected');
 						dojo.removeClass('button_build', 'disabled');
+					}
+				}
+			} else if (Game.stateName == 'triggerFile') {
+				if (dojo.hasClass(card_ele.id, 'built')) {
+					this.showMessage( _("Cannot File an already built card!"), "error");
+				} else if (dojo.hasClass(card_ele.id, 'filed')) {
+					this.showMessage( _("Cannot File an already filed card!"), "error" );
+				} else {				
+					if (this.selected_card_id == selected_card_id) {
+						this.selected_card_id = 0;
+						dojo.removeClass(card_ele.id, 'selected');
+						dojo.addClass('button_file', 'disabled');
+					} else {
+						if (this.selected_card_id) {
+							dojo.removeClass(Gizmo.getEleId(this.selected_card_id), 'selected');
+						}
+						this.selected_card_id = selected_card_id;
+						dojo.addClass(card_ele.id, 'selected');
+						dojo.removeClass('button_file', 'disabled');
 					}
 				}
 			} else if ( card_ele.classList.contains('already_used') ) {
@@ -1031,7 +1026,7 @@ function (dojo, declare) {
 				this.disconnect( $(sp_ele_id), 'onEnergySelect' );
 				this.removeTooltip( sp_ele_id );
 				dojo.addClass(sp_ele_id, 'ring');
-				Game.zones['sphere_row'].removeFromZone(sp_ele_id); //, false, 'energy_ring');
+				Game.zones['sphere_row'].removeFromZone(sp_ele_id);
 				this.attachToNewParent( $(sp_ele_id), $('energy_ring') );
 				let anim = this.slideToObject( sp_ele_id, 'energy_ring' );
 				anim.onEnd = function(parent) {
@@ -1059,6 +1054,7 @@ function (dojo, declare) {
 			//this.showMessage(" ", "info");
 		},
 		notif_cardBuiltOrFiled: function ( notif ) {
+			Game.waitHideResearch = true;
 			let purchased_id = notif.args.purchased_card_id;
 			let action = notif.args.action;
 			let player_id = notif.args.player_id;
@@ -1083,18 +1079,10 @@ function (dojo, declare) {
 				Game.getPlayerArchive(player_id) :
 				Game.getBuiltGizmoDiv(purchased_id, player_id)
 			);
-			// If from research, card does not exist (was in a dialog)
-			// if ( !$(pcid) ) {
-			// 	console.log("card did not exist (research) -> create new");
-			// 	var gizmoDetails = {
-			// 		'id': purchased_id,
-			// 		'level': mt_gizmo.level,
-			// 		'other_class': "built"
-			// 	};
-			// 	dojo.place( this.format_block('jstpl_card', gizmoDetails), zone_id );
-			// 	this.addGizmoTooltip(purchased_id);
-			// } else {
+			
 			this.disconnect( $(pcid), 'onCardSelect' );
+			this.attachToNewParent( $(pcid), $(zone_id) );
+
 			let level = mt_gizmo.level;
 			dojo.removeClass(pcid, 'selected');
 			dojo.removeClass(pcid, 'row');
@@ -1113,19 +1101,27 @@ function (dojo, declare) {
 					dojo.addClass(pcid, 'discount');
 				}
 			}
-			//}
 			if (built_from_file) {
 				Game.zones[Game.getPlayerArchive(player_id)].removeFromZone( pcid );					
 			}
 			this.setZoneHeight( zone_id, Game.zones[zone_id].getItemNumber()+1, player_id );
-			this.slideToObject( pcid, zone_id ).play();
-			Game.zones[zone_id].placeInZone( pcid );	
-			this.connect($(pcid), 'onclick', 'onCardSelect');
+			let anim = this.slideToObject( pcid, zone_id );
+			anim.onEnd = function(parent) {
+				return function() {
+					Game.zones[zone_id].placeInZone( pcid );	
+					parent.connect($(pcid), 'onclick', 'onCardSelect');
+					dojo.empty('researched_gizmos');
+					dojo.style('researched_gizmos', 'display', 'none');
+					Game.repositionEnergyRing();
+					Game.waitHideResearch = false;
+				}
+			}(this);
+			anim.play();
 			
 			// slide new card into row if not was_filed NOR researched
 			var new_card_id = notif.args.new_card_id;
 			if (!built_from_file && new_card_id) {
-				console.log("NEW CARD: " + new_card_id);
+				//console.log("NEW CARD: " + new_card_id);
 				if (!new_card_id) {		
 					this.showMessage(_("Deck is empty"), "error");				
 				} else {

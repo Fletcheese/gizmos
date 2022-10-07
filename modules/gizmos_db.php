@@ -12,6 +12,16 @@ class DB
     /*
     UTILS
     */
+	public function LevelAsNumerals($level) {
+		$s = "I";
+		$i = 1;
+		while ($i < $level) {
+			$s .= "I";
+			$i++;
+		}
+		return $s;
+	}
+
 	public function scoreAndUpgradeBuiltCard($player_id, $built_mt_gizmo) {		
 		$card_score;
 		// All level 1s are worth 1 point
@@ -115,6 +125,10 @@ class DB
 	public static function getBuiltOrFiledCards() {
 		$select_sql = "SELECT card_type_arg type_arg,card_location card_location,card_location_arg card_location_arg,card_type card_type,is_triggered is_triggered,is_used is_used FROM gizmo_cards WHERE card_location = 'built' or card_location = 'filed'";	
         return Gizmos::getCollection( $select_sql );		
+	}    
+	public static function getPlayerFiledCount($pid) {
+		$select_sql = "SELECT card_type_arg,card_location,card_location_arg FROM gizmo_cards WHERE card_location = 'filed' AND card_location_arg = '$pid'";	
+        return count( Gizmos::getCollection($select_sql) );		
 	}
 	public static function setGizmoUsed($gizmo_id) {
 		Gizmos::DbQuery( "UPDATE gizmo_cards SET is_used=1 WHERE card_type_arg=$gizmo_id" );			
@@ -265,6 +279,12 @@ class DB
 			Gizmos::DbQuery( sprintf($sql, $tie_breaker, $player_id) );
 		}
 		//throw new BgaUserException("TIE BREAKERS DEBUG");
+	}
+	public static function checkArchiveLimit($player_id) {
+        $sql = "SELECT player_archive_limit FROM player WHERE player_id = '$player_id'";
+        $limit = Gizmos::getUniqueValue( $sql );
+		$filed = self::getPlayerFiledCount($player_id);
+		return $filed >= $limit;
 	}
     /*
     END PLAYERS

@@ -79,7 +79,8 @@
     public function fileSelectedCard()
     {
         self::setAjaxMode();
-        $result = $this->game->fileSelectedCard( );
+        $selected_card_id = self::getArg( "selected_card_id", AT_posint, true );
+        $result = $this->game->fileSelectedCard( $selected_card_id );
         self::ajaxResponse( );
 	}
     

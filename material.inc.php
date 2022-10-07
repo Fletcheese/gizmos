@@ -20,24 +20,53 @@
  */
  
 $this->mt_colors = array(
-	0 => 'red',
-	1 => 'blue',
-	2 => 'black',
-	3 => 'yellow',
-	4 => 'multi'
-);
-
-$this->mt_trigger_types = array(
-	0 => 'trigger_file',
-	1 => 'trigger_pick',
-	2 => 'trigger_build',
-	3 => 'trigger_build_from_file',
-	4 => 'trigger_build_level2'
+	0 => clienttranslate('red'),
+	1 => clienttranslate('blue'),
+	2 => clienttranslate('black'),
+	3 => clienttranslate('yellow'),
+	4 => clienttranslate('any') // in the context of colors
 );
 
 $this->tooltip_types = array(
-	'build_trigger' => clienttranslate('When you build a ${color} card: ${action}'),
-	'converter' => clienttranslate('Convert one ${from} energy to ${to] energy')
+	'trigger' => clienttranslate('When you ${trigger} a ${color}${object}: ${action}'),
+	'converter' => clienttranslate('Convert ${number} ${from} energy to ${to] energy'),
+	'upgrade' => clienttranslate('Upgrade: ${details}')	
+);
+$this->action_types = array(
+	0 => clienttranslate('File'),
+	1 => clienttranslate('Pick'),
+	2 => clienttranslate('Build'),
+	3 => clienttranslate('Research'),
+	4 => clienttranslate('draw'),
+	5 => clienttranslate('gain ${n} victory point token(s)'),
+	6 => clienttranslate('Build a Level I Gizmo for free')
+);
+$this->present_tense_actions = array(
+	0 => clienttranslate('Files'),
+	1 => clienttranslate('Picks'),
+	2 => clienttranslate('Builds'),
+	3 => clienttranslate('Researches'),
+	4 => clienttranslate('draws'),
+	5 => clienttranslate('gains ${n} victory point token(s)')
+);
+$this->upgrade_types = array(
+	0 => clienttranslate('energy capacity'),
+	1 => clienttranslate('archive limit'),
+	2 => clienttranslate('research quantity'),
+	3 => clienttranslate('you cannot ${action} for the rest of the game'),
+	4 => clienttranslate('you may spend 1 less Energy when building ${discounted_gizmos}'),
+	5 => clienttranslate('Gizmos from your Archive'),
+	6 => clienttranslate('Gizmos directly from Research'),
+	7 => clienttranslate('Level II Gizmos'),
+	8 => clienttranslate('at the end of the game score points equal to your ${score}'),
+	9 => clienttranslate('remaining unspent Energy'),
+	10 => clienttranslate('victory point token count')
+);
+$this->misc_terms = array(
+	0 => clienttranslate('Gizmo'),
+	1 => clienttranslate('Energy'),
+	2 => clienttranslate('Level'),
+	3 => clienttranslate('the row')
 );
 
 $this->mt_gizmos = array(

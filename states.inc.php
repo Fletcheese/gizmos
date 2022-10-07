@@ -43,7 +43,7 @@ $machinestates = array(
     		"transitions" => array( "nextTurn" => 2, "endGame" => 99 )
     ),
 	
-	// PlayerActions for picking/buying/filing cards and spheres
+	// begin gizmos-specific actions
     10 => array(
     		"name" => "cardSelected",
     		"description" => clienttranslate('${actplayer} may Build or File selected Gizmo'),
@@ -77,9 +77,8 @@ $machinestates = array(
     		"descriptionmyturn" => clienttranslate('${you} may select a Gizmo to trigger'),
 			"args" => "arg_getTriggeredCards",
     		"type" => "activeplayer",
-    		"possibleactions" => array( "triggerSphereSelect", "triggerResearch", "triggerSphereRandom", "pass", "gainVictoryPoint", "buildLevel1For0" ),
-			// There will be additional special cases to add here later for triggering build actions
-    		"transitions" => array( "triggerSphereSelect" => 11, "triggerResearch" => 17, "triggerSphereRandom" => 23, "pass" => 3, "gainVictoryPoint" => 27, "buildLevel1For0" => 18 )
+    		"possibleactions" => array( "triggerSphereSelect", "triggerResearch", "triggerSphereRandom", "pass", "gainVictoryPoint", "buildLevel1For0", "triggerFile" ),
+    		"transitions" => array( "triggerSphereSelect" => 11, "triggerResearch" => 17, "triggerSphereRandom" => 23, "pass" => 3, "gainVictoryPoint" => 27, "buildLevel1For0" => 18, "triggerFile" => 19 )
     ),
     14 => array(
     		"name" => "deckSelected",
@@ -101,8 +100,8 @@ $machinestates = array(
     ),
 	16 => array(
     		"name" => "triggerDraw",
-    		"description" => clienttranslate('${actplayer} ${desc}'),
-    		"descriptionmyturn" => clienttranslate('${you} ${desc}'),
+    		"description" => '${actplayer} ${desc}',
+    		"descriptionmyturn" => '${you} ${desc}',
     		"type" => "activeplayer",
 			"args" => "arg_triggerDraw",
     		"possibleactions" => array( "triggerSphereRandom", "cancel", "triggerCheck"),
@@ -113,6 +112,7 @@ $machinestates = array(
     		"description" => clienttranslate('${actplayer} may select a deck to Research'),
     		"descriptionmyturn" => clienttranslate('${you} may select a deck to Research'),
     		"type" => "activeplayer",
+			"args" => "arg_triggeringGizmo",
     		"possibleactions" => array( "deckSelected", "cancel" ),
     		"transitions" => array( "deckSelected" => 14, "cancel" => 13 )
     ),
@@ -121,55 +121,41 @@ $machinestates = array(
 		"description" => clienttranslate('${actplayer} may build a Level I Gizmo for free'),
 		"descriptionmyturn" => clienttranslate('${you} may build a Level I Gizmo for free'),
 		"type" => "activeplayer",
+		"args" => "arg_triggeringGizmo",
 		"possibleactions" => array( "buildLevel1For0", "cancel" ),
 		"transitions" => array( "buildLevel1For0" => 30, "cancel" => 13 )
+	),
+	19 => array(
+		"name" => "triggerFile",
+		"description" => clienttranslate('${actplayer} may File a Gizmo'),
+		"descriptionmyturn" => clienttranslate('${you} may File a Gizmo'),
+		"type" => "activeplayer",
+		"args" => "arg_triggeringGizmo",
+		"possibleactions" => array( "cardFile", "cancel" ),
+		"transitions" => array( "cardFile" => 30, "cancel" => 13 )
 	),
 	
     23 => array(
     		"name" => "triggerSphereRandom",
-			"description" => clienttranslate('selecting random sphere...'),
+			"description" => "",
     		"type" => "game",
 			"action" => "st_triggerSphereRandom",
     		"transitions" => array( "triggerCheck" => 30 )
     ),
 	27 => array(
     		"name" => "gainVictoryPoint",
-			"description" => clienttranslate('gaining victory point(s)..'),
+			"description" => "",
     		"type" => "game",
 			"action" => "st_gainVictoryPoint",
     		"transitions" => array( "triggerCheck" => 30 )
     ),
     30 => array(
     		"name" => "triggerCheck",
-			"description" => clienttranslate('checking for triggers...'),
+			"description" => "",
     		"type" => "game",
 			"action" => "st_triggerCheck",
     		"transitions" => array( "triggerSelect" => 13, "nextTurn" => 3, "triggerSphereSelect" => 11, "triggerDraw" => 16 )
     ),
-	
-    
-/*
-    Examples:
-    
-    2 => array(
-        "name" => "nextPlayer",
-        "description" => '',
-        "type" => "game",
-        "action" => "st_NextPlayer",
-        "updateGameProgression" => true,   
-        "transitions" => array( "endGame" => 99, "nextPlayer" => 10 )
-    ),
-    
-    10 => array(
-        "name" => "playerTurn",
-        "description" => clienttranslate('${actplayer} may play a card or pass'),
-        "descriptionmyturn" => clienttranslate('${you} may play a card or pass'),
-        "type" => "activeplayer",
-        "possibleactions" => array( "playCard", "pass" ),
-        "transitions" => array( "playCard" => 2, "pass" => 2 )
-    ), 
-
-*/    
    
     // Final state.
     // Please do not modify (and do not overload action/args methods).

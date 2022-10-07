@@ -12,12 +12,14 @@ let Const = {
 }
 
 let Game = {
+
 	zones: {},
 	activePlayer: -1,
 	selected_card_id: -1,
 	stateName: null,
 	stack: 0.35,
 	energy_weight: 100,
+	waitHideResearch: false,
 	getPlayerArchive: function(pid) {
 		if (!pid) {
 			pid = Game.activePlayer;
@@ -61,6 +63,7 @@ let Builder = {
 	saved_desc: null,
 	discount: 0,
 	picking: 0,
+	nextOrder: 0,
 	getCost: function(mtg) {
 		let cost = mtg.cost - this.discount;
 		return cost < 0 ? 0 : cost;
@@ -119,6 +122,7 @@ let Builder = {
 		this.temp_energy = [];
 		this.picking = 0;
 		this.discount = 0;
+		this.nextOrder = 0;
 		Game.selected_card_id = 0;
 	},
 	updateDescription: function(parent, new_desc, gid) {
@@ -140,22 +144,24 @@ let Builder = {
 		parent.updatePageTitle();
 	},
 	assignOrder: function(gid, isSecond) {
-		let keys = Object.keys(this.active_converters);
-		var o = 0;
-		for (var i=0; i<keys.length; i++) {
-			let ok = this.active_converters[keys[i]].order;
-			if (ok > o) {
-				o = ok;
-			}
-			let ok2 = this.active_converters[keys[i]].second_convert?.order;
-			if (ok2 > o) {
-				o = ok;
-			}
-		}
+		this.nextOrder++;
+
+		// let keys = Object.keys(this.active_converters);
+		// var o = 0;
+		// for (var i=0; i<keys.length; i++) {
+		// 	let ok = this.active_converters[keys[i]].order;
+		// 	if (ok > o) {
+		// 		o = ok;
+		// 	}
+		// 	let ok2 = this.active_converters[keys[i]].second_convert?.order;
+		// 	if (ok2 > o) {
+		// 		o = ok;
+		// 	}
+		// }
 		if (isSecond)
-			this.active_converters[gid].second_convert.order = o+1;
+			this.active_converters[gid].second_convert.order = this.nextOrder;
 		else
-			this.active_converters[gid].order = o+1;
+			this.active_converters[gid].order = this.nextOrder;
 	},
 	refreshHeader: function(parent) {
 		if (this.saved_desc) {
@@ -491,19 +497,24 @@ let Builder = {
 				console.log(energy);
 				if (energy.classList.contains('ring')) {
 					console.log('has ring');
-					// let anim = parent.slideToObjectPos(energy, 'energy_ring', 0, 0);
-					// anim.onEnd = function() {
-						// dojo.addClass(energy.id, 'ring');
-						// this.connect( $( energy.id ), 'onclick', 'onEnergySelect' );
-						dojo.place(energy, 'energy_ring');
-						Builder.despendEnergy(Energy.getIdOfEle(energy.id));
-						dojo.removeClass(energy.id, 'convert_from');
-						dojo.removeClass(energy.id, 'f2');
-						Game.zones['energy_ring'].placeInZone(energy.id);
-					// }
-					// anim.play();
-				} else if (cdets[energy.id] && 
-					$(Gizmo.getEleId(cdets[energy.id])).classList.contains('selected')) {
+					parent.disconnect( $(energy.id), 'onEnergySelect' );
+					parent.removeTooltip( energy.id );
+					parent.attachToNewParent( $(energy.id), $('energy_ring') );
+					parent.connect($(energy.id), 'onclick', 'onEnergySelect');
+
+					Builder.despendEnergy(Energy.getIdOfEle(energy.id));
+					dojo.removeClass(energy.id, 'convert_from');
+					dojo.removeClass(energy.id, 'f2');
+
+					let anim = parent.slideToObject( $(energy.id), $('energy_ring') );
+					anim.onEnd = function(parent, energy) {
+						return function() {
+							Game.zones['energy_ring'].placeInZone(energy.id);
+							parent.addTooltip( energy.id, '', dojo.string.substitute(Const.Tooltip_Ring_Energy(), {color: Energy.getColor(energy.id)}));
+						}
+					}(parent, energy);
+					anim.play();
+				} else if (cdets[energy.id] && dojo.hasClass( Gizmo.getEleId(cdets[energy.id]), 'selected' )) {
 					dojo.removeClass(energy, 'convert_from');
 					dojo.removeClass(energy, 'f2');
 					dojo.place(energy, Gizmo.getEleId( cdets[energy.id] ));
@@ -653,34 +664,10 @@ let Builder = {
 								return;
 							}
 
-							let spid = picked_sphere_id ? picked_sphere_id : Builder.getPlayerSpheresOfColor(pid, from_color)[0];
-							if (!this.active_converters[gizmo_id]) {
-								this.active_converters[gizmo_id] = {};
-							}
+							this.slideEnergyToConverter(pid, gizmo_id, from_color, picked_sphere_id, parent);
 							if (mt_gizmo.convert_from == 'any') {
 								this.active_converters[gizmo_id].from = from_color;
 							}
-
-							if ( dojo.hasClass(Energy.getEleId(spid), 'convert_to') ) {
-								dojo.removeClass( spid, 'convert_to' );
-								let parentGizmoId = Gizmo.getIdOfEle( $(spid).parentNode.id );
-								this.addSupportedGizmo(parentGizmoId, gizmo_id);
-								this.active_converters[gizmo_id][spid] = parentGizmoId;
-							} else {
-								this.spendEnergy(spid);
-								Game.zones['energy_ring'].removeFromZone( spid, false, Gizmo.getEleId(gizmo_id));
-							}
-							// let anim = parent.slideToObjectPos( $(Energy.getEleId(spid)), $(Gizmo.getEleId(gizmo_id)), 10, 5 );
-							// anim.onEnd = function() {
-							//dojo.attr( Energy.getEleId(spid), 'style', ' ' );
-							dojo.addClass( Energy.getEleId(spid), 'convert_from' );
-							// Edge case for supporting any2 converters (converts two energies to any)
-							if (Builder.active_converters[gizmo_id].to_number > 0) {
-								dojo.addClass( Energy.getEleId(spid), 'f2' );
-							}
-							dojo.place( $(Energy.getEleId(spid) ), Gizmo.getEleId(gizmo_id) );								
-							// };
-							// anim.play();
 							
 							//show a selection next to converter
 							if (cost > 1) {
@@ -701,52 +688,9 @@ let Builder = {
 						} else if (c_to == 'two') {
 							if (cost < 2) {
 								this.showMessage( dojo.string.substitute( _("Selected gizmo only costs ${cost}; no reason to convert"), {cost: cost} ), "error");						
-							} else {
-								var isApply;
-								// var auto_use = [];
-								// if (mt_sel_gizmo.color != from_color) {
-								// 	// search the player's built gizmos for two color converters
-								// 	let auto_use = this.tryFindTwoColorConverters( Game.activePlayer, from_color );
-								// 	if (auto_use.length >= 2) {
-								// 		isApply = true;
-								// 	} else {										
-								// 		this.showMessage( dojo.string.substitute( 
-								// 			_("Selected gizmo is not ${from_color}; cannot convert without unused two ${from_color} to 'any' converters"), {
-								// 				from_color: from_color
-								// 			}), "error");
-								// 		isApply = false;
-								// 	}
-								// } else {
-								// 	isApply = true;
-								// }
-
-								// if (isApply) {
-								let spid = picked_sphere_id ? picked_sphere_id : this.getPlayerSpheresOfColor(pid, from_color)[0];
-								if (!this.active_converters[gizmo_id])
-									this.active_converters[gizmo_id] = {};
-
-								if ( dojo.hasClass(Energy.getEleId(spid), 'convert_to') ) {
-									dojo.removeClass( spid, 'convert_to' );
-									let parentGizmoId = Gizmo.getIdOfEle( $(spid).parentNode.id );
-									this.addSupportedGizmo(parentGizmoId, gizmo_id);
-									this.active_converters[gizmo_id][spid] = parentGizmoId;
-								} else {
-									this.spendEnergy(spid);
-									Game.zones['energy_ring'].removeFromZone( spid, false, Gizmo.getEleId(gizmo_id)); 
-								}
-								dojo.addClass( Energy.getEleId(spid), 'convert_from' );
-								// Edge case to support double double converters
-								if (this.active_converters[gizmo_id].to_number > 0) {
-									dojo.addClass( Energy.getEleId(spid), 'f2' );
-								}
-								dojo.place( $(Energy.getEleId(spid)), Gizmo.getEleId(gizmo_id) );
-								//}
+							} else {								
+								this.slideEnergyToConverter(pid, gizmo_id, from_color, picked_sphere_id, parent);
 								Builder.applyDoubleConverter(gizmo_id, from_color, parent);
-								// if (auto_use.length == 2) {
-								// 	this.applyColorConverter( auto_use[0], from_color, mt_sel_gizmo.color, gizmo_id);
-								// 	this.applyColorConverter( auto_use[1], from_color, mt_sel_gizmo.color, gizmo_id);
-								// }
-								//}
 							}
 						// } else if (c_to == 'any2') {
 						// 	if (from_color == mt_sel_gizmo.color) {
@@ -769,12 +713,45 @@ let Builder = {
 		}
 		if ( $('button_build') ) {
 			if (this.canPurchase()) {
-				dojo.removeClass( 'button_build', 'disabled');//disable the button
+				dojo.removeClass( 'button_build', 'disabled');
 			} else {
-				dojo.addClass( 'button_build', 'disabled');//disable the button						
+				dojo.addClass( 'button_build', 'disabled');						
 			}
 		}
 		//this.logEnergy();
+	},
+
+	slideEnergyToConverter: function(pid, gizmo_id, from_color, picked_sphere_id, parent) {
+		let spid = picked_sphere_id ? picked_sphere_id : Builder.getPlayerSpheresOfColor(pid, from_color)[0];
+		if (!this.active_converters[gizmo_id]) {
+			this.active_converters[gizmo_id] = {};
+		}
+		let sp_ele_id = Energy.getEleId(spid);
+		let parentGizmoId = Gizmo.getIdOfEle( $(sp_ele_id).parentNode.id );
+		parent.disconnect( $(sp_ele_id), 'onEnergySelect' );
+		parent.removeTooltip( sp_ele_id );
+		parent.attachToNewParent( $(sp_ele_id), $(Gizmo.getEleId(gizmo_id)) );
+		parent.connect($(sp_ele_id), 'onclick', 'onEnergySelect');
+		if ( dojo.hasClass(sp_ele_id, 'convert_to') ) {
+			dojo.removeClass( sp_ele_id, 'convert_to' );
+			this.addSupportedGizmo(parentGizmoId, gizmo_id);
+			this.active_converters[gizmo_id][spid] = parentGizmoId;
+		} else {
+			this.spendEnergy(spid);
+			Game.zones['energy_ring'].removeFromZone(sp_ele_id);
+		}
+		
+		dojo.addClass( Energy.getEleId(spid), 'convert_from' );
+		// Edge case for supporting any2 converters (converts two energies to any)
+		if (Builder.active_converters[gizmo_id].to_number > 0) {
+			dojo.addClass( Energy.getEleId(spid), 'f2' );
+		}
+
+		let anim = parent.slideToObjectPos( $(sp_ele_id), $(Gizmo.getEleId(gizmo_id)), 10, 10 );
+		anim.onEnd = function() {
+			dojo.attr( Energy.getEleId(spid), 'style', 'position:absolute;' );
+		};
+		anim.play();
 	}
 
 };
@@ -940,6 +917,24 @@ let Energy = {
 			return `${arr[0]} / ${arr[1]}`;
 		} else {
 			return "getColorsArrStr(UNEXPECTED): " + arr;
+		}
+	},
+	makeTooltip: function(gizmo_id, parent) {
+		let mt_gizmo = Gizmo.details(gizmo_id);
+		let efftype = mt_gizmo['effect_type'];
+		switch (efftype) {
+			case 'trigger_pick':
+			case 'trigger_build':
+			case 'trigger_build_from_file':
+			case 'trigger_pick':
+				return parent.format_string_recursive('When you ${trigger} a ${color}${object}: ${action}',
+					{
+						i18n: ['trigger', 'color', 'object', 'action'],
+						trigger: ''
+					}
+				);
+			default:
+				Builder.showNotification('Unhandled makeTooltip effect_type: ' + efftype, 'error');
 		}
 	}
 };

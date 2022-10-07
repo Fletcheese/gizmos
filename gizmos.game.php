@@ -480,12 +480,13 @@ class Gizmos extends Table
 		self::checkPickTriggers($sphere_id);
 		$player_name = self::getPlayerNameForNotification($player_id);
 		$sphere_color = self::getSphereColor($sphere_id);
-		self::notifyAllPlayers('sphereSelect', sprintf( self::_("%s picks a %s energy"), $player_name, $sphere_color),
+		self::notifyAllPlayers('sphereSelect', clienttranslate("${name} picks a ${color} energy"),
 			array ( 
+				'name' => $player_name,
+				'color' => $sphere_color,
 				'new_sphere_id' => $new_sphere,
 				'purchased_sphere_id' => $sphere_id,
-				'player_id' => $player_id,
-				'player_name' => $player_name
+				'player_id' => $player_id
 			)
 		);
         $this->incStat(1, 'picked_number', $player_id);
@@ -534,9 +535,9 @@ class Gizmos extends Table
 		$level = $this->mt_gizmos[$selected_card_id]['level'];
 		$built_from;
 		if ( $built_from_file ) {
-			$built_from = self::_('file');
+			$built_from = self::_('File');
 		} else if ( self::getGameStateValue('research_level') > 0 ) {
-			$built_from = self::_('research');			
+			$built_from = self::_('Research');
 		} else {
 			$built_from = self::_('the row');
 			$new_card = $this->gizmo_cards->pickCardForLocation( "deck_$level", "row_$level" );
@@ -553,14 +554,15 @@ class Gizmos extends Table
 		self::setSelectedCardId(0);
 		// notify everyone
 		$player_name = self::getPlayerNameForNotification($player_id);
-		self::notifyAllPlayers('cardBuiltOrFiled', sprintf( self::_("%s builds a level %s gizmo from %s: "), $player_name, $level, $built_from).$built_mt_gizmo['tooltip'], 
+		self::notifyAllPlayers('cardBuiltOrFiled', clienttranslate("${name} Builds a Level ${level} Gizmo from ${built_from}"), 
 			array ( 
+				'name' => $player_name,
+				'level' => DB::LevelAsNumerals($level),
+				'built_from' => $built_from,
 				'purchased_card_id' => $selected_card_id,
-				//'built_card' => $built_card,
 				'spent_spheres' => $sphere_ids,
 				'new_card_id' => $new_card_id,
 				'player_id' => $player_id,
-				//'player_name' => $player_name,
 				'action' => 'built',
 				'built_from_file' => $built_from_file,
 				'new_score' => $new_score
@@ -570,15 +572,27 @@ class Gizmos extends Table
         $this->incStat(1, 'built_number');
 	}
 	
-	function fileSelectedCard() {
+	function fileSelectedCard($selected_card_id) {
 		self::checkAction( 'cardFile' );
 		$player_id = self::getActivePlayerId();
 		if (DB::checkArchive($player_id)) {
 			throw new BgaUserException( self::_("Cannot file due to upgrade!"));
 		}
+		if (DB::checkArchiveLimit($player_id)) {
+			throw new BgaUserException( self::_("Your archive is full!"));
+		}
 		
-		// move card to player
-		$selected_card_id = self::getGameStateValue('selected_card_id');
+		// card was already selected (playerTurn)
+		if (!$selected_card_id) {
+			$selected_card_id = self::getGameStateValue('selected_card_id');
+		} else {
+			// card was selected from triggerFile -> validate legal selection
+			$gizmo = DB::getSingleGizmoById($selected_card_id);
+			$location = $gizmo['card_location'];
+			if (strpos( $location, 'row_') === false) {
+				throw new BgaVisibleSystemException( "Card ".$selected_card_id." is not in the row and thus cannot be filed" );
+			}
+		}
 		$card_sql = "SELECT card_id FROM gizmo_cards WHERE card_type_arg='".$selected_card_id."'";
 		$db_id = self::getUniqueValueFromDB($card_sql);
 		$this->gizmo_cards->moveCard( $db_id, 'filed', $player_id );
@@ -590,26 +604,28 @@ class Gizmos extends Table
 		$filed_from;
 		// if NOT from research
 		if ( self::getGameStateValue('research_level') == 0 ) {
-			$filed_from = self::_('the row');
+			$filed_from = 'the row';
 			$new_card = $this->gizmo_cards->pickCardForLocation( "deck_".$level, "row_".$level );
 			if (!empty($new_card)) {
 				$new_card_id = $new_card['type_arg'];
 			}
 		} else {
-			$filed_from = self::_('research');
+			$filed_from = 'Research';
 		}
 		self::checkFileTriggers();
 		// clear selected card
 		self::setSelectedCardId(0);
 		// notify everyone
 		$player_name = self::getPlayerNameForNotification($player_id);
-		self::notifyAllPlayers('cardBuiltOrFiled', sprintf( self::_("%s files a level %s gizmo from %s: "), $player_name, $level, $filed_from).$mt_gizmo['tooltip'], 
+		self::notifyAllPlayers('cardBuiltOrFiled', clienttranslate("${name} Files a Level ${level} Gizmo from ${filed_from}"), // add back tooltip?
 			array ( 
+				'name' => $player_name,
+				'level' => DB::LevelAsNumerals($level),
+				'filed_from' => $filed_from,
 				'purchased_card_id' => $selected_card_id,
 				'spent_spheres' => null,
 				'new_card_id' => $new_card_id,
 				'player_id' => $player_id,
-				'player_name' => $player_name,
 				'action' => 'filed'
 			)
 		);
@@ -671,13 +687,21 @@ class Gizmos extends Table
 					self::checkAction( 'buildLevel1For0' );
 					$this->gamestate->nextState( 'buildLevel1For0' );					
 					break;
+				case 'file':
+					self::checkAction( 'triggerFile' );
+					if (DB::checkArchive($active_player_id)) {
+						throw new BgaUserException( self::_("Cannot file due to upgrade!"));
+					}
+					if (DB::checkArchiveLimit($active_player_id)) {
+						throw new BgaUserException( self::_("Your archive is full!"));
+					}
+					$this->gamestate->nextState( 'triggerFile' );
+					break;
 				default:
 					throw new BgaVisibleSystemException( "Gizmo ".$gizmo_id." has unhandled trigger_action: ".$mt_gizmo['trigger_action'] );
 					break;
 			}
 		}
-        $this->incStat(1, 'trigger_number', $active_player_id);
-        $this->incStat(1, 'trigger_number');
 	}
 	
 	function pass() {
@@ -707,8 +731,11 @@ class Gizmos extends Table
 		self::setGameStateValue('research_level', $level);
 		$this->gamestate->nextState( 'research' );
 		$player_name = self::getPlayerNameForNotification($player_id);
-		self::notifyAllPlayers('research', sprintf( self::_("%s researches %s level %s gizmos"), $player_name, $research_quantity, $level),
-			array ( 
+		self::notifyAllPlayers('research', clienttranslate("${name} Researches ${n} Level ${level} Gizmos"),
+			array (
+				'name' => $player_name,
+				'n' => $research_quantity,
+				'level' => DB::LevelAsNumerals($level),
 				'r_gizmos' => $cards
 			)
 		);
@@ -766,7 +793,8 @@ class Gizmos extends Table
 	}
 	function arg_getResearchedCards() {
 		return array( 
-			'r_cards' => $this->gizmo_cards->getCardsInLocation( 'research' )
+			'r_cards' => $this->gizmo_cards->getCardsInLocation( 'research' ),
+			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id')
 		);
 	}
 	function arg_getSelectedAndResearchedCard() {		
@@ -776,7 +804,8 @@ class Gizmos extends Table
 			'r_cards' => $this->gizmo_cards->getCardsInLocation( 'research' ),
 			'archive_limit' => $limits['archive_limit'],
 			'energy_limit' => $limits['energy_limit'],
-			'research_quantity' => $limits['research_quantity']
+			'research_quantity' => $limits['research_quantity'],
+			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id')
 		);
 	}
 	function arg_triggerSphereSelect() {
@@ -790,7 +819,8 @@ class Gizmos extends Table
 		
 		return array(
 			//'triggering_multiple_uses' => $uses,
-			'desc' => $desc
+			'desc' => $desc,
+			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id')
 		);
 	}
 	function arg_triggerDraw() {
@@ -806,7 +836,13 @@ class Gizmos extends Table
 		
 		return array(
 			//'triggering_multiple_uses' => $uses,
-			'desc' => $desc
+			'desc' => $desc,
+			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id')
+		);		
+	}
+	function arg_triggeringGizmo() {		
+		return array(
+			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id')
 		);		
 	}
 	
@@ -854,12 +890,12 @@ class Gizmos extends Table
 				$msg;
 				$player_name = self::getPlayerNameForNotification($player_id);
 				if ($res['3s']) {
-					$msg = sprintf( self::_("%s builds their 4th level 3 gizmo"), $player_name);
+					$msg = clienttranslate("${name} builds their 4th Level III Gizmo");
 				} else {
-					$msg = sprintf( self::_("%s builds their 16th gizmo"), $player_name);
+					$msg = clienttranslate("${name} builds their 16th Gizmo");
 				}
-				self::notifyAllPlayers('lastTurn', "$msg<br/><div class='end_banner'>".self::_("LAST ROUND")."</div>", 
-					array ()
+				self::notifyAllPlayers('lastTurn', "$msg<br/><div class='end_banner'>".clienttranslate("LAST ROUND")."</div>", 
+					array ('name' => $player_name)
 				);
 				self::setGameStateValue('is_last_round', 1);
 			}
@@ -885,10 +921,12 @@ class Gizmos extends Table
 							throw new BgaVisibleSystemException( "Unrecognized upgrade_special: ".$mtg['upgrade_special'] );
 					}
 					$player_name = self::getPlayerNameForNotification($player_id);
-					$notification = sprintf( self::_("%s scores %s points for their upgrade: %s"), $player_name, $gizmo_score, $mtg['tooltip']);
 					$player_score = DB::score($player_id, $gizmo_score);
-					self::notifyAllPlayers('scoreSpecial', $notification, 
+					self::notifyAllPlayers('scoreSpecial', clienttranslate("${name} scores ${n} points for their upgrade: ${upgrade}"), 
 						array (
+							'name' => $player_name,
+							'n' => $gizmo_score,
+							'upgrade' => $upgrade,
 							'player_id' => $player_id,
 							'gizmo_score' => $gizmo_score,
 							'player_score' => $player_score
@@ -924,11 +962,12 @@ class Gizmos extends Table
 		$sphere_color = self::getSphereColor($new_sphere_id);
 		$player_name = self::getPlayerNameForNotification($player_id);
 		// send notification to indicate what sphere was drawn
-		self::notifyAllPlayers('sphereDrawn', sprintf( self::_("%s draws a %s energy"), $player_name, $sphere_color), 
+		self::notifyAllPlayers('sphereDrawn', clienttranslate("${name} draws a ${color} energy"),
 			array (
 				'sphere_id' => $new_sphere_id,
 				'player_id' => $player_id,
-				'player_name' => $player_name
+				'name' => $player_name,
+				'color' => $sphere_color
 			)
 		);
         $this->incStat(1, 'drawn_number', $player_id);
@@ -984,6 +1023,8 @@ class Gizmos extends Table
 					DB::setGizmoUsed(self::getGameStateValue('triggering_gizmo_id'));
 					$debug .= "\tset triggering_gizmo to used";
 					self::setTriggeringGizmo(0);
+					$this->incStat(1, 'trigger_number', self::getActivePlayerId());
+					$this->incStat(1, 'trigger_number');
 					break;				
 			}
 			
@@ -1022,8 +1063,10 @@ class Gizmos extends Table
 		$player_name = self::getPlayerNameForNotification($player_id);
 
 		$counts = DB::scoreVictoryPoints($player_id, $add_points);
-		self::notifyAllPlayers('victoryPoint', sprintf( self::_("%s gains %s victory point(s)"), $player_name, $add_points), 
+		self::notifyAllPlayers('victoryPoint', clienttranslate("${name} gains ${n} victory point token(s)"), 
 			array (
+				'name' => $player_name,
+				'n' => $add_points,
 				'player_id' => $player_id,
 				'vp_count' => $counts['vps'],
 				'player_score' => $counts['score']

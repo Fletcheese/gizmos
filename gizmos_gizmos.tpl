@@ -14,13 +14,15 @@
 
 // Javascript HTML templates
 var jstpl_player_board = '\<div class="cp_board" id="token_counts_${id}">\
-    <div class="counter_pair" id="pair_${id}_red"><div id="token_${id}_red" class="counter_token red_token"></div><span class="counter" id="tokencount_${id}_red">${red_count}</span></div>\
-    <div class="counter_pair" id="pair_${id}_black"><div id="token_${id}_black" class="counter_token black_token"></div><span class="counter" id="tokencount_${id}_black">${black_count}</span></div>\
-    <div class="counter_pair" id="pair_${id}_blue"><div id="token_${id}_blue" class="counter_token blue_token"></div><span class="counter" id="tokencount_${id}_blue">${blue_count}</span></div>\
-    <div class="counter_pair" id="pair_${id}_yellow"><div id="token_${id}_yellow" class="counter_token yellow_token"></div><span class="counter" id="tokencount_${id}_yellow">${yellow_count}</span></div>\
-    <div class="counter_pair2" id="pair_${id}_vps"><div id="vp_${id}" class="vp"></div><span class="counter" id="tokencount_${id}_vp">${vp_count}</span></div>\
-    <div class="counter_pair2" id="pair_${id}_allgs"><div id="gizmos_all_${id}" class="gizmos_all"></div><span class="counter" id="tokencount_${id}_gizmos_all">${gizmos_all}</span></div>\
-    <div class="counter_pair2" id="pair_${id}_3gs"><div id="gizmos_3s_${id}" class="gizmos_3s"></div><span class="counter" id="tokencount_${id}_gizmos_3s">${gizmos_3s}</span></div>\
+    <div class="counter_pair count_${red_count}" id="pair_${id}_red">\
+		<div id="token_${id}_red" class="counter_token red_token"> <div class="counter" id="tokencount_${id}_red">${red_count}</div> </div>\
+	</div>\
+    <div class="counter_pair count_${black_count}" id="pair_${id}_black"><div id="token_${id}_black" class="counter_token black_token"><div class="counter" id="tokencount_${id}_black">${black_count}</div></div></div>\
+    <div class="counter_pair count_${blue_count}" id="pair_${id}_blue"><div id="token_${id}_blue" class="counter_token blue_token"><div class="counter" id="tokencount_${id}_blue">${blue_count}</div></div></div>\
+    <div class="counter_pair count_${yellow_count}" id="pair_${id}_yellow"><div id="token_${id}_yellow" class="counter_token yellow_token"><div class="counter" id="tokencount_${id}_yellow">${yellow_count}</div></div></div>\
+    <div class="counter_pair2 count_${vp_count}" id="pair_${id}_vps"><div id="vp_${id}" class="vp"><div class="counter" id="tokencount_${id}_vp">${vp_count}</div></div></div>\
+    <div class="counter_pair2 count_${gizmos_all}" id="pair_${id}_allgs"><div id="gizmos_all_${id}" class="gizmos_all"><div class="counter" id="tokencount_${id}_gizmos_all">${gizmos_all}</div></div></div>\
+    <div class="counter_pair2 count_${gizmos_3s}" id="pair_${id}_3gs"><div id="gizmos_3s_${id}" class="gizmos_3s"><div class="counter" id="tokencount_${id}_gizmos_3s">${gizmos_3s}</div></div></div>\
 </div>';
 
 //var jstpl_sphere = '<div id="sphere_${id}" class="token ${color}_token ${other_classes}"></div>';
