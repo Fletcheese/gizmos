@@ -480,10 +480,10 @@ class Gizmos extends Table
 		self::checkPickTriggers($sphere_id);
 		$player_name = self::getPlayerNameForNotification($player_id);
 		$sphere_color = self::getSphereColor($sphere_id);
-		self::notifyAllPlayers('sphereSelect', clienttranslate("${name} picks a ${color} energy"),
-			array ( 
-				'name' => $player_name,
-				'color' => $sphere_color,
+		self::notifyAllPlayers('sphereSelect', clienttranslate('${player_name} Picks ${sphere_html}'), //a ${sphere_color} Energy"),
+			array (
+				'player_name' => $player_name,
+				'sphere_html' => DB::getSphereHtml($sphere_color),
 				'new_sphere_id' => $new_sphere,
 				'purchased_sphere_id' => $sphere_id,
 				'player_id' => $player_id
@@ -554,16 +554,18 @@ class Gizmos extends Table
 		self::setSelectedCardId(0);
 		// notify everyone
 		$player_name = self::getPlayerNameForNotification($player_id);
-		self::notifyAllPlayers('cardBuiltOrFiled', clienttranslate("${name} Builds a Level ${level} Gizmo from ${built_from}"), 
-			array ( 
-				'name' => $player_name,
+		self::notifyAllPlayers('cardBuiltOrFiled', clienttranslate('${player_name} ${action} a Level ${level} ${color} Gizmo from ${built_from}'), 
+			array (
+				'i18n' => ['color', 'built_from', 'action'],
+				'player_name' => $player_name,
+				'action' => 'Builds',
 				'level' => DB::LevelAsNumerals($level),
+				'color' => $built_mt_gizmo['color'],
 				'built_from' => $built_from,
 				'purchased_card_id' => $selected_card_id,
 				'spent_spheres' => $sphere_ids,
 				'new_card_id' => $new_card_id,
 				'player_id' => $player_id,
-				'action' => 'built',
 				'built_from_file' => $built_from_file,
 				'new_score' => $new_score
 			)
@@ -617,16 +619,19 @@ class Gizmos extends Table
 		self::setSelectedCardId(0);
 		// notify everyone
 		$player_name = self::getPlayerNameForNotification($player_id);
-		self::notifyAllPlayers('cardBuiltOrFiled', clienttranslate("${name} Files a Level ${level} Gizmo from ${filed_from}"), // add back tooltip?
-			array ( 
-				'name' => $player_name,
+		self::notifyAllPlayers('cardBuiltOrFiled', clienttranslate('${player_name} ${action} a Level ${level} ${color} Gizmo from ${built_from}'), // add back tooltip?
+			array (
+				'i18n' => ['color', 'built_from', 'action'],
+				'player_name' => $player_name,
+				'action' => 'Files',
 				'level' => DB::LevelAsNumerals($level),
+				'color' => $mt_gizmo['color'],
+				'built_from' => $filed_from,
 				'filed_from' => $filed_from,
 				'purchased_card_id' => $selected_card_id,
 				'spent_spheres' => null,
 				'new_card_id' => $new_card_id,
 				'player_id' => $player_id,
-				'action' => 'filed'
 			)
 		);
         $this->incStat(1, 'filed_number', $player_id);
@@ -661,7 +666,7 @@ class Gizmos extends Table
 				case 'pick_two':
 					self::checkAction( 'triggerSphereSelect' );
 					if (!DB::checkPlayerEnergyCapacity($active_player_id)) {			
-						throw new BgaUserException( self::_("You cannot hold more energy"));	
+						throw new BgaUserException( self::_("You cannot hold more Energy"));	
 					}
 					$this->gamestate->nextState( 'triggerSphereSelect' );	
 					break;
@@ -670,7 +675,7 @@ class Gizmos extends Table
 				case 'draw_three':
 					self::checkAction( 'triggerSphereRandom' );
 					if (!DB::checkPlayerEnergyCapacity($active_player_id)) {			
-						throw new BgaUserException( self::_("You cannot hold more energy"));	
+						throw new BgaUserException( self::_("You cannot hold more Energy"));	
 					}
 					$this->gamestate->nextState( 'triggerSphereRandom' );	
 					break;
@@ -730,10 +735,9 @@ class Gizmos extends Table
 		$cards = $this->gizmo_cards->pickCardsForLocation( $research_quantity, $deck_id, "research", $level );
 		self::setGameStateValue('research_level', $level);
 		$this->gamestate->nextState( 'research' );
-		$player_name = self::getPlayerNameForNotification($player_id);
-		self::notifyAllPlayers('research', clienttranslate("${name} Researches ${n} Level ${level} Gizmos"),
+		self::notifyAllPlayers('research', clienttranslate('${player_name} Researches ${n} Level ${level} Gizmos'),
 			array (
-				'name' => $player_name,
+				'player_name' => self::getPlayerNameForNotification($player_id),
 				'n' => $research_quantity,
 				'level' => DB::LevelAsNumerals($level),
 				'r_gizmos' => $cards
@@ -888,14 +892,13 @@ class Gizmos extends Table
 		if ($res['progress'] == 100) {
 			if (self::getGameStateValue('is_last_round') < 1) {
 				$msg;
-				$player_name = self::getPlayerNameForNotification($player_id);
 				if ($res['3s']) {
-					$msg = clienttranslate("${name} builds their 4th Level III Gizmo");
+					$msg = clienttranslate('${player_name} Builds their 4th Level III Gizmo');
 				} else {
-					$msg = clienttranslate("${name} builds their 16th Gizmo");
+					$msg = clienttranslate('${player_name} Builds their 16th Gizmo');
 				}
 				self::notifyAllPlayers('lastTurn', "$msg<br/><div class='end_banner'>".clienttranslate("LAST ROUND")."</div>", 
-					array ('name' => $player_name)
+					array ('player_name' => self::getPlayerNameForNotification($player_id))
 				);
 				self::setGameStateValue('is_last_round', 1);
 			}
@@ -906,7 +909,6 @@ class Gizmos extends Table
 					$player_id = $card['card_location_arg'];
 					$mtg = $this->mt_gizmos[$gizmo_id];
 					$gizmo_score;
-					$notif_trailer;
 					switch ($mtg['upgrade_special']) {
 						case 'score_energy':
 							$gizmo_score = DB::getPlayerEnergyCount($player_id);
@@ -920,13 +922,12 @@ class Gizmos extends Table
 						default:
 							throw new BgaVisibleSystemException( "Unrecognized upgrade_special: ".$mtg['upgrade_special'] );
 					}
-					$player_name = self::getPlayerNameForNotification($player_id);
 					$player_score = DB::score($player_id, $gizmo_score);
-					self::notifyAllPlayers('scoreSpecial', clienttranslate("${name} scores ${n} points for their upgrade: ${upgrade}"), 
+					self::notifyAllPlayers('scoreSpecial', clienttranslate('${player_name} scores ${n} points for their upgrade: ${upgrade}'), 
 						array (
-							'name' => $player_name,
+							'player_name' => self::getPlayerNameForNotification($player_id),
 							'n' => $gizmo_score,
-							'upgrade' => $upgrade,
+							'upgrade' => $mtg['tooltip'],
 							'player_id' => $player_id,
 							'gizmo_score' => $gizmo_score,
 							'player_score' => $player_score
@@ -947,7 +948,7 @@ class Gizmos extends Table
 		$player_id = self::getActivePlayerId();
 		// confirm player is not at energy capacity:
 		if (!DB::checkPlayerEnergyCapacity($player_id)) {			
-			throw new BgaUserException( self::_("You cannot hold more energy"));	
+			throw new BgaUserException( self::_("You cannot hold more Energy"));	
 		}
 
 		// query database for spheres where status=dispenser
@@ -962,12 +963,13 @@ class Gizmos extends Table
 		$sphere_color = self::getSphereColor($new_sphere_id);
 		$player_name = self::getPlayerNameForNotification($player_id);
 		// send notification to indicate what sphere was drawn
-		self::notifyAllPlayers('sphereDrawn', clienttranslate("${name} draws a ${color} energy"),
+		self::notifyAllPlayers('sphereDrawn', clienttranslate('${player_name} draws ${sphere_html}'), //a ${sphere_color} Energy"),
 			array (
+				'player_name' => $player_name,
+				'sphere_html' => DB::getSphereHtml($sphere_color),
+				'sphere_color' => $sphere_color,
 				'sphere_id' => $new_sphere_id,
-				'player_id' => $player_id,
-				'name' => $player_name,
-				'color' => $sphere_color
+				'player_id' => $player_id
 			)
 		);
         $this->incStat(1, 'drawn_number', $player_id);
@@ -1063,10 +1065,11 @@ class Gizmos extends Table
 		$player_name = self::getPlayerNameForNotification($player_id);
 
 		$counts = DB::scoreVictoryPoints($player_id, $add_points);
-		self::notifyAllPlayers('victoryPoint', clienttranslate("${name} gains ${n} victory point token(s)"), 
+		self::notifyAllPlayers('victoryPoint', clienttranslate('${player_name} gains ${number} ${vp_html}'), //victory point token(s)"), 
 			array (
-				'name' => $player_name,
-				'n' => $add_points,
+				'player_name' => $player_name,
+				'number' => $add_points,
+				'vp_html' => '<div class="gzs_log_vp"></div>',
 				'player_id' => $player_id,
 				'vp_count' => $counts['vps'],
 				'player_score' => $counts['score']

@@ -24,14 +24,14 @@ let Game = {
 		if (!pid) {
 			pid = Game.activePlayer;
 		}
-		return `archive_${pid}`;
+		return 'archive_'+pid;
 	},
 	getBuiltGizmoDiv: function(gizmo_id, player_id) {
 		var gtype = Gizmo.details(gizmo_id).effect_type;
 		if (gtype.indexOf('trigger_build') >= 0) {
 			gtype = 'trigger_build';
 		}
-		return `${gtype}_${player_id}`;
+		return gtype+'_'+player_id;
 	},
 	getEndHtml: function() {
 		return '<div id="spl_message" class="spl_message" style="">This is the last turn!</div>';
@@ -175,8 +175,13 @@ let Builder = {
 			} else {
 				dojo.addClass( 'button_build', 'disabled');//disable the button						
 			}
-			$('button_build').innerHTML = dojo.string.substitute( _('Build (${energy})'), {
-				energy: Builder.getSpendSpheresAsText()
+			let args = Builder.getSpendSpheresArgs();
+			console.log("args: ", args);
+			$('button_build').innerHTML = parent.format_string_recursive( _('Build (${energy})'), {
+				energy: {
+					log: '${x} / ${y} ${color}',
+					args: args
+				}
 			});
 		}
 	},
@@ -210,14 +215,14 @@ let Builder = {
 			this.selected_spheres.splice( this.selected_spheres.indexOf(spid), 1);			
 		}
 	},
-	getSpendSpheresAsText: function() {
+	getSpendSpheresArgs: function() {
 		if (Game.selected_card_id < 100) {
-			return "";
+			return {};
 		} else {
 			let sel_color = Gizmo.details(Game.selected_card_id).color;
 			var cost = Builder.getCost( Gizmo.details(Game.selected_card_id) );
 			if (this.discount > 0) {
-				cost += `<sup class='discount_sup'>-${this.discount}</sup>`;
+				cost += dojo.string.substitute("<sup class='discount_sup'>-${discount}</sup>",{discount: this.discount});
 			}
 			var total = 0;
 			if (sel_color == 'multi') {
@@ -227,7 +232,11 @@ let Builder = {
 			} else {
 				total = (this.spending_power[sel_color] ?? 0);
 			}
-			return `${total} / ${cost} ${sel_color}`
+			return {
+				x: total,
+				y: cost,
+				color: sel_color
+			};
 		}
 	},
 	canPurchase: function() {
@@ -236,7 +245,6 @@ let Builder = {
 		} else {
 			let sel_color = Gizmo.details(Game.selected_card_id).color;
 			let cost = Builder.getCost( Gizmo.details(Game.selected_card_id) );
-			//console.log(`canPurchase: spending_power[${sel_color}]=${this.spending_power[sel_color]} >= ${cost}?`);
 			var total = 0;
 			if (sel_color == 'multi') {
 				for (var key in this.spending_power) {
@@ -248,7 +256,7 @@ let Builder = {
 			return total >= parseInt(cost);
 		}
 	},
-	validateSpending: function () {
+	validateSpending: function (parent) {
 		let mtg = Gizmo.details(Game.selected_card_id);
 		let cost = Builder.getCost( mtg );
 		if (mtg.color == 'multi') {
@@ -257,7 +265,7 @@ let Builder = {
 				total += this.spending_power[color];
             }
             if (total != cost) {
-				this.showMessage( dojo.string.substitute( _("You selected ${total} energy for cost ${cost}.  Must pay exact cost"), {
+				this.showMessage( parent.format_string_recursive( _("You selected ${total} energy for cost ${cost}.  Must pay exact cost"), {
 					total: total,
 					cost: cost
 				} ), 'error');
@@ -267,16 +275,23 @@ let Builder = {
             for (var color in this.spending_power) {
 				let number = this.spending_power[color];
                 if (color == mtg.color && number != cost) {
-                    this.showMessage( dojo.string.substitute( _("You selected ${number} ${color} energy for cost ${cost}.  Must pay exact cost"), {
-						number: number,
-						color: color,
+                    this.showMessage( parent.format_string_recursive( _("You selected ${total} energy for cost ${cost}.  Must pay exact cost"), {
+						total: {
+							log: "${number} ${color}",
+							args: {
+								i18n: ['color'],
+								number: number,
+								color: color
+							}
+						},
 						cost: cost
 					}), 'error' );
 					return false;
                 }
 				
 				if (color != mtg.color && number > 0) {
-                    this.showMessage( dojo.string.substitute( _("Gizmo is ${mtgcolor}.  Cannot pay ${number} ${color}"), {
+                    this.showMessage( parent.format_string_recursive( _("Gizmo is ${mtgcolor}.  Cannot pay ${number} ${color}"), {
+						i18n: ['mtgcolor', 'color'],
 						mtgcolor: mtg.color,
 						number: number,
 						color: color
@@ -300,7 +315,6 @@ let Builder = {
 		}
 	},
 	getPlayerSpheresOfColor: function( player, color ) {
-		console.log(`getPlayerSpheresOfColor( ${player}, ${color} ); Returned:`);
 		console.log(this.temp_energy);
 		var ret = this.temp_energy.filter(function(t) {
 			return Energy.getColor(t) == color && !dojo.hasClass(t, 'convert_from');
@@ -318,7 +332,6 @@ let Builder = {
 	},
 	addSupportedGizmo: function( parent, child ) {
 		// Add the supported gizmo
-		console.log(`addSupportedGizmo( ${parent}, ${child} ):`);
 		if (this.active_converters[parent].supporteds && this.active_converters[parent].supporteds.indexOf(child) < 0) {
 			this.active_converters[parent].supporteds.push( child );
 		} else {
@@ -326,7 +339,6 @@ let Builder = {
 		}
 	},
 	applyColorConverter: function( gizmo_id, from_color, to_color, supported_gizmo_id, parent ) {
-		console.log(`applyColorConverter( ${gizmo_id}, ${from_color}, ${to_color} ):`);
 		console.log(this.active_converters[gizmo_id]);
 		let mt_gizmo = Gizmo.details(gizmo_id);		
 		var do_convert;
@@ -342,10 +354,11 @@ let Builder = {
 			dojo.removeClass( Gizmo.getEleId(gizmo_id), 'half_selected' );
 		}
 		
-		if (from_color == to_color) {
-			this.showMessage( dojo.string.substitute( _("Energy is already ${to_color}!"), {to_color: to_color}), "error");
-			return;		
-		} else if (!this.active_converters[gizmo_id].to_number) {
+		// if (from_color == to_color) {
+		// 	//this.showMessage( parent.format_string_recursive( "Energy is already ${to_color}!", {i18n: ['to_color'], to_color: to_color}), "error");
+		// 	return;		
+		// } else 
+		if (!this.active_converters[gizmo_id].to_number) {
 			Object.assign( 
 				this.active_converters[gizmo_id], { 
 					from: from_color,
@@ -493,7 +506,7 @@ let Builder = {
 			dojo.removeClass( Gizmo.getEleId(gizmo_id), 'half_selected' );				
 			dojo.removeClass( Gizmo.getEleId(gizmo_id), 'selected');
 			console.log(this.temp_energy);
-			dojo.query( `#${Gizmo.getEleId(gizmo_id)} .token`).forEach(function (energy) {
+			dojo.query( dojo.string.substitute("#${id} .token", {id: Gizmo.getEleId(gizmo_id)})).forEach(function (energy) {
 				console.log(energy);
 				if (energy.classList.contains('ring')) {
 					console.log('has ring');
@@ -562,7 +575,6 @@ let Builder = {
 			case 'any2':
 				return !!this.active_converters[gizmo_id].second_convert;
 			default:
-				//this.showMessage(_(`isConverterFullyOn(${gizmo_id}) has unrecognized convert_to: ${mtg.convert_to}`), "error");
 				return false;
 		}
 	},
@@ -580,7 +592,6 @@ let Builder = {
 				if (Gizmo.hasLvl2Discount()) {
 					discountIds = discountIds.concat(Const.GIDs_Discount_Lvl2);
 				}
-				//console.log(`checkApplyDiscounts: ${discountIds}`);
 				for (var i=0; i<player_upgrades.length; i++) {
 					let ele_id = player_upgrades[i].id;
 					let gid = Gizmo.getIdOfEle(ele_id);
@@ -635,16 +646,16 @@ let Builder = {
 							let spColor = Energy.getColor(picked_sphere_id);
 							console.log('color is '+ spColor);
 							if (colors.indexOf(spColor) < 0) {
-								this.showMessage( dojo.string.substitute( _("Must select ${colors} energy"), {
-									colors: Energy.getColorsArrStr(colors)
+								this.showMessage( parent.format_string_recursive( _("Must select ${colors} energy"), {
+									colors: Energy.getColorsArgs(colors)
 								}), "error");
 								return;
 							} else {
 								from_color = spColor;
 							}
 						} else {
-							Builder.updateDescription(parent, dojo.string.substitute( _("Select a ${colors} energy to duplicate"), {
-								colors: Energy.getColorsArrStr(colors)
+							Builder.updateDescription(parent, parent.format_string_recursive( _("Select a ${colors} energy to duplicate"), {
+								colors: Energy.getColorsArgs(colors)
 							}), gizmo_id);
 						}
 					}					
@@ -660,7 +671,8 @@ let Builder = {
 						//console.log("player has " +spheres[from_color]+from_color + " energy");
 						if (c_to == 'any' || c_to == 'any2') {
 							if (from_color == mt_sel_gizmo.color && cost == 1) {
-								this.showMessage( dojo.string.substitute( _("Selected gizmo is already ${from_color}; no reason to convert"), {from_color: from_color} ), "error");
+								this.showMessage( parent.format_string_recursive( _("Selected gizmo is already ${from_color}; no reason to convert"), 
+									{i18n: ['from_color'], from_color: from_color} ), "error");
 								return;
 							}
 
@@ -683,7 +695,7 @@ let Builder = {
 								if (picked_sphere_id > 0) {
 									this.deselectConverter(gizmo_id, parent);
 								}
-								this.applyColorConverter( gizmo_id, from_color, mt_sel_gizmo.color );
+								this.applyColorConverter( gizmo_id, from_color, mt_sel_gizmo.color, null, parent );
 							}
 						} else if (c_to == 'two') {
 							if (cost < 2) {
@@ -691,23 +703,16 @@ let Builder = {
 							} else {								
 								this.slideEnergyToConverter(pid, gizmo_id, from_color, picked_sphere_id, parent);
 								Builder.applyDoubleConverter(gizmo_id, from_color, parent);
-							}
-						// } else if (c_to == 'any2') {
-						// 	if (from_color == mt_sel_gizmo.color) {
-						// 		this.showMessage(_("Selected gizmo is already " + from_color + "; no reason to convert"), "error");
-						// 	} else {								
-						// 		this.applyColorConverter( gizmo_id, from_color, mt_sel_gizmo.color );
-						// 	}							
+							}						
 						} else {
 							// Unexpected error does not need translating
 							this.showMessage("Gizmo " + gizmo_id + " has unsupported convert_to: " + c_to, "error");							
 						}
 					} else {
-						this.showMessage( dojo.string.substitute( _("You do not have any ${from_color} energy to convert"), {from_color: from_color}), "error");
+						this.showMessage( parent.format_string_recursive( _("You do not have any ${from_color} energy to convert"), {i18n: ['from_color'], from_color: from_color}), "error");
 					}
 				}
-			} else {
-				//this.showMessage(_(gizmo_id + " is not a converter and should not have class='converter'"), "error");				
+			} else {		
 				return false;
 			}
 		}
@@ -810,6 +815,15 @@ let Gizmo = {
 	},
 	isDiscountUpgrade: function(gid) {
 		return Const.GIDs_Discount_All.findIndex(id => id == gid) >= 0;
+	},
+	levelNumerals: function(level) {
+		var ret = "I";
+		var i = 1;
+		while (i < level) {
+			ret += "I";
+			i++;
+		}
+		return ret;
 	}
 };
 
@@ -855,13 +869,13 @@ let Energy = {
 		return 'ERROR';
 	},
 	getPickerHtml: function (gid) {
-		let temps = dojo.query(`.${gid}.tempnrg`).length+1;
-		return `<div id="color_picker"> 
-					<div id="${gid}-${temps}_black" class="picker black_token token tempnrg convert_to ${gid} t${temps}"> </div>
-					<div id="${gid}-${temps}_blue" class="picker blue_token token tempnrg convert_to ${gid} t${temps}"> </div>
-					<div id="${gid}-${temps}_red" class="picker red_token token tempnrg convert_to ${gid} t${temps}"> </div>
-					<div id="${gid}-${temps}_yellow" class="picker yellow_token token tempnrg convert_to ${gid} t${temps}"> </div>
-				</div>`;
+		let temps = dojo.query( dojo.string.substitute(".${gid}.tempnrg", {gid: gid}) ).length+1;
+		return dojo.string.substitute( '\<div id="color_picker">\
+					<div id="${gid}-${temps}_black" class="picker black_token token tempnrg convert_to ${gid} t${temps}"> </div>\
+					<div id="${gid}-${temps}_blue" class="picker blue_token token tempnrg convert_to ${gid} t${temps}"> </div>\
+					<div id="${gid}-${temps}_red" class="picker red_token token tempnrg convert_to ${gid} t${temps}"> </div>\
+					<div id="${gid}-${temps}_yellow" class="picker yellow_token token tempnrg convert_to ${gid} t${temps}"> </div>\
+				</div>', {gid: gid, temps: temps} );
 	},
 	hidePicker: function(parent) {
 		if ($('color_picker')) {
@@ -884,20 +898,20 @@ let Energy = {
 		return Energy.energyHtmlTplt(sphere_id, Energy.getColor(sphere_id), (classes ? classes : ''));
 	},
 	energyHtmlTplt: function(id, color, other_classes) {
-		return `<div id="sphere_${id}" class="token ${color}_token ${other_classes}"></div>`;
+		return dojo.string.substitute('<div id="sphere_${id}" class="token ${color}_token ${other_classes}"></div>', {id: id, color: color, other_classes: other_classes});
 	},
 	getTempId: function(gid, color) {
 		var i=1;
-		var id = `${gid}_${color}`;
+		var id = dojo.string.substitute('${gid}_${color}', {gid: gid, color: color});
 		while ($(id)) {
 			i++;
-			id = `${gid}-${i}_${color}`
+			id = dojo.string.substitute('${gid}-${i}_${color}', {gid: gid, i: i, color: color});
 		}
 		return id;
 	},
 	getTempEnergyHtml: function(id, gid, color, other_classes) {
-		let temps = dojo.query(`.${gid}.tempnrg`).length+1;
-		return `<div id="${id}" class="${color}_token token tempnrg ${other_classes} ${gid} t${temps}"> </div>`;
+		let temps = dojo.query( dojo.string.substitute( '.${gid}.tempnrg', {gid: gid} )).length+1;
+		return dojo.string.substitute( '<div id="${id}" class="${color}_token token tempnrg ${other_classes} ${gid} t${temps}"> </div>', {id: id, color: color, other_classes: other_classes, gid: gid, temps: temps});
 	},
 	re_temp: /[0-9]{3}_[a-z]{3,6}/,
 	isTemp: function(id) {
@@ -910,31 +924,42 @@ let Energy = {
 			return "NOT_TEMP";
 		}
 	},
-	getColorsArrStr: function(arr) {
+	getColorsArgs: function (arr) {		
 		if (arr && arr.length == 1) {
-			return arr[0];
+			return  {
+				i18n: ['color'],
+				color: arr[0]
+			};
 		} else if (arr.length == 2) {
-			return `${arr[0]} / ${arr[1]}`;
+			return {
+				log: '${color1} ${or} ${color2}',
+				args: {
+					i18n: ['color1', 'or', 'color2'],
+					color1: arr[0],
+					or: 'or',
+					color2: arr[1]
+				}
+			};
 		} else {
 			return "getColorsArrStr(UNEXPECTED): " + arr;
 		}
-	},
-	makeTooltip: function(gizmo_id, parent) {
-		let mt_gizmo = Gizmo.details(gizmo_id);
-		let efftype = mt_gizmo['effect_type'];
-		switch (efftype) {
-			case 'trigger_pick':
-			case 'trigger_build':
-			case 'trigger_build_from_file':
-			case 'trigger_pick':
-				return parent.format_string_recursive('When you ${trigger} a ${color}${object}: ${action}',
-					{
-						i18n: ['trigger', 'color', 'object', 'action'],
-						trigger: ''
-					}
-				);
-			default:
-				Builder.showNotification('Unhandled makeTooltip effect_type: ' + efftype, 'error');
-		}
 	}
+	// makeTooltip: function(gizmo_id, parent) {
+	// 	let mt_gizmo = Gizmo.details(gizmo_id);
+	// 	let efftype = mt_gizmo['effect_type'];
+	// 	switch (efftype) {
+	// 		case 'trigger_pick':
+	// 		case 'trigger_build':
+	// 		case 'trigger_build_from_file':
+	// 		case 'trigger_pick':
+	// 			return parent.format_string_recursive('When you ${trigger} a ${color}${object}: ${action}',
+	// 				{
+	// 					i18n: ['trigger', 'color', 'object', 'action'],
+	// 					trigger: ''
+	// 				}
+	// 			);
+	// 		default:
+	// 			Builder.showNotification('Unhandled makeTooltip effect_type: ' + efftype, 'error');
+	// 	}
+	// }
 };

@@ -68,7 +68,6 @@ function (dojo, declare) {
 			this.research_quantity = gamedatas.research_quantity;
 			Game.selected_card_id = gamedatas.selected_card_id;	
 			if (gamedatas.is_last_round == 1) {
-				//console.log(`is_last_round[${gamedatas.is_last_round}] -> display end_banner`);
 				dojo.style('end_banner', 'display', 'block');
 			}
 			
@@ -160,7 +159,7 @@ function (dojo, declare) {
 					if (this.isCurrentPlayerActive()) {
 						Builder.autoselectSpend();
 					}					
-					Builder.refreshHeader();
+					Builder.refreshHeader(this);
 					break;
 				case 'buildLevel1For0':
 					if (this.isCurrentPlayerActive()) {
@@ -236,8 +235,8 @@ function (dojo, declare) {
                 {
 					case 'deckSelected':
 						this.addActionButton( 'button_research', 
-							dojo.string.substitute( _('Research Level ${level} (${quantity} cards)'), {
-									level: Game.selected_card_id, 
+							this.format_string_recursive( _('Research Level ${level} (${quantity})'), {
+									level: Gizmo.levelNumerals(Game.selected_card_id), 
 									quantity: this.research_quantity
 							}), 'researchSelectedDeck' );
 						this.addActionButton( 'button_cancel', _('Cancel'), 'cancelSelectedCard' );
@@ -251,7 +250,12 @@ function (dojo, declare) {
 					case 'cardSelected':
 					case 'researchedCardSelected':
 						this.addActionButton( 'button_build', 
-							dojo.string.substitute( _('Build (${energy})'), {energy: Builder.getSpendSpheresAsText()}), 
+							this.format_string_recursive( _('Build (${energy})'), {
+								energy: {
+									log: '${x} / ${y} ${color}',
+									args: Builder.getSpendSpheresArgs()
+								}
+							}), 
 							'buildSelectedCard' );
 						this.addActionButton( 'button_file', _('File'), 'fileSelectedCard' );
 						this.addActionButton( 'button_pass', _('Cancel'), 'cancelSelectedCard' );
@@ -296,7 +300,7 @@ function (dojo, declare) {
 			{
 				this.ajaxcall( "/gizmos/gizmos/cardSelected.html", {
 					selected_card_id: level,
-					'lock': true
+					lock: true
 				}, this, function( result ) {			
 				} );				
 			}
@@ -504,7 +508,7 @@ function (dojo, declare) {
 		},
 		buildSelectedCard: function ( evt ) {
 			if ( this.checkAction("cardBuilt")
-				&& Builder.validateSpending() ) {
+				&& Builder.validateSpending(this) ) {
 				let s_spheres = Builder.selected_spheres.join(',');
 				console.log(s_spheres);
 				let s_converters = JSON.stringify( Builder.active_converters );
@@ -512,31 +516,31 @@ function (dojo, declare) {
 				this.ajaxcall( "/gizmos/gizmos/buildSelectedCard.html", {
 					"spheres": s_spheres,
 					"converters": s_converters,
-					"lock": true
+					lock: true
 				}, this, function( result ) {} );			
 			}			
 		},
 		buildLevel1For0: function ( evt ) {
 			this.ajaxcall( "/gizmos/gizmos/buildLevel1For0.html", {
 				"gizmo_id": this.selected_card_id,
-				"lock": true
+				lock: true
 			}, this, function( result ) {} );
 		},
 		researchSelectedDeck: function ( evt ) {			
 			if ( this.checkAction("research") ) {				
-				this.ajaxcall( "/gizmos/gizmos/research.html", {"lock": true}, this, function( result ) {} );
+				this.ajaxcall( "/gizmos/gizmos/research.html", {lock: true}, this, function( result ) {} );
 			}
 		},
 		fileSelectedCard: function ( evt ) {			
 			if ( this.checkAction("cardFile") ) {
 				// ensure player's archive is not full
-				let filed = dojo.query( `#${Game.getPlayerArchive(this.getActivePlayerId())} .card` );
+				let filed = dojo.query( dojo.string.substitute('#${archive_id} .card', {archive_id: Game.getPlayerArchive(this.getActivePlayerId())}) );
 				if (filed.length >= this.archive_limit) {
 					this.showMessage(_("Your archive is full"), "error");
 				} else {
 					this.ajaxcall( "/gizmos/gizmos/fileSelectedCard.html", {
-						"lock": true,
-						"selected_card_id": this.selected_card_id
+						lock: true,
+						"selected_card_id": this.selected_card_id ?? 0
 					}, this, function( result ) {} );					
 				}
 			}
@@ -549,7 +553,7 @@ function (dojo, declare) {
 			dojo.query('.token .selected').removeClass('selected');
 			if (this.checkAction( "cancel" )) {
                 this.ajaxcall( "/gizmos/gizmos/cancel.html", {
-					"lock": true
+					lock: true
                 }, this, function( result ) {} );				
 			}
 		},
@@ -557,7 +561,7 @@ function (dojo, declare) {
 		onCardSelectTrigger: function ( evt ) {
 			this.ajaxcall( "/gizmos/gizmos/triggerSelected.html", {
 				selected_card_id: Gizmo.getIdOfEle(evt.target.id),
-				"lock": true
+				lock: true
 			}, this, function( result ) {			
 			} );							
 		},
@@ -573,10 +577,14 @@ function (dojo, declare) {
 			this.connect($(Gizmo.getEleId(gizmo_id)), 'onclick', 'onCardSelect');	
 		},
 		addGizmoTooltip: function(gizmo_id) {
+			//console.log("adding tooltip:", this.gamedatas.mt_gizmos[gizmo_id].tooltip);
 			this.addTooltipHtml( Gizmo.getEleId(gizmo_id), 
 				this.format_block('jstpl_cardTooltip', {
 					"id": gizmo_id,
-					"tooltip": this.gamedatas.mt_gizmos[gizmo_id].tooltip
+					"tooltip": this.format_string_recursive( 
+						this.gamedatas.mt_gizmos[gizmo_id].tooltip.log,
+						this.gamedatas.mt_gizmos[gizmo_id].tooltip.args 
+					)
 				}) 
 			);				
 		},
@@ -892,7 +900,7 @@ function (dojo, declare) {
 					//console.log("onEnergySelect submitting sphereSelect ajax");
 					this.ajaxcall( "/gizmos/gizmos/sphereSelect.html", {
 						'sphere_id': sphere_id,
-						'lock': true
+						lock: true
 					}, this, function( result ) {
 					} );
 				}
@@ -957,11 +965,11 @@ function (dojo, declare) {
 					if (card_ele.classList.contains('selected')) {
 						dojo.removeClass(card_ele.id, 'selected');
 						Builder.discount--;
-						Builder.refreshHeader();
+						Builder.refreshHeader(this);
 					} else {
 						dojo.addClass(card_ele.id, 'selected');
 						Builder.discount++;
-						Builder.refreshHeader();
+						Builder.refreshHeader(this);
 					}
 				} else {
 					this.showMessage(_("Discount does not apply to selected Gizmo"), "error");
@@ -979,7 +987,7 @@ function (dojo, declare) {
 					//console.log('action allowed => ajax');
 					this.ajaxcall( "/gizmos/gizmos/cardSelected.html", {
 						selected_card_id: selected_card_id,
-						'lock': true
+						lock: true
 					}, this, function( result ) {			
 					} );				
 				}
@@ -1075,7 +1083,7 @@ function (dojo, declare) {
 			// slide purchased card to player
 			let pcid = Gizmo.getEleId(purchased_id);
 			var mt_gizmo = Gizmo.details(purchased_id);
-			let zone_id = (action == 'filed' ?
+			let zone_id = (action == 'Files' ?
 				Game.getPlayerArchive(player_id) :
 				Game.getBuiltGizmoDiv(purchased_id, player_id)
 			);
@@ -1088,7 +1096,7 @@ function (dojo, declare) {
 			dojo.removeClass(pcid, 'row');
 			dojo.removeClass(pcid, 'researched');
 			dojo.removeClass(pcid, 'row_' + level);
-			if (action == 'filed') {
+			if (action == 'Files') {
 				dojo.addClass(pcid, 'filed');
 			} else {					
 				dojo.removeClass(pcid, 'selectable');

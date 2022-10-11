@@ -21,6 +21,9 @@ class DB
 		}
 		return $s;
 	}
+	public static function getSphereHtml($color) {
+		return "<div class='gzs_log_token gzs_log_$color'></div>";
+	}
 
 	public function scoreAndUpgradeBuiltCard($player_id, $built_mt_gizmo) {		
 		$card_score;
