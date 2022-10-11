@@ -842,7 +842,7 @@ function (dojo, declare) {
 
 		
 		onEnergySelect: function( evt ) {
-
+			console.log('onEnergySelect', evt.target);
 			let sphere_id = Energy.getIdOfEle(evt.target.id);
 			if (evt.target.classList.contains('convert_from')) { 
 				let gizmo_id = evt.target.parentNode.id;
@@ -872,7 +872,9 @@ function (dojo, declare) {
 			} else if (evt.target.classList.contains('picker')) {
 				if (Builder.picking > 0) {
 					let nrgEle = evt.target;
+					this.disconnect( $(nrgEle.id), 'onEnergySelect' );
 					this.attachToNewParent( $(nrgEle.id), $(Gizmo.getEleId(Builder.picking)) );
+					this.connect($(nrgEle.id), 'onclick', 'onEnergySelect');
 					dojo.addClass( nrgEle.id, 'convert_to' );
 					dojo.removeClass( nrgEle.id, 'picker' );
 					let anim = this.slideToObjectPos( evt.target.id, Gizmo.getEleId(Builder.picking), this.card_height-50);

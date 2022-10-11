@@ -513,7 +513,6 @@ let Builder = {
 					parent.disconnect( $(energy.id), 'onEnergySelect' );
 					parent.removeTooltip( energy.id );
 					parent.attachToNewParent( $(energy.id), $('energy_ring') );
-					parent.connect($(energy.id), 'onclick', 'onEnergySelect');
 
 					Builder.despendEnergy(Energy.getIdOfEle(energy.id));
 					dojo.removeClass(energy.id, 'convert_from');
@@ -524,6 +523,7 @@ let Builder = {
 						return function() {
 							Game.zones['energy_ring'].placeInZone(energy.id);
 							parent.addTooltip( energy.id, '', dojo.string.substitute(Const.Tooltip_Ring_Energy(), {color: Energy.getColor(energy.id)}));
+							parent.connect($(energy.id), 'onclick', 'onEnergySelect');
 						}
 					}(parent, energy);
 					anim.play();
@@ -926,10 +926,7 @@ let Energy = {
 	},
 	getColorsArgs: function (arr) {		
 		if (arr && arr.length == 1) {
-			return  {
-				i18n: ['color'],
-				color: arr[0]
-			};
+			return  arr[0];
 		} else if (arr.length == 2) {
 			return {
 				log: '${color1} ${or} ${color2}',
