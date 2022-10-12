@@ -199,24 +199,24 @@
 	background-position: -210px 0px;
 } */
 #gizmos_board .blue_token, #player_boards .blue_token, #logs .gzs_log_blue {
-	background-position-y: -0%;
+	background-position-y: -100%;
 	background-position-x: -0%;
 }
 #gizmos_board .black_token, #player_boards .black_token, #logs .gzs_log_black {
-	background-position-y: -0%;
-	background-position-x: -500%;
+	background-position-y: -100%;
+	background-position-x: -100%;
 }
 #gizmos_board .red_token, #player_boards .red_token, #logs .gzs_log_red {
 	background-position-y: -0%;
-	background-position-x: -600%;
+	background-position-x: -100%;
 }
 #gizmos_board .yellow_token, #player_boards .yellow_token, #logs .gzs_log_yellow {
 	background-position-y: -0%;
-	background-position-x: -700%;
+	background-position-x: -0%;
 }
 #logs .gzs_log_token {
-	background-size: 1000% 100%;
-	background-image: url('img/tokens.png');
+	background-size: 200% 200%;
+	background-image: url('img/marbles.jpg');
 	width: 15px;
 	height: 15px;
 	background-repeat: none;
@@ -224,8 +224,8 @@
 	display: inline-block;
 }
 #gizmos_board .token {
-	background-size: 1000% 100%;
-	background-image: url('img/tokens.png');
+	background-size: 200% 200%;
+	background-image: url('img/marbles.jpg');
 	width: 30px;
 	height: 30px;
 	background-repeat: none;
@@ -239,19 +239,22 @@
 }
 
 #player_boards .counter_pair {
-	width:18%;
+	width:14%;
 	display:inline-block;
 	padding:5px;
     cursor: help;
 }
 #player_boards .counter_pair2 {
-	width:18%;
+	width:14%;
 	display:inline-block;
 	padding:5px;
     cursor: help;
 }
 #player_boards .count_0 {
 	opacity: .5;
+}
+#player_boards .counter.full {
+	color: #f88;
 }
 #player_boards .counter {
 	text-align: center;
@@ -264,9 +267,18 @@
     transform-origin: center;
 }
 #player_boards .counter_token {
-	background-image: url('img/tokens.png');
+	background-image: url('img/marbles.jpg');
+	background-size: 200% 200%;
 	width: 30px;
 	height: 30px;
+	border-radius: 100%;
+}
+#player_boards .counter_all {
+	background-image: url('img/multimarble.jpg');
+	background-size: 100% 100%;
+	width: 30px;
+	height: 30px;
+	border-radius: 100%;
 }
 #gizmos_board .vp, #player_boards .vp {
 	height: 30px;
@@ -306,6 +318,24 @@
 	height: 30px;
 	float: left;
 	margin-right:2px;
+}
+#player_boards .gizmos_archive {
+	background-size: 100% 100%;
+    background-image: url('img/archive.png');
+    display: block;
+	width: 35px;
+	height: 25px;
+	float: left;
+	margin-right:2px;
+	margin-bottom:2px;
+}
+#player_boards .gizmos_research {
+	background-size: 100% 100%;
+    background-image: url(img/research.png);
+    display: block;
+    width: 30px;
+    height: 30px;
+    float: left;
 }
 
 #gizmos_board {
@@ -934,15 +964,15 @@
 	background-position-y: -800%;
 	background-position-x: -1000%;
 }
-#deck_1 {
+#deck_1, .gzs_fd_card_1 {
 	background-position-y: -900%;
 	background-position-x: -1000%;
 }
-#deck_2 {
+#deck_2, .gzs_fd_card_2 {
 	background-position-y: -1000%;
 	background-position-x: -0%;
 }
-#deck_3 {
+#deck_3, .gzs_fd_card_3 {
 	background-position-y: -1000%;
 	background-position-x: -100%;
 }

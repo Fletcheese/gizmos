@@ -77,6 +77,9 @@ function (dojo, declare) {
 			dojo.query( '.token' ).connect( 'onclick', this, 'onEnergySelect' );
 			dojo.query( '.deck' ).connect( 'onclick', this, 'onCardSelect' );
 			//dojo.query( '.card' ).connect( 'onclick', this, 'onCardSelect' );
+
+			this.addTooltipHtmlToClass('gizmo_track', '<div style="width:1000px" class="gizmo_track"></div>');
+			console.log('added tooltip to gizmos track')
 			 
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
@@ -100,7 +103,7 @@ function (dojo, declare) {
 			}
 
 			Game.stateName = stateName;
-            console.log( 'Entering state: '+stateName );
+            console.log( 'Entering state w args: '+stateName, args );
 			
             switch( stateName )
             {
@@ -131,10 +134,13 @@ function (dojo, declare) {
 				case 'research':
 					// console.log("POPULATING RESEARCH:");
 					// console.log(args);
-					if (args && args.args && args.args.r_cards) {
-						this.r_gizmos = args.args.r_cards;
-						this.showResearch();
+					if (args && args.args && args.args._private) {
+						this.r_gizmos = args.args._private.r_cards;
+					} else {
+						this.r_gizmos = args.args.num_cards;
 					}
+					this.r_level = args.args.research_level;
+					this.showResearch();
 					break;
 				case 'cardSelected':
 					if (this.isCurrentPlayerActive() && !Builder.canPurchase()) {
@@ -149,9 +155,14 @@ function (dojo, declare) {
 						this.energy_limit = args.args.energy_limit;
 						this.research_quantity = args.args.research_quantity;
 
-						if (args.args.r_cards) {
+						if (args && args.args && args.args.research_level) {							
+							if (args && args.args && args.args._private) {
+								this.r_gizmos = args.args._private.r_cards;
+							} else {
+								this.r_gizmos = args.args.num_cards;
+							}
 							Game.selected_card_id = args.args.selected_card_id;
-							this.r_gizmos = args.args.r_cards;
+							this.r_level = args.args.research_level;
 							this.showResearch();
 						}
 					}
@@ -319,37 +330,40 @@ function (dojo, declare) {
 				this.ajaxcall( "/gizmos/gizmos/draw.html", {lock: true}, this, function( result ) {} );
 			}			
 		},
-		showResearch: function() {			
-			// this.research = new ebg.popindialog();
-			// this.research.create( 'research_dialog' );
-			// this.research.setTitle( _("Researched Cards") );
-			// var html = this.format_block( 'jstpl_research_dialog', {} );				
-			// this.research.setContent( html );
-			// if ( dontShow !== true ) {
-			// 	this.research.show();
-			// 	var width = $('row_2').offsetWidth;
-			// 	dojo.style('popin_research_dialog', 'width', width + "px");
-			// 	console.log('set dialog width=' + width);
-			// }
-			for (var card_id in this.r_gizmos) {
-				var gizmo = this.r_gizmos[card_id];
-				var gizmo_id = gizmo.type_arg;
-				var mt_gizmo = this.gamedatas.mt_gizmos[gizmo_id];
-				var other_class = 'researched selectable';
-				if (gizmo_id == Game.selected_card_id) {
-					other_class += ' selected';
-				}				
-				var gizmoDetails = {
-					'id': gizmo_id,
-					'level': mt_gizmo.level,
-					'other_class': other_class
+		showResearch: function() {
+			if (Number.isInteger(this.r_gizmos)) {
+				let gizmoDetails = {
+					'level': this.r_level,
+					'other_class': 'researched'
 				};
-				dojo.place( this.format_block('jstpl_card', gizmoDetails), 'researched_gizmos' );
-				this.connect( $('card_' + gizmo_id), 'onclick', 'onCardSelect' );
-				this.addGizmoTooltip(gizmo_id);
+				for (var i=0; i<this.r_gizmos; i++) {
+					dojo.place( this.format_block('jstpl_fd_card', gizmoDetails), 'researched_gizmos' );					
+				}
+				// not active - show face down cards
+			} else {
+				for (var card_id in this.r_gizmos) {
+					let gizmo = this.r_gizmos[card_id];
+					let gizmo_id = gizmo.type_arg;
+					this.placeResearchedGizmo(gizmo_id);
+				}
 			}
 			dojo.style('researched_gizmos', 'display', 'block');
 			Game.repositionEnergyRing();
+		},
+		placeResearchedGizmo: function(gizmo_id) {
+			let mt_gizmo = this.gamedatas.mt_gizmos[gizmo_id];
+			var other_class = 'researched selectable';
+			if (gizmo_id == Game.selected_card_id) {
+				other_class += ' selected';
+			}				
+			let gizmoDetails = {
+				'id': gizmo_id,
+				'level': mt_gizmo.level,
+				'other_class': other_class
+			};
+			dojo.place( this.format_block('jstpl_card', gizmoDetails), 'researched_gizmos' );
+			this.connect( $('card_' + gizmo_id), 'onclick', 'onCardSelect' );
+			this.addGizmoTooltip(gizmo_id);
 		},
 		passResearch: function() {
 			this.pass(
@@ -368,42 +382,12 @@ function (dojo, declare) {
 				});
 			}			
 		},
-		
-		getSelectedCardCost: function() {
-			if (Game.selected_card_id) {
-				var card = this.gamedatas.mt_gizmos[Game.selected_card_id];
-				if (card) {
-					if (Builder.active && Object.keys(Builder.active).length > 0) {
-						return "CONVERTER";
-					} else {					
-						return card.cost + " " + card.color;
-					}
-				} else {
-					return "NOT FOUND";
-				}
-			} else {
-				return "NO SELECTION";
-			}
-		},	
-		
+				
 		insertSphereInRow: function ( sphere_id, slide_from_dispenser ) {
 			let sphere_ele = Energy.getEnergyHtml(sphere_id);
 			dojo.place( sphere_ele, 'sphere_row' );
 			Game.zones['sphere_row'].placeInZone( Energy.getEleId(sphere_id), Game.getNrgWeight() );
 			this.addTooltip( Energy.getEleId(sphere_id), '', dojo.string.substitute(Const.Tooltip_Row_Energy(), {color: Energy.getColor(sphere_id)}));
-			// if (slide_from_dispenser) {
-			// 	let anim = this.slideToObject( Energy.getEleId(sphere_id), 'sphere_row' );
-			// 	anim.onEnd = function(parent) {
-			// 		return function() {
-			// 			Game.zones['sphere_row'].placeInZone( Energy.getEleId(sphere_id), Game.getNrgWeight() );
-			// 			parent.addTooltip( Energy.getEleId(sphere_id), '', dojo.string.substitute(Const.Tooltip_Row_Energy(), {color: Energy.getColor(sphere_id)}));
-			// 		}
-			// 	}(this);
-			// 	anim.play();
-			// } else {
-			// 	Game.zones['sphere_row'].placeInZone( Energy.getEleId(sphere_id) );
-			// 	this.addTooltip( Energy.getEleId(sphere_id), '', dojo.string.substitute(Const.Tooltip_Row_Energy(), {color: Energy.getColor(sphere_id)}));
-			// }
 		},
 		spendSpheres: function (player_id, spheres) {
 			let arrSpheres = spheres.split(',');
@@ -420,9 +404,8 @@ function (dojo, declare) {
 						Energy.getEnergyHtml(spid, Energy.getColor(spid), ''), $('player_board_'+player_id) );		
 				}		
 				this.slideToObjectAndDestroy( $('sphere_'+spid), $('dispenser') );
-				this.buildPlayerCard(player_id);
 			}
-			
+			this.buildPlayerCard(player_id);			
 		},
 		getPlayerVpCount: function( pid ) {
 			return this.gamedatas.players[pid].victory_points;
@@ -483,28 +466,39 @@ function (dojo, declare) {
 				dojo.destroy(player_tokens_div);
 			}
 			
-			let allCount = dojo.query('#gizmos_container_'+player_id+' .card.built').length;
-			//console.log(player_id +" has " + allCount + " gizmos");
-
+			let totalNrg = this.getPlayerSphereCount(player_id, 'all');
+			let limitNrg = this.gamedatas.players[player_id].energy_limit;
+			let totalArch = dojo.query('#gizmos_container_'+player_id+' .filed').length;
+			let limitArch = this.gamedatas.players[player_id].archive_limit;
 			dojo.place( this.format_block('jstpl_player_board', {
 				'id': player_id,
 				'red_count': this.getPlayerSphereCount(player_id, 'red'), 
 				'black_count': this.getPlayerSphereCount(player_id, 'black'), 
 				'blue_count': this.getPlayerSphereCount(player_id, 'blue'), 
 				'yellow_count': this.getPlayerSphereCount(player_id, 'yellow'),
+				'all_count': totalNrg,
+				'energy_limit': limitNrg,
+				'energy_full': totalNrg >= limitNrg ? 'full' : '',
 				'vp_count': this.getPlayerVpCount(player_id),
-				'gizmos_all': allCount,
-				'gizmos_3s': dojo.query('#gizmos_container_'+player_id+' .card_3.built').length
+				'gizmos_all': dojo.query('#gizmos_container_'+player_id+' .card.built').length,
+				'gizmos_3s': dojo.query('#gizmos_container_'+player_id+' .card_3.built').length,
+				'archive': totalArch,
+				'archive_limit': limitArch,
+				'archive_full': totalArch >= limitArch ? 'full' : '',
+				'research': this.gamedatas.players[player_id].research_quantity
 			}), $('player_board_'+player_id) );
 
 			// add tooltips
 			for (var i=0; i<4; i++) {
 				let color = Energy.colors[i];
-				this.addTooltip("pair_"+player_id+"_"+color, dojo.string.substitute( _("Number of ${color} energy"), {color: color}), '' );
+				this.addTooltip("pair_"+player_id+"_"+color, this.format_string_recursive( _('Number of ${color} energy'), {i18n:['color'], color: color}), '' );
 			}
+			this.addTooltip( dojo.string.substitute("pair_${pid}_all",{pid:player_id}), _("Total energy / limit"), '' );
 			this.addTooltip( dojo.string.substitute("pair_${pid}_vps",{pid:player_id}), _("Number of victory point tokens"), '' );
-			this.addTooltip( dojo.string.substitute("pair_${pid}_allgs",{pid:player_id}), _("Number of built gizmos"), '' );
-			this.addTooltip( dojo.string.substitute("pair_${pid}_3gs", {pid:player_id}), _("Number of built Level 3 gizmos"), '' );
+			this.addTooltip( dojo.string.substitute("pair_${pid}_allgs",{pid:player_id}), _("Number of built Gizmos"), '' );
+			this.addTooltip( dojo.string.substitute("pair_${pid}_3gs", {pid:player_id}), _("Number of built Level III Gizmos"), '' );
+			this.addTooltip( dojo.string.substitute("pair_${pid}_archive",{pid:player_id}), _("Number of Gizmos filed / limit"), '' );
+			this.addTooltip( dojo.string.substitute("pair_${pid}_research",{pid:player_id}), _("Research quantity"), '' );
 		},
 		buildSelectedCard: function ( evt ) {
 			if ( this.checkAction("cardBuilt")
@@ -895,7 +889,7 @@ function (dojo, declare) {
 				}
 			} else if (this.checkAction( "sphereSelect" )) {
 				// ensure user is not at limit
-				var sphere_count = this.getPlayerSphereCount(this.getActivePlayerId());
+				let sphere_count = this.getPlayerSphereCount(this.getActivePlayerId());
 				if (sphere_count == this.sphere_limit) {
 					this.showMessage(_("You cannot hold more energy"), "error");
 				} else {
@@ -1071,15 +1065,17 @@ function (dojo, declare) {
 			let spheres = notif.args.spent_spheres;
 			let built_from_file = notif.args.built_from_file;
 			let new_score = notif.args.new_score;
+			let limits = notif.args.limits;
+
+			// update limits in gamedatas (if built, ignored for filing):
+			if (limits) {
+				this.gamedatas.players[player_id].energy_limit = limits['energy'];
+				this.gamedatas.players[player_id].archive_limit = limits['archive'];
+				this.gamedatas.players[player_id].research_quantity = limits['research'];
+			}
 
 			if (new_score > 0) {
 				this.scoreCtrl[player_id].setValue( new_score );
-			}
-			if (spheres) {
-				//console.log("spent spheres: ");
-				//console.log(spheres);
-				// decrement spent_spheres
-				this.spendSpheres(player_id, spheres);
 			}
 			
 			// slide purchased card to player
@@ -1089,7 +1085,13 @@ function (dojo, declare) {
 				Game.getPlayerArchive(player_id) :
 				Game.getBuiltGizmoDiv(purchased_id, player_id)
 			);
-			
+
+			if (!$(pcid)) {
+				// Cards are hidden for non-active player - need to place it first
+				this.placeResearchedGizmo(purchased_id);
+			}
+
+			this.removeTooltip( purchased_id );
 			this.disconnect( $(pcid), 'onCardSelect' );
 			this.attachToNewParent( $(pcid), $(zone_id) );
 
@@ -1118,7 +1120,8 @@ function (dojo, declare) {
 			let anim = this.slideToObject( pcid, zone_id );
 			anim.onEnd = function(parent) {
 				return function() {
-					Game.zones[zone_id].placeInZone( pcid );	
+					Game.zones[zone_id].placeInZone( pcid );
+					parent.addGizmoTooltip( purchased_id );
 					parent.connect($(pcid), 'onclick', 'onCardSelect');
 					dojo.empty('researched_gizmos');
 					dojo.style('researched_gizmos', 'display', 'none');
@@ -1138,6 +1141,10 @@ function (dojo, declare) {
 					let new_level = this.gamedatas.mt_gizmos[new_card_id].level;
 					this.addGizmoToRow(new_card_id, $('row_'+new_level), new_level);
 				}
+			}
+
+			if (spheres) {
+				this.spendSpheres(player_id, spheres);
 			}
 		},
 		notif_sphereDrawn: function ( notif ) {

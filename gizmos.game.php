@@ -322,7 +322,7 @@ class Gizmos extends Table
 				if ($built_from_file) {
 					array_push( $triggered_card_ids, $pt_gizmo_id );					
 				}
-			} else if( $pt_effect == 'trigger_buildlevel2') {
+			} else if( $pt_effect == 'trigger_buildlevel2' || $pt_effect == 'trigger_build_level_2') {
 				if ($built_mt_gizmo['level'] == 2) {
 					array_push( $triggered_card_ids, $pt_gizmo_id );	
 				}
@@ -554,6 +554,7 @@ class Gizmos extends Table
 		self::setSelectedCardId(0);
 		// notify everyone
 		$player_name = self::getPlayerNameForNotification($player_id);
+		$limits = DB::getPlayerLimits($player_id);
 		self::notifyAllPlayers('cardBuiltOrFiled', clienttranslate('${player_name} ${action} a Level ${level} ${color} Gizmo from ${built_from}'), 
 			array (
 				'i18n' => ['color', 'built_from', 'action'],
@@ -567,7 +568,12 @@ class Gizmos extends Table
 				'new_card_id' => $new_card_id,
 				'player_id' => $player_id,
 				'built_from_file' => $built_from_file,
-				'new_score' => $new_score
+				'new_score' => $new_score,
+				'limits' => [
+					'archive' => $limits['archive_limit'],
+					'energy' => $limits['energy_limit'],
+					'research' => $limits['research_quantity']
+				]
 			)
 		);
         $this->incStat(1, 'built_number', $player_id);
@@ -739,8 +745,7 @@ class Gizmos extends Table
 			array (
 				'player_name' => self::getPlayerNameForNotification($player_id),
 				'n' => $research_quantity,
-				'level' => DB::LevelAsNumerals($level),
-				'r_gizmos' => $cards
+				'level' => DB::LevelAsNumerals($level)
 			)
 		);
         $this->incStat(1, 'research_number', $player_id);
@@ -796,16 +801,30 @@ class Gizmos extends Table
 		);
 	}
 	function arg_getResearchedCards() {
-		return array( 
-			'r_cards' => $this->gizmo_cards->getCardsInLocation( 'research' ),
-			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id')
+		$r_cards = $this->gizmo_cards->getCardsInLocation( 'research' );
+		return array(
+			'_private' => array(          // Using "_private" keyword, all data inside this array will be made private
+				'active' => array(       // Using "active" keyword inside "_private", you select active player(s)						
+					'r_cards' => $r_cards
+				)
+			),
+			'num_cards' => count( $r_cards ),
+			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id'),
+			'research_level' => self::getGameStateValue('research_level')
 		);
 	}
-	function arg_getSelectedAndResearchedCard() {		
+	function arg_getSelectedAndResearchedCard() {
+		$r_cards = $this->gizmo_cards->getCardsInLocation( 'research' );
 		$limits = DB::getPlayerLimits( self::getActivePlayerId() );
 		return array (
+			'_private' => array(          // Using "_private" keyword, all data inside this array will be made private
+				'active' => array(       // Using "active" keyword inside "_private", you select active player(s)						
+					'r_cards' => $r_cards
+				)
+			),
+			'num_cards' => count( $r_cards ),
+			'research_level' => self::getGameStateValue('research_level'),
 			'selected_card_id' => self::getGameStateValue('selected_card_id'),
-			'r_cards' => $this->gizmo_cards->getCardsInLocation( 'research' ),
 			'archive_limit' => $limits['archive_limit'],
 			'energy_limit' => $limits['energy_limit'],
 			'research_quantity' => $limits['research_quantity'],
