@@ -314,6 +314,17 @@ let Builder = {
 			}
 		}
 	},
+	autoDeselectSpend: function() {
+		if (Game.selected_card_id > 100) {
+			let sel_color = Gizmo.details(Game.selected_card_id).color;
+			let cost = Builder.getCost( Gizmo.details(Game.selected_card_id) );
+			let sel_energy = dojo.query('#energy_ring .'+sel_color+'_token.selected');
+			console.log('autoDeselectSpend', sel_color, this.spending_power[sel_color], cost, sel_energy);
+			while (this.spending_power[sel_color] > cost && sel_energy.length > 0) {
+				this.despendEnergy( Energy.getIdOfEle(sel_energy.pop().id) );
+			}
+		}
+	},
 	getPlayerSpheresOfColor: function( player, color ) {
 		console.log(this.temp_energy);
 		var ret = this.temp_energy.filter(function(t) {
@@ -391,6 +402,7 @@ let Builder = {
 		if (supported_gizmo_id > 0) {
 			this.addSupportedGizmo(gizmo_id, supported_gizmo_id);
 		}
+		this.autoDeselectSpend();
 		this.refreshHeader(parent);
 	},
 	applyDoubleConverter: function( gizmo_id, color, parent ) {
@@ -446,29 +458,8 @@ let Builder = {
 
 		dojo.removeClass( Gizmo.getEleId(gizmo_id), 'half_selected' );	
 		dojo.addClass( Gizmo.getEleId(gizmo_id), selClass);
+		this.autoDeselectSpend();
 		this.refreshHeader(parent);
-	},
-	tryFindTwoColorConverters: function ( pid, from_color ) {
-		var player_converters = Gizmo.getPlayersCards(pid, 'converter');
-		console.log("looking for two " + from_color + " (or any) to 'any' converters in:");
-		console.log(player_converters);
-		var auto_use = [];
-		for (var i=0; i<player_converters.length; i++) {
-			var card = player_converters[i];
-			var mt_gizmo = Gizmo.details(card.type_arg);
-			if ( card.is_used != '1' ) { 
-				if (mt_gizmo.convert_from == from_color && mt_gizmo.convert_to == 'any2') {
-					auto_use = [ mt_gizmo.id, mt_gizmo.id ];
-					break;
-				} else if ((mt_gizmo.convert_from == 'any' || mt_gizmo.convert_from == from_color) && mt_gizmo.convert_to == 'any' ) {
-					auto_use.push( mt_gizmo.id );
-					if (auto_use.length == 2) {
-						break;
-					}
-				}
-			}
-		}
-		return auto_use;
 	},
 	deselectAllConverters: function(parent) {
 		for (let gid in this.active_converters) {
@@ -714,13 +705,6 @@ let Builder = {
 				}
 			} else {		
 				return false;
-			}
-		}
-		if ( $('button_build') ) {
-			if (this.canPurchase()) {
-				dojo.removeClass( 'button_build', 'disabled');
-			} else {
-				dojo.addClass( 'button_build', 'disabled');						
 			}
 		}
 		//this.logEnergy();

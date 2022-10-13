@@ -280,6 +280,17 @@
 	height: 30px;
 	border-radius: 100%;
 }
+#player_boards #gzs_first_player {
+	padding:5px;
+	text-align: center;
+	font-size: 20px;
+	color: #fff;
+	font-size: 20px;
+    position: relative;
+    text-shadow: 2px 0 2px #00000099, 0 -2px 2px #00000099, 0 2px 2px #00000099, -2px 0 2px #00000099;
+    transform-origin: center;
+    cursor: help;
+}
 #gizmos_board .vp, #player_boards .vp {
 	height: 30px;
 	width: 20px;
@@ -367,9 +378,8 @@
     border-bottom: 5px grey groove;
     border-top: 5px grey groove;
     border-right: 5px grey groove;
-	border-top-right-radius: 30px;
-	border-bottom-right-radius: 30px;
-	background-image: url('../img/layout/rounded_b.png');
+	background-image: url('img/dispenser_bottom.jpg');
+	background-size: 100% 100%;
 	width:300px;
 	height:34px;
 }
