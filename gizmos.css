@@ -167,10 +167,7 @@
 } */
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (max-width: 1469px) {
-  #gizmos_board #energy_ring {	  
-	top:200px;
-	right:0px;
-  }
+ 
 }
 
 #gizmos_board #energy_ring .token {
@@ -309,22 +306,24 @@
 	display: inline-block;
 }
 #player_boards .gizmos_all {
+	background-position-y: -600%;
+	background-position-x: -300%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
 	border-radius: 7%;
-    background-image: url('img/mixed_card.jpg');
     display: block;
 	width: 30px;
 	height: 30px;
-	background-size: 100% 100%;
 	float: left;
 	margin-right:5px;
 }
 #player_boards .gizmos_3s {
-	background-position-y: -1000%;
-	background-position-x: -100%;
+	background-position-y: -600%;
+	background-position-x: -600%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
 	border-radius: 7%;
-    background-image: url('img/spritesheet_compact.jpg');
     display: block;
-	background-size: 1100% 1100%;
 	width: 30px;
 	height: 30px;
 	float: left;
@@ -356,7 +355,8 @@
 
 #gizmos_board #sphere_row_outer {
 	min-height: 50px;
-    width: 385px;
+    width: 400px;
+	vertical-align: middle;
     margin: auto;
 }
 /*
@@ -374,7 +374,7 @@
 }
 #gizmos_board #sphere_row {
     float: left;
-    margin-top: 15px;
+    margin-top: 19px;
     border-bottom: 5px grey groove;
     border-top: 5px grey groove;
     border-right: 5px grey groove;
@@ -530,461 +530,680 @@
 }
 #gizmos_board .card, #gizmos_board .deck, .dijitTooltip .card {
 	border-radius: 7%;
-    background-image: url('img/spritesheet_compact.jpg');
     display: block;
-	background-size: 1100% 1100%;
 	box-shadow: 5px 5px 5px grey;
 }
-
-#card_101 {
+#gizmos_board #card_101, .dijitTooltip #card_101 {
 	background-position-y: -0%;
 	background-position-x: -0%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
 }
-#card_102 {
+#gizmos_board #card_102, .dijitTooltip #card_102 {
 	background-position-y: -0%;
 	background-position-x: -100%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
 }
-#card_103 {
+#gizmos_board #card_103, .dijitTooltip #card_103 {
 	background-position-y: -0%;
 	background-position-x: -200%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
 }
-#card_104 {
+#gizmos_board #card_104, .dijitTooltip #card_104 {
 	background-position-y: -0%;
 	background-position-x: -300%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
 }
-#card_105 {
+#gizmos_board #card_105, .dijitTooltip #card_105 {
 	background-position-y: -0%;
 	background-position-x: -400%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
 }
-#card_106 {
+#gizmos_board #card_106, .dijitTooltip #card_106 {
 	background-position-y: -0%;
 	background-position-x: -500%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
 }
-#card_107 {
+#gizmos_board #card_107, .dijitTooltip #card_107 {
 	background-position-y: -0%;
 	background-position-x: -600%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
 }
-#card_108 {
+#gizmos_board #card_108, .dijitTooltip #card_108 {
 	background-position-y: -0%;
 	background-position-x: -700%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
 }
-#card_109 {
+#gizmos_board #card_109, .dijitTooltip #card_109 {
+	background-position-y: -100%;
+	background-position-x: -0%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_110, .dijitTooltip #card_110 {
+	background-position-y: -100%;
+	background-position-x: -100%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_111, .dijitTooltip #card_111 {
+	background-position-y: -100%;
+	background-position-x: -200%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_112, .dijitTooltip #card_112 {
+	background-position-y: -100%;
+	background-position-x: -300%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_113, .dijitTooltip #card_113 {
+	background-position-y: -100%;
+	background-position-x: -400%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_114, .dijitTooltip #card_114 {
+	background-position-y: -100%;
+	background-position-x: -500%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_115, .dijitTooltip #card_115 {
+	background-position-y: -100%;
+	background-position-x: -600%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_116, .dijitTooltip #card_116 {
+	background-position-y: -100%;
+	background-position-x: -700%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_117, .dijitTooltip #card_117 {
+	background-position-y: -200%;
+	background-position-x: -0%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_118, .dijitTooltip #card_118 {
+	background-position-y: -200%;
+	background-position-x: -100%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_119, .dijitTooltip #card_119 {
+	background-position-y: -200%;
+	background-position-x: -200%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_120, .dijitTooltip #card_120 {
+	background-position-y: -200%;
+	background-position-x: -300%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_121, .dijitTooltip #card_121 {
+	background-position-y: -200%;
+	background-position-x: -400%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_122, .dijitTooltip #card_122 {
+	background-position-y: -200%;
+	background-position-x: -500%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_123, .dijitTooltip #card_123 {
+	background-position-y: -200%;
+	background-position-x: -600%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_124, .dijitTooltip #card_124 {
+	background-position-y: -200%;
+	background-position-x: -700%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_125, .dijitTooltip #card_125 {
+	background-position-y: -300%;
+	background-position-x: -0%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_126, .dijitTooltip #card_126 {
+	background-position-y: -300%;
+	background-position-x: -100%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_127, .dijitTooltip #card_127 {
+	background-position-y: -300%;
+	background-position-x: -200%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_128, .dijitTooltip #card_128 {
+	background-position-y: -300%;
+	background-position-x: -300%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_129, .dijitTooltip #card_129 {
+	background-position-y: -300%;
+	background-position-x: -400%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_130, .dijitTooltip #card_130 {
+	background-position-y: -300%;
+	background-position-x: -500%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_131, .dijitTooltip #card_131 {
+	background-position-y: -300%;
+	background-position-x: -600%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_132, .dijitTooltip #card_132 {
+	background-position-y: -300%;
+	background-position-x: -700%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_133, .dijitTooltip #card_133 {
+	background-position-y: -400%;
+	background-position-x: -0%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_134, .dijitTooltip #card_134 {
+	background-position-y: -400%;
+	background-position-x: -100%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_135, .dijitTooltip #card_135 {
+	background-position-y: -400%;
+	background-position-x: -200%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_136, .dijitTooltip #card_136 {
+	background-position-y: -400%;
+	background-position-x: -300%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_201, .dijitTooltip #card_201 {
+	background-position-y: -400%;
+	background-position-x: -400%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_202, .dijitTooltip #card_202 {
+	background-position-y: -400%;
+	background-position-x: -500%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_203, .dijitTooltip #card_203 {
+	background-position-y: -400%;
+	background-position-x: -600%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_204, .dijitTooltip #card_204 {
+	background-position-y: -400%;
+	background-position-x: -700%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_205, .dijitTooltip #card_205 {
+	background-position-y: -500%;
+	background-position-x: -0%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_206, .dijitTooltip #card_206 {
+	background-position-y: -500%;
+	background-position-x: -100%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_207, .dijitTooltip #card_207 {
+	background-position-y: -500%;
+	background-position-x: -200%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_208, .dijitTooltip #card_208 {
+	background-position-y: -500%;
+	background-position-x: -300%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_209, .dijitTooltip #card_209 {
+	background-position-y: -500%;
+	background-position-x: -400%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_210, .dijitTooltip #card_210 {
+	background-position-y: -500%;
+	background-position-x: -500%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_211, .dijitTooltip #card_211 {
+	background-position-y: -500%;
+	background-position-x: -600%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_212, .dijitTooltip #card_212 {
+	background-position-y: -500%;
+	background-position-x: -700%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_213, .dijitTooltip #card_213 {
+	background-position-y: -600%;
+	background-position-x: -0%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_214, .dijitTooltip #card_214 {
+	background-position-y: -600%;
+	background-position-x: -100%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_215, .dijitTooltip #card_215 {
+	background-position-y: -600%;
+	background-position-x: -200%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_216, .dijitTooltip #card_216 {
+	background-position-y: -600%;
+	background-position-x: -300%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_217, .dijitTooltip #card_217 {
+	background-position-y: -600%;
+	background-position-x: -400%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_218, .dijitTooltip #card_218 {
+	background-position-y: -600%;
+	background-position-x: -500%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_219, .dijitTooltip #card_219 {
+	background-position-y: -600%;
+	background-position-x: -600%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_220, .dijitTooltip #card_220 {
+	background-position-y: -600%;
+	background-position-x: -700%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_221, .dijitTooltip #card_221 {
+	background-position-y: -700%;
+	background-position-x: -0%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_222, .dijitTooltip #card_222 {
+	background-position-y: -700%;
+	background-position-x: -100%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_223, .dijitTooltip #card_223 {
+	background-position-y: -700%;
+	background-position-x: -200%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_224, .dijitTooltip #card_224 {
+	background-position-y: -700%;
+	background-position-x: -300%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_225, .dijitTooltip #card_225 {
+	background-position-y: -700%;
+	background-position-x: -400%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_226, .dijitTooltip #card_226 {
+	background-position-y: -700%;
+	background-position-x: -500%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_227, .dijitTooltip #card_227 {
+	background-position-y: -700%;
+	background-position-x: -600%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_228, .dijitTooltip #card_228 {
+	background-position-y: -700%;
+	background-position-x: -700%;
+	background-image: url('img/sheet1.jpg');
+	background-size: 800% 800%;
+}
+#gizmos_board #card_229, .dijitTooltip #card_229 {
 	background-position-y: -0%;
-	background-position-x: -800%;
+	background-position-x: -0%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
 }
-#card_110 {
+#gizmos_board #card_230, .dijitTooltip #card_230 {
 	background-position-y: -0%;
-	background-position-x: -900%;
-}
-#card_111 {
-	background-position-y: -100%;
-	background-position-x: -0%;
-}
-#card_112 {
-	background-position-y: -100%;
 	background-position-x: -100%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
 }
-#card_113 {
-	background-position-y: -100%;
-	background-position-x: -200%;
-}
-#card_114 {
-	background-position-y: -100%;
-	background-position-x: -300%;
-}
-#card_115 {
-	background-position-y: -100%;
-	background-position-x: -400%;
-}
-#card_116 {
-	background-position-y: -100%;
-	background-position-x: -500%;
-}
-#card_117 {
-	background-position-y: -100%;
-	background-position-x: -600%;
-}
-#card_118 {
-	background-position-y: -100%;
-	background-position-x: -700%;
-}
-#card_119 {
-	background-position-y: -100%;
-	background-position-x: -800%;
-}
-#card_120 {
-	background-position-y: -100%;
-	background-position-x: -900%;
-}
-#card_121 {
-	background-position-y: -200%;
-	background-position-x: -0%;
-}
-#card_122 {
-	background-position-y: -200%;
-	background-position-x: -100%;
-}
-#card_123 {
-	background-position-y: -200%;
-	background-position-x: -200%;
-}
-#card_124 {
-	background-position-y: -200%;
-	background-position-x: -300%;
-}
-#card_125 {
-	background-position-y: -200%;
-	background-position-x: -400%;
-}
-#card_126 {
-	background-position-y: -200%;
-	background-position-x: -500%;
-}
-#card_127 {
-	background-position-y: -200%;
-	background-position-x: -600%;
-}
-#card_128 {
-	background-position-y: -200%;
-	background-position-x: -700%;
-}
-#card_129 {
-	background-position-y: -200%;
-	background-position-x: -800%;
-}
-#card_130 {
-	background-position-y: -200%;
-	background-position-x: -900%;
-}
-#card_131 {
-	background-position-y: -300%;
-	background-position-x: -0%;
-}
-#card_132 {
-	background-position-y: -300%;
-	background-position-x: -100%;
-}
-#card_133 {
-	background-position-y: -300%;
-	background-position-x: -200%;
-}
-#card_134 {
-	background-position-y: -300%;
-	background-position-x: -300%;
-}
-#card_135 {
-	background-position-y: -300%;
-	background-position-x: -400%;
-}
-#card_136 {
-	background-position-y: -300%;
-	background-position-x: -500%;
-}
-#card_201 {
-	background-position-y: -300%;
-	background-position-x: -600%;
-}
-#card_202 {
-	background-position-y: -300%;
-	background-position-x: -700%;
-}
-#card_203 {
-	background-position-y: -300%;
-	background-position-x: -800%;
-}
-#card_204 {
-	background-position-y: -300%;
-	background-position-x: -900%;
-}
-#card_205 {
-	background-position-y: -400%;
-	background-position-x: -0%;
-}
-#card_206 {
-	background-position-y: -400%;
-	background-position-x: -100%;
-}
-#card_207 {
-	background-position-y: -400%;
-	background-position-x: -200%;
-}
-#card_208 {
-	background-position-y: -400%;
-	background-position-x: -300%;
-}
-#card_209 {
-	background-position-y: -400%;
-	background-position-x: -400%;
-}
-#card_210 {
-	background-position-y: -400%;
-	background-position-x: -500%;
-}
-#card_211 {
-	background-position-y: -400%;
-	background-position-x: -600%;
-}
-#card_212 {
-	background-position-y: -400%;
-	background-position-x: -700%;
-}
-#card_213 {
-	background-position-y: -400%;
-	background-position-x: -800%;
-}
-#card_214 {
-	background-position-y: -400%;
-	background-position-x: -900%;
-}
-#card_215 {
-	background-position-y: -500%;
-	background-position-x: -0%;
-}
-#card_216 {
-	background-position-y: -500%;
-	background-position-x: -100%;
-}
-#card_217 {
-	background-position-y: -500%;
-	background-position-x: -200%;
-}
-#card_218 {
-	background-position-y: -500%;
-	background-position-x: -300%;
-}
-#card_219 {
-	background-position-y: -500%;
-	background-position-x: -400%;
-}
-#card_220 {
-	background-position-y: -500%;
-	background-position-x: -500%;
-}
-#card_221 {
-	background-position-y: -500%;
-	background-position-x: -600%;
-}
-#card_222 {
-	background-position-y: -500%;
-	background-position-x: -700%;
-}
-#card_223 {
-	background-position-y: -500%;
-	background-position-x: -800%;
-}
-#card_224 {
-	background-position-y: -500%;
-	background-position-x: -900%;
-}
-#card_225 {
-	background-position-y: -600%;
-	background-position-x: -0%;
-}
-#card_226 {
-	background-position-y: -600%;
-	background-position-x: -100%;
-}
-#card_227 {
-	background-position-y: -600%;
-	background-position-x: -200%;
-}
-#card_228 {
-	background-position-y: -600%;
-	background-position-x: -300%;
-}
-#card_229 {
-	background-position-y: -600%;
-	background-position-x: -400%;
-}
-#card_230 {
-	background-position-y: -600%;
-	background-position-x: -500%;
-}
-#card_231 {
-	background-position-y: -600%;
-	background-position-x: -600%;
-}
-#card_232 {
-	background-position-y: -600%;
-	background-position-x: -700%;
-}
-#card_233 {
-	background-position-y: -600%;
-	background-position-x: -800%;
-}
-#card_234 {
-	background-position-y: -600%;
-	background-position-x: -900%;
-}
-#card_235 {
-	background-position-y: -700%;
-	background-position-x: -0%;
-}
-#card_236 {
-	background-position-y: -700%;
-	background-position-x: -100%;
-}
-#card_301 {
-	background-position-y: -700%;
-	background-position-x: -200%;
-}
-#card_302 {
-	background-position-y: -700%;
-	background-position-x: -300%;
-}
-#card_303 {
-	background-position-y: -700%;
-	background-position-x: -400%;
-}
-#card_304 {
-	background-position-y: -700%;
-	background-position-x: -500%;
-}
-#card_305 {
-	background-position-y: -700%;
-	background-position-x: -600%;
-}
-#card_306 {
-	background-position-y: -700%;
-	background-position-x: -700%;
-}
-#card_307 {
-	background-position-y: -700%;
-	background-position-x: -800%;
-}
-#card_308 {
-	background-position-y: -700%;
-	background-position-x: -900%;
-}
-#card_309 {
-	background-position-y: -800%;
-	background-position-x: -0%;
-}
-#card_310 {
-	background-position-y: -800%;
-	background-position-x: -100%;
-}
-#card_311 {
-	background-position-y: -800%;
-	background-position-x: -200%;
-}
-#card_312 {
-	background-position-y: -800%;
-	background-position-x: -300%;
-}
-#card_313 {
-	background-position-y: -800%;
-	background-position-x: -400%;
-}
-#card_314 {
-	background-position-y: -800%;
-	background-position-x: -500%;
-}
-#card_315 {
-	background-position-y: -800%;
-	background-position-x: -600%;
-}
-#card_316 {
-	background-position-y: -800%;
-	background-position-x: -700%;
-}
-#card_317 {
-	background-position-y: -800%;
-	background-position-x: -800%;
-}
-#card_318 {
-	background-position-y: -800%;
-	background-position-x: -900%;
-}
-#card_319 {
-	background-position-y: -900%;
-	background-position-x: -0%;
-}
-#card_320 {
-	background-position-y: -900%;
-	background-position-x: -100%;
-}
-#card_321 {
-	background-position-y: -900%;
-	background-position-x: -200%;
-}
-#card_322 {
-	background-position-y: -900%;
-	background-position-x: -300%;
-}
-#card_323 {
-	background-position-y: -900%;
-	background-position-x: -400%;
-}
-#card_324 {
-	background-position-y: -900%;
-	background-position-x: -500%;
-}
-#card_325 {
-	background-position-y: -900%;
-	background-position-x: -600%;
-}
-#card_326 {
-	background-position-y: -900%;
-	background-position-x: -700%;
-}
-#card_327 {
-	background-position-y: -900%;
-	background-position-x: -800%;
-}
-#card_328 {
-	background-position-y: -900%;
-	background-position-x: -900%;
-}
-#card_329 {
+#gizmos_board #card_231, .dijitTooltip #card_231 {
 	background-position-y: -0%;
-	background-position-x: -1000%;
+	background-position-x: -200%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
 }
-#card_330 {
+#gizmos_board #card_232, .dijitTooltip #card_232 {
+	background-position-y: -0%;
+	background-position-x: -300%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_233, .dijitTooltip #card_233 {
+	background-position-y: -0%;
+	background-position-x: -400%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_234, .dijitTooltip #card_234 {
+	background-position-y: -0%;
+	background-position-x: -500%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_235, .dijitTooltip #card_235 {
+	background-position-y: -0%;
+	background-position-x: -600%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_236, .dijitTooltip #card_236 {
 	background-position-y: -100%;
-	background-position-x: -1000%;
-}
-#card_331 {
-	background-position-y: -200%;
-	background-position-x: -1000%;
-}
-#card_332 {
-	background-position-y: -300%;
-	background-position-x: -1000%;
-}
-#card_333 {
-	background-position-y: -400%;
-	background-position-x: -1000%;
-}
-#card_334 {
-	background-position-y: -500%;
-	background-position-x: -1000%;
-}
-#card_335 {
-	background-position-y: -600%;
-	background-position-x: -1000%;
-}
-#card_336 {
-	background-position-y: -700%;
-	background-position-x: -1000%;
-}
-
-
-#card_901,#card_902,#card_903,#card_904 {
-	background-position-y: -800%;
-	background-position-x: -1000%;
-}
-#deck_1, .gzs_fd_card_1 {
-	background-position-y: -900%;
-	background-position-x: -1000%;
-}
-#deck_2, .gzs_fd_card_2 {
-	background-position-y: -1000%;
 	background-position-x: -0%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
 }
-#deck_3, .gzs_fd_card_3 {
-	background-position-y: -1000%;
+#gizmos_board #card_301, .dijitTooltip #card_301 {
+	background-position-y: -100%;
 	background-position-x: -100%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_302, .dijitTooltip #card_302 {
+	background-position-y: -100%;
+	background-position-x: -200%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_303, .dijitTooltip #card_303 {
+	background-position-y: -100%;
+	background-position-x: -300%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_304, .dijitTooltip #card_304 {
+	background-position-y: -100%;
+	background-position-x: -400%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_305, .dijitTooltip #card_305 {
+	background-position-y: -100%;
+	background-position-x: -500%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_306, .dijitTooltip #card_306 {
+	background-position-y: -100%;
+	background-position-x: -600%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_307, .dijitTooltip #card_307 {
+	background-position-y: -200%;
+	background-position-x: -0%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_308, .dijitTooltip #card_308 {
+	background-position-y: -200%;
+	background-position-x: -100%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_309, .dijitTooltip #card_309 {
+	background-position-y: -200%;
+	background-position-x: -200%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_310, .dijitTooltip #card_310 {
+	background-position-y: -200%;
+	background-position-x: -300%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_311, .dijitTooltip #card_311 {
+	background-position-y: -200%;
+	background-position-x: -400%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_312, .dijitTooltip #card_312 {
+	background-position-y: -200%;
+	background-position-x: -500%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_313, .dijitTooltip #card_313 {
+	background-position-y: -200%;
+	background-position-x: -600%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_314, .dijitTooltip #card_314 {
+	background-position-y: -300%;
+	background-position-x: -0%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_315, .dijitTooltip #card_315 {
+	background-position-y: -300%;
+	background-position-x: -100%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_316, .dijitTooltip #card_316 {
+	background-position-y: -300%;
+	background-position-x: -200%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_317, .dijitTooltip #card_317 {
+	background-position-y: -300%;
+	background-position-x: -300%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_318, .dijitTooltip #card_318 {
+	background-position-y: -300%;
+	background-position-x: -400%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_319, .dijitTooltip #card_319 {
+	background-position-y: -300%;
+	background-position-x: -500%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_320, .dijitTooltip #card_320 {
+	background-position-y: -300%;
+	background-position-x: -600%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_321, .dijitTooltip #card_321 {
+	background-position-y: -400%;
+	background-position-x: -0%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_322, .dijitTooltip #card_322 {
+	background-position-y: -400%;
+	background-position-x: -100%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_323, .dijitTooltip #card_323 {
+	background-position-y: -400%;
+	background-position-x: -200%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_324, .dijitTooltip #card_324 {
+	background-position-y: -400%;
+	background-position-x: -300%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_325, .dijitTooltip #card_325 {
+	background-position-y: -400%;
+	background-position-x: -400%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_326, .dijitTooltip #card_326 {
+	background-position-y: -400%;
+	background-position-x: -500%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_327, .dijitTooltip #card_327 {
+	background-position-y: -400%;
+	background-position-x: -600%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_328, .dijitTooltip #card_328 {
+	background-position-y: -500%;
+	background-position-x: -0%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_329, .dijitTooltip #card_329 {
+	background-position-y: -500%;
+	background-position-x: -100%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_330, .dijitTooltip #card_330 {
+	background-position-y: -500%;
+	background-position-x: -200%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_331, .dijitTooltip #card_331 {
+	background-position-y: -500%;
+	background-position-x: -300%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_332, .dijitTooltip #card_332 {
+	background-position-y: -500%;
+	background-position-x: -400%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_333, .dijitTooltip #card_333 {
+	background-position-y: -500%;
+	background-position-x: -500%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_334, .dijitTooltip #card_334 {
+	background-position-y: -500%;
+	background-position-x: -600%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_335, .dijitTooltip #card_335 {
+	background-position-y: -600%;
+	background-position-x: -0%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_336, .dijitTooltip #card_336 {
+	background-position-y: -600%;
+	background-position-x: -100%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #card_901, #gizmos_board #card_902, #gizmos_board #card_903, #gizmos_board #card_904 {
+	background-position-y: -600%;
+	background-position-x: -200%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #deck_1, .gzs_fd_card_1 {
+	background-position-y: -600%;
+	background-position-x: -400%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #deck_2, .gzs_fd_card_2 {
+	background-position-y: -600%;
+	background-position-x: -500%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
+}
+#gizmos_board #deck_3, .gzs_fd_card_3 {
+	background-position-y: -600%;
+	background-position-x: -600%;
+	background-image: url('img/sheet2.jpg');
+	background-size: 700% 700%;
 }
 
 

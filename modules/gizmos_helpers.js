@@ -222,7 +222,7 @@ let Builder = {
 			let sel_color = Gizmo.details(Game.selected_card_id).color;
 			var cost = Builder.getCost( Gizmo.details(Game.selected_card_id) );
 			if (this.discount > 0) {
-				cost += dojo.string.substitute("<sup class='discount_sup'>-${discount}</sup>",{discount: this.discount});
+				cost += dojo.string.substitute("<sup class='discount_sup'> -${discount}</sup>",{discount: this.discount});
 			}
 			var total = 0;
 			if (sel_color == 'multi') {
@@ -574,10 +574,10 @@ let Builder = {
 			let player_upgrades = dojo.query("#gizmos_board #upgrade_"+Game.activePlayer+" .discount");
 			if (player_upgrades && player_upgrades.length > 0) {
 				var discountIds = [];
-				if (Gizmo.hasFileDiscount()) {
+				if (Gizmo.hasResearchDiscount()) {
 					discountIds = discountIds.concat(Const.GIDs_Discount_FromResearch);
 				}
-				if (Gizmo.hasResearchDiscount()) {
+				if (Gizmo.hasFileDiscount()) {
 					discountIds = discountIds.concat(Const.GIDS_Discount_FromFile);
 				}
 				if (Gizmo.hasLvl2Discount()) {
@@ -595,7 +595,7 @@ let Builder = {
 					} else {
 						debug += "NO";
 					}
-					//console.log(debug);
+					console.log(debug);
 				}
 			}
 		}
@@ -707,6 +707,13 @@ let Builder = {
 				return false;
 			}
 		}
+		if ( $('button_build') ) {
+			if (this.canPurchase()) {
+				dojo.removeClass( 'button_build', 'disabled');
+			} else {
+				dojo.addClass( 'button_build', 'disabled');						
+			}
+		}
 		//this.logEnergy();
 	},
 
@@ -789,16 +796,17 @@ let Gizmo = {
 		return gizmo.convert_to && (gizmo.convert_to == 'any2' || gizmo.convert_to == 'two');
 	},
 	hasFileDiscount: function() {
-		return dojo.hasClass( Gizmo.getEleId(Game.selected_card_id), 'filed');
+		return Game.selected_card_id && dojo.hasClass( Gizmo.getEleId(Game.selected_card_id), 'filed');
 	},
 	hasResearchDiscount: function() {
-		return dojo.hasClass( Gizmo.getEleId(Game.selected_card_id), 'researched');
+		if (Game.selected_card_id)
+		return Game.selected_card_id && dojo.hasClass( Gizmo.getEleId(Game.selected_card_id), 'researched');
 	},
 	hasLvl2Discount: function() {
-		return Gizmo.details(Game.selected_card_id).level == 2;
+		return Game.selected_card_id && Gizmo.details(Game.selected_card_id).level == 2;
 	},
 	isDiscountUpgrade: function(gid) {
-		return Const.GIDs_Discount_All.findIndex(id => id == gid) >= 0;
+		return Game.selected_card_id && Const.GIDs_Discount_All.findIndex(id => id == gid) >= 0;
 	},
 	levelNumerals: function(level) {
 		var ret = "I";
