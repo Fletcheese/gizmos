@@ -9,6 +9,7 @@ let Const = {
 	// Yellow: _('yellow'),
 	// Blue: _('blue'),
 	// Black: _('black')
+	TrackSeg_Width: 572.7
 }
 
 let Game = {
@@ -50,7 +51,7 @@ let Game = {
 
 		Game.energy_weight--;
 		return Game.energy_weight;
-	}
+	}	
 }
 
 let Builder = {
@@ -328,14 +329,14 @@ let Builder = {
 	getPlayerSpheresOfColor: function( player, color ) {
 		console.log(this.temp_energy);
 		var ret = this.temp_energy.filter(function(t) {
-			return Energy.getColor(t) == color && !dojo.hasClass(t, 'convert_from');
+			return (Energy.getColor(t) == color || color == 'multi') && !dojo.hasClass(t, 'convert_from');
 		});
 		console.log(ret);
 
 		if (this.sphere_counts && this.sphere_counts[player] && this.sphere_counts[player].spheres) {
 			console.log('getPlayerSphereCount(' + player + ',' + color + ')=' + this.sphere_counts[player][color]);
 			ret = ret.concat( 
-				this.sphere_counts[player].spheres.filter(spid => Energy.getColor(spid) == color && $(Energy.getEleId(spid)) && !dojo.hasClass(Energy.getEleId(spid), 'convert_from')) 
+				this.sphere_counts[player].spheres.filter(spid => (Energy.getColor(spid) == color || color == 'multi') && $(Energy.getEleId(spid)) && !dojo.hasClass(Energy.getEleId(spid), 'convert_from')) 
 			);
 		}
 		console.log(ret);
@@ -707,13 +708,7 @@ let Builder = {
 				return false;
 			}
 		}
-		if ( $('button_build') ) {
-			if (this.canPurchase()) {
-				dojo.removeClass( 'button_build', 'disabled');
-			} else {
-				dojo.addClass( 'button_build', 'disabled');						
-			}
-		}
+		Builder.handleButtonDisabled();
 		//this.logEnergy();
 	},
 
@@ -748,6 +743,23 @@ let Builder = {
 			dojo.attr( Energy.getEleId(spid), 'style', 'position:absolute;' );
 		};
 		anim.play();
+	},
+	
+	handleButtonDisabled: function() {
+		if ( $('button_build') ) {
+			if (Builder.canPurchase()) {
+				dojo.removeClass( 'button_build', 'disabled');
+			} else {
+				dojo.addClass( 'button_build', 'disabled');						
+			}
+		}
+		if ( $('button_file')) {
+			if ( Game.selected_card_id && $(Gizmo.getEleId(Game.selected_card_id)) && dojo.hasClass(Gizmo.getEleId(Game.selected_card_id), 'filed') ) {
+				dojo.addClass( 'button_file', 'disabled');
+			} else {
+				dojo.removeClass( 'button_file', 'disabled');
+			}
+		}		
 	}
 
 };

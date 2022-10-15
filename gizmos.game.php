@@ -408,7 +408,7 @@ class Gizmos extends Table
 			}			
 		} else if ($selected_card_id > 0 && $selected_card_id < 4) {
 			if (DB::checkResearch(self::getActivePlayerId())) {
-				throw new BgaUserException( self::$game->_("Cannot research due to upgrade!"));
+				throw new BgaUserException( self::_("Cannot research due to upgrade!"));
 			}
 			self::checkAction( 'deckSelected' );
 			self::setSelectedCardId($selected_card_id);		
@@ -590,13 +590,12 @@ class Gizmos extends Table
 		// card was already selected (playerTurn)
 		if (!$selected_card_id) {
 			$selected_card_id = self::getGameStateValue('selected_card_id');
-		} else {
-			// card was selected from triggerFile -> validate legal selection
-			$gizmo = DB::getSingleGizmoById($selected_card_id);
-			$location = $gizmo['card_location'];
-			if (strpos( $location, 'row_') === false) {
-				throw new BgaVisibleSystemException( "Card ".$selected_card_id." is not in the row and thus cannot be filed" );
-			}
+		} 
+		// validate legal selection
+		$gizmo = DB::getSingleGizmoById($selected_card_id);
+		$location = $gizmo['card_location'];
+		if (strpos( $location, 'row_') === false && strpos( $location, 'research') === false) {
+			throw new BgaVisibleSystemException( "Card ".$selected_card_id." is not in the row nor research and thus cannot be filed" );
 		}
 		$card_sql = "SELECT card_id FROM gizmo_cards WHERE card_type_arg='".$selected_card_id."'";
 		$db_id = self::getUniqueValueFromDB($card_sql);
@@ -723,7 +722,7 @@ class Gizmos extends Table
 	
 	function research() {
 		if (DB::checkResearch(self::getActivePlayerId())) {
-			throw new BgaUserException( self::$game->_("Cannot research due to upgrade!"));
+			throw new BgaUserException( self::_("Cannot research due to upgrade!"));
 		}
 		self::checkAction( 'research' );	
 		$level = self::getGameStateValue('selected_card_id');

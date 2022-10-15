@@ -125,7 +125,12 @@ function (dojo, declare) {
 			dojo.query( '.deck' ).connect( 'onclick', this, 'onCardSelect' );
 			//dojo.query( '.card' ).connect( 'onclick', this, 'onCardSelect' );
 
-			//this.addTooltipHtmlToClass('gizmo_track', '<div style="width:1000px" class="gizmo_track"></div>');
+			this.addTooltipHtmlToClass('track_upgrades', this.format_block('jstpl_trackTooltip', {type: 'upgrades', offset: 0 }));
+			this.addTooltipHtmlToClass('track_converters', this.format_block('jstpl_trackTooltip', {type: 'converters', offset: Const.TrackSeg_Width }));
+			this.addTooltipHtmlToClass('track_trigger_file', this.format_block('jstpl_trackTooltip', {type: 'trigger_file', offset: Const.TrackSeg_Width*2 }));
+			this.addTooltipHtmlToClass('track_trigger_pick', this.format_block('jstpl_trackTooltip', {type: 'trigger_pick', offset: Const.TrackSeg_Width*3 }));
+			this.addTooltipHtmlToClass('track_trigger_build', this.format_block('jstpl_trackTooltip', {type: 'trigger_build', offset: Const.TrackSeg_Width*4 }));
+			this.addTooltipHtmlToClass('track_archive', this.format_block('jstpl_trackTooltip', {type: 'archive', offset: Const.TrackSeg_Width*5 }));
 			 
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
@@ -189,9 +194,7 @@ function (dojo, declare) {
 					this.showResearch();
 					break;
 				case 'cardSelected':
-					if (this.isCurrentPlayerActive() && !Builder.canPurchase()) {
-						dojo.addClass( 'button_build', 'disabled');//disable the button
-					}
+					//Builder.handleButtonDisabled();
 				case 'deckSelected':
 					this.handleSelectedCard();
 				case 'researchedCardSelected':
@@ -316,6 +319,7 @@ function (dojo, declare) {
 							'buildSelectedCard' );
 						this.addActionButton( 'button_file', _('File'), 'fileSelectedCard' );
 						this.addActionButton( 'button_pass', _('Cancel'), 'cancelSelectedCard' );
+						Builder.handleButtonDisabled();
 						break;
 					case 'triggerSelect':
 						this.addActionButton( 'button_pass', _('Pass'), 'passTriggers' );
@@ -395,6 +399,7 @@ function (dojo, declare) {
 			}
 			dojo.style('researched_gizmos', 'display', 'block');
 			Game.repositionEnergyRing();
+			Builder.handleButtonDisabled();
 		},
 		placeResearchedGizmo: function(gizmo_id) {
 			let mt_gizmo = this.gamedatas.mt_gizmos[gizmo_id];
@@ -762,7 +767,7 @@ function (dojo, declare) {
 				var p = this.gamedatas.players[pid];
 				this.setupPlayerGizmos(pid,'player_gizmos',p.player_no == '1');					
 			}
-			
+			this.addTooltip	
 		},
 		setZoneHeight: function(zone_id, num_cards, player_id) {
 			var height = (this.card_height*((1-Game.stack) + Game.stack*num_cards));
