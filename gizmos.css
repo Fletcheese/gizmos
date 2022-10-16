@@ -142,6 +142,17 @@
     position: relative;
     top: 70%;
 }
+#gizmos_board .deck .deck_count {
+	text-align: center;
+	margin: auto;
+	width:100%;
+	color:#fff;
+    text-shadow: 2px 0 2px #00000099, 0 -2px 2px #00000099, 0 2px 2px #00000099, -2px 0 2px #00000099;
+    transform-origin: center;
+    position: relative;
+    top: 5%;
+	font-size:20px;
+}
 #gizmos_board #player_cards {
 	align-items: flex-start;
     background-repeat: no-repeat;
@@ -455,6 +466,10 @@
 #gizmos_board .half_selected {
 	outline: 5px dotted #5dff35;
 }
+#gizmos_board .highlighted {
+	box-shadow: -10px -10px 8px orange, -10px 10px 8px orange, 10px -10px 8px orange, 10px 10px 8px orange;
+	border-radius: 7%;
+}
 #gizmos_board .research {
 	width: 100%;
 }
@@ -536,14 +551,16 @@
 	width: 286.4px;
 }
 #gizmos_board .gizmos_column {
-	float:left;
+	display:inline-block;
+    vertical-align: top;
 	width:15.5%;
 	margin-left:1%;
 	margin-right:1%;
 	min-height:1px;
 }
 #gizmos_board .archive {
-	float:left;
+	display:inline-block;
+    vertical-align: top;
 	width:10.5%;
 	margin-left:1%;
 	margin-right:1%;

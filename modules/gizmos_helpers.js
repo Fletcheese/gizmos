@@ -21,6 +21,7 @@ let Game = {
 	stack: 0.35,
 	energy_weight: 100,
 	waitHideResearch: false,
+	deck_counts: {},
 	getPlayerArchive: function(pid) {
 		if (!pid) {
 			pid = Game.activePlayer;
@@ -51,7 +52,13 @@ let Game = {
 
 		Game.energy_weight--;
 		return Game.energy_weight;
-	}	
+	},
+	updateDeckCounts: function(deck_counts) {
+		$('deck_count_1').innerHTML = deck_counts['deck_1'];
+		$('deck_count_2').innerHTML = deck_counts['deck_2'];
+		$('deck_count_3').innerHTML = deck_counts['deck_3'];
+		Game.deck_counts = deck_counts;
+	}
 }
 
 let Builder = {

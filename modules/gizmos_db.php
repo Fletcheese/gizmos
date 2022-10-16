@@ -206,6 +206,15 @@ class DB
 		$select_sql = "SELECT card_location_arg,card_type_arg,card_location FROM gizmo_cards WHERE card_location = 'built'";	
         return Gizmos::getDoubleKeyCollection( $select_sql );
 	}
+	public static function getDeckCounts() {
+		$select_sql = "SELECT card_location,card_type_arg FROM gizmo_cards";	
+        $cards = Gizmos::getDoubleKeyCollection( $select_sql );
+		return [
+			'deck_1' => isset($cards['deck_1']) ? count( $cards['deck_1']) : 0,
+			'deck_2' => isset($cards['deck_2']) ? count( $cards['deck_2']) : 0,
+			'deck_3' => isset($cards['deck_3']) ? count( $cards['deck_3']) : 0
+		];
+	}
     /*
     END GIZMO_CARDS
     */

@@ -207,11 +207,11 @@ class Gizmos extends Table
 			2 => $this->gizmo_cards->getCardsInLocation( 'row_2' ),
 			3 => $this->gizmo_cards->getCardsInLocation( 'row_3' )	
 		);
-		$deck_counts = array(
-			1 => count( $this->gizmo_cards->getCardsInLocation( 'deck_1' ) ),
-			2 => count( $this->gizmo_cards->getCardsInLocation( 'deck_2' ) ),
-			3 => count( $this->gizmo_cards->getCardsInLocation( 'deck_3' ) )
-		);
+		// $deck_counts = array(
+		// 	1 => count( $this->gizmo_cards->getCardsInLocation( 'deck_1' ) ),
+		// 	2 => count( $this->gizmo_cards->getCardsInLocation( 'deck_2' ) ),
+		// 	3 => count( $this->gizmo_cards->getCardsInLocation( 'deck_3' ) )
+		// );
 		
 		$built_filed_gizmos = DB::getBuiltOrFiledCards();
 		//var_dump( $built_filed_gizmos );
@@ -240,7 +240,7 @@ class Gizmos extends Table
 		$result['mt_gizmos'] = $this->mt_gizmos;
 		$result['mt_colors'] = $this->mt_colors;
 		$result['gizmo_cards'] = $gizmo_cards;
-		$result['deck_counts'] = $deck_counts;
+		$result['deck_counts'] = DB::getDeckCounts();
   
         return $result;
     }
@@ -276,6 +276,12 @@ class Gizmos extends Table
 		$name = self::getPlayerNameById($player_id);
 		$color = self::getPlayerColorById($player_id);
 		return "<span style='color:#$color'>$name</span>";
+	}
+	function handleResearch() {
+		if (self::getGameStateValue('research_level') > 0) {
+			self::returnResearchToDeck();
+			self::setGameStateValue('research_level', 0);
+		}
 	}
 	function returnResearchToDeck() {
 		$level = self::getGameStateValue('research_level');
@@ -547,6 +553,8 @@ class Gizmos extends Table
 		// Increment score and apply upgrades (if applicable)
 		$new_score = DB::scoreAndUpgradeBuiltCard($player_id, $built_mt_gizmo );
 		
+		self::handleResearch();
+		
 		// clear selected card
 		self::setSelectedCardId(0);
 		// notify everyone
@@ -570,7 +578,8 @@ class Gizmos extends Table
 					'archive' => $limits['archive_limit'],
 					'energy' => $limits['energy_limit'],
 					'research' => $limits['research_quantity']
-				]
+				],
+				'deck_counts' => DB::getDeckCounts()
 			)
 		);
         $this->incStat(1, 'built_number', $player_id);
@@ -616,6 +625,8 @@ class Gizmos extends Table
 		} else {
 			$filed_from = 'Research';
 		}
+		self::handleResearch();
+
 		self::checkFileTriggers();
 		// clear selected card
 		self::setSelectedCardId(0);
@@ -634,6 +645,7 @@ class Gizmos extends Table
 				'spent_spheres' => null,
 				'new_card_id' => $new_card_id,
 				'player_id' => $player_id,
+				'deck_counts' => DB::getDeckCounts()
 			)
 		);
         $this->incStat(1, 'filed_number', $player_id);
@@ -724,7 +736,7 @@ class Gizmos extends Table
 		if (DB::checkResearch(self::getActivePlayerId())) {
 			throw new BgaUserException( self::_("Cannot research due to upgrade!"));
 		}
-		self::checkAction( 'research' );	
+		self::checkAction( 'research' );
 		$level = self::getGameStateValue('selected_card_id');
 		if ($level < 1 || $level > 3) {
 			throw new BgaVisibleSystemException( "Unexpected research level: $level" );			
@@ -735,13 +747,18 @@ class Gizmos extends Table
 		$card_sql = "SELECT player_research_quantity FROM player WHERE player_id=$player_id";
 		$research_quantity = self::getUniqueValueFromDB($card_sql);
 		$cards = $this->gizmo_cards->pickCardsForLocation( $research_quantity, $deck_id, "research", $level );
+		if (count($cards) == 0) {
+			throw new BgaUserException( self::_("No Gizmos left to Research!"));
+		}
+
 		self::setGameStateValue('research_level', $level);
 		$this->gamestate->nextState( 'research' );
-		self::notifyAllPlayers('research', clienttranslate('${player_name} Researches ${n} Level ${level} Gizmos'),
+		self::notifyAllPlayers('research', clienttranslate('${player_name} Researches ${n} Level ${level} Gizmo(s)'),
 			array (
 				'player_name' => self::getPlayerNameForNotification($player_id),
-				'n' => $research_quantity,
-				'level' => DB::LevelAsNumerals($level)
+				'n' => count($cards),
+				'level' => DB::LevelAsNumerals($level),
+				'deck_counts' => DB::getDeckCounts()
 			)
 		);
         $this->incStat(1, 'research_number', $player_id);
@@ -996,10 +1013,7 @@ class Gizmos extends Table
 	function st_triggerCheck() 
 	{
 		$debug = 'st_triggerCheck:\n';
-		if (self::getGameStateValue('research_level') > 0) {
-			self::returnResearchToDeck();
-			self::setGameStateValue('research_level', 0);
-		}
+		self::handleResearch();
 		self::setSelectedCardId(0);
 		$tg_gizmo_id = self::getGameStateValue('triggering_gizmo_id');
 		$debug .= "\ttriggering_gizmo_id=$tg_gizmo_id\n";

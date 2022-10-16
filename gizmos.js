@@ -39,53 +39,52 @@ function (dojo, declare) {
 			Builder.active = {};
 			Builder.spend_spheres = {};
 			this.gamedatas = {};
-
 			
-	  // Load production bug report handler
-	  const self = this; // save the `this` context in a variable
-	  dojo.subscribe("loadBug", this, function loadBug(n) {
-		function fetchNextUrl() {
-		  var url = n.args.urls.shift();
-		  console.log("Fetching URL", url, "...");
-		  // all the calls have to be made with ajaxcall in order to add the csrf token, otherwise you'll get "Invalid session information for this action. Please try reloading the page or logging in again"
-		  self.ajaxcall(url,
-		  {
-			 lock: true,
-		  },
-		  self,
-		  function (success) {
-			console.log("=> Success ", success);
-	
-			if (n.args.urls.length > 1) {
-			  fetchNextUrl();
-			}
-			else if (n.args.urls.length > 0) {
-			  //except the last one, clearing php cache
-			  url = n.args.urls.shift();
-			  dojo.xhrGet({
-				url: url,
-				load: function (success) {
-				  console.log("Success for URL", url, success);
-				  console.log("Done, reloading page");
-				  window.location.reload();
+			// Load production bug report handler
+			const self = this; // save the `this` context in a variable
+			dojo.subscribe("loadBug", this, function loadBug(n) {
+				function fetchNextUrl() {
+				var url = n.args.urls.shift();
+				console.log("Fetching URL", url, "...");
+				// all the calls have to be made with ajaxcall in order to add the csrf token, otherwise you'll get "Invalid session information for this action. Please try reloading the page or logging in again"
+				self.ajaxcall(url,
+				{
+					lock: true,
 				},
-				handleAs: "text",
-				error: function (error) {
-				  console.log("Error while loading : ", error);
+				self,
+				function (success) {
+					console.log("=> Success ", success);
+			
+					if (n.args.urls.length > 1) {
+						fetchNextUrl();
+					}
+					else if (n.args.urls.length > 0) {
+					//except the last one, clearing php cache
+					url = n.args.urls.shift();
+					dojo.xhrGet({
+						url: url,
+						load: function (success) {
+						console.log("Success for URL", url, success);
+						console.log("Done, reloading page");
+						window.location.reload();
+						},
+						handleAs: "text",
+						error: function (error) {
+						console.log("Error while loading : ", error);
+						}
+					});
 				}
-			  });
-		   }
-		 }
-		 ,
-		 function (error) {
-		   if (error)
-			  console.log("=> Error ", error);
-		   }
-		 );
-	   }
-	  console.log("Notif: load bug", n.args);
-	  fetchNextUrl();
-	  });
+				}
+				,
+				function (error) {
+				if (error)
+					console.log("=> Error ", error);
+				}
+				);
+			}
+			console.log("Notif: load bug", n.args);
+			fetchNextUrl();
+			});
         },
         
         /*
@@ -218,6 +217,9 @@ function (dojo, declare) {
 					Builder.checkApplyDiscounts();
 					if (this.isCurrentPlayerActive()) {
 						Builder.autoselectSpend();
+					}
+					if (this.player_id == this.getActivePlayerId() && stateName != 'deckSelected' && dojo.query( '#converter_'+this.player_id+' .card' ).length > 0) {
+						dojo.addClass('converter_' + this.player_id, 'highlighted');
 					}					
 					Builder.refreshHeader(this);
 					break;
@@ -249,7 +251,7 @@ function (dojo, declare) {
 				case 'deckSelected':
 				case 'researchedCardSelected':
 					if (this.player_id == this.getActivePlayerId()) {
-						dojo.removeClass('converter_' + this.player_id, 'half_selected');
+						dojo.removeClass('converter_' + this.player_id, 'highlighted');
 					}
 					dojo.query('.selected').removeClass('selected');
 					dojo.query('.half_selected').removeClass('half_selected');
@@ -576,9 +578,28 @@ function (dojo, declare) {
 				lock: true
 			}, this, function( result ) {} );
 		},
-		researchSelectedDeck: function ( evt ) {			
-			if ( this.checkAction("research") ) {				
-				this.ajaxcall( "/gizmos/gizmos/research.html", {lock: true}, this, function( result ) {} );
+		researchSelectedDeck: function ( evt ) {
+			let deck_count = Game.deck_counts['deck_'+Game.selected_card_id];
+			if (deck_count == 0) {
+				this.showMessage(_('No Gizmos left to Research!'), 'error');
+			} else {
+				let research_quantity = this.gamedatas.players[this.player_id].research_quantity;
+				console.log("researchSelectedDeck", research_quantity, deck_count);
+				if (research_quantity <= deck_count) {			
+					if ( this.checkAction("research") ) {				
+						this.ajaxcall( "/gizmos/gizmos/research.html", {lock: true}, this, function( result ) {} );
+					}
+				} else {
+					let confirmMsg = this.format_string_recursive(_('Your research quantity is ${research_quantity} but there are only ${deck_count} Gizmos left in the deck.  Would you still like to research?'), {
+						research_quantity: research_quantity, 
+						deck_count: deck_count
+					});
+					this.confirmationDialog(confirmMsg, () => {			
+						if ( this.checkAction("research") ) {				
+							this.ajaxcall( "/gizmos/gizmos/research.html", {lock: true}, this, function( result ) {} );
+						}
+					});
+				}
 			}
 		},
 		fileSelectedCard: function ( evt ) {			
@@ -701,32 +722,25 @@ function (dojo, declare) {
 		},
 		setupDeckTooltips: function() {
 			for (var level=1; level<=3; level++) {
-				this.addTooltipHtml( 'deck_' + level, this.format_block('jstpl_deckTooltip', {"level": level, "count": this.gamedatas.deck_counts[level.toString()]}) );				
+				this.addTooltipHtml( 'deck_' + level, '<div id="deck_tooltip_${level}" style="text-align:center">🛈 '+
+					this.format_string_recursive(_('Click to Research Level ${level}'), {"level": Gizmo.levelNumerals(level)})+'</div>' );				
 			}
+			Game.updateDeckCounts(this.gamedatas.deck_counts);
 		},
 		setupCards: function ( gamedatas ) {
-			var gizmo_cards = gamedatas.gizmo_cards;
-			console.log("setupCards from cards:");
-			console.log(gizmo_cards);
-			console.log(gamedatas.deck_counts);
+			let gizmo_cards = gamedatas.gizmo_cards;
 			for (var level = 1; level<=3; level++) {
-				var l_gizmos = gizmo_cards[level];
-				console.log("adding level " + level + " gizmos:");
-				console.log(l_gizmos);	
+				let l_gizmos = gizmo_cards[level];
+				
 				var l_row_div = $('row_' + level);
 				dojo.place( this.format_block('jstpl_deck', {"level": level}), l_row_div );
 				for (var x in l_gizmos) {
 					var gizmo = l_gizmos[x];
 					this.addGizmoToRow(gizmo.type_arg, l_row_div, level);
-				}
-				// this.deck_counters[i] = new ebg.counter();
-				// this.deck_counters[i].create('deck_count_' + level);				
+				}		
 			}
 			this.setupDeckTooltips();
 			
-			// ensure that current player is on 
-			console.log("===PLAYER_SETUP===");
-			console.log(this.gamedatas.players);
 			// GOAL: show the current player above the board.  Show other players in turn order under the board
 			// Players are returned from gamedatas in a "random" order because it's an object, not an array
 			var sorted_player_ids = [];
@@ -767,7 +781,6 @@ function (dojo, declare) {
 				var p = this.gamedatas.players[pid];
 				this.setupPlayerGizmos(pid,'player_gizmos',p.player_no == '1');					
 			}
-			this.addTooltip	
 		},
 		setZoneHeight: function(zone_id, num_cards, player_id) {
 			var height = (this.card_height*((1-Game.stack) + Game.stack*num_cards));
@@ -1074,7 +1087,7 @@ function (dojo, declare) {
 			dojo.subscribe( 'cardBuiltOrFiled', this, "notif_cardBuiltOrFiled" );
 			dojo.subscribe( 'sphereDrawn', this, "notif_sphereDrawn" );
 			dojo.subscribe( 'victoryPoint', this, "notif_victoryPoint" );
-			//dojo.subscribe( 'research', this, "notif_research" );
+			dojo.subscribe( 'research', this, "notif_research" );
 			dojo.subscribe( 'lastTurn', this, "notif_lastTurn" );
 			dojo.subscribe( 'scoreSpecial', this, "notif_scoreSpecial" );
         },  
@@ -1125,6 +1138,8 @@ function (dojo, declare) {
 			let built_from_file = notif.args.built_from_file;
 			let new_score = notif.args.new_score;
 			let limits = notif.args.limits;
+
+			Game.updateDeckCounts(notif.args.deck_counts);
 
 			// update limits in gamedatas (if built, ignored for filing):
 			if (limits) {
@@ -1248,6 +1263,9 @@ function (dojo, declare) {
 		},
 		notif_scoreSpecial: function ( notif ) {
 			this.scoreCtrl[notif.args.player_id].setValue( notif.args.player_score );	
+		},
+		notif_research: function ( notif ) {			
+			Game.updateDeckCounts(notif.args.deck_counts);
 		}
    });             
 });
