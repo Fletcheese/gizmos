@@ -505,7 +505,7 @@
 	border-radius:100%;
 	opacity:0.5;
 	outline: 2px solid white;
-    background-color: white;
+	background-size: 100% 100%;
 }
 #gizmos_board .arrow.right {
 	background-image: url('img/right.jpg');
