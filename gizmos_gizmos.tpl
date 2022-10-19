@@ -27,6 +27,11 @@ var jstpl_player_board = '<div class="cp_board" id="token_counts_${id}">\
 var jstpl_deck = '<div id="deck_${level}" class="deck"><h3 id="deck_count_${level}" class="deck_count"></h3></div>';
 var jstpl_card = '<div id="card_${id}" class="card card_${level} ${other_class}"></div>';
 var jstpl_fd_card = '<div class="card card_${level} gzs_fd_card_${level} ${other_class}"></div>';
+var jstpl_research_card = '<div id="card_${id}" class="card card_${level} researched selectable ${other_class}">\
+	<div id="gzs_arrow_left_${id}" class="gzs_arrow_left arrow left"></div>\
+	<div class="arrow_spacer"></div>\
+	<div id="gzs_arrow_right_${id}" class="gzs_arrow_right arrow right"></div>\
+</div>';
 
 var jstpl_gizmos_container = '<div id="gizmos_container_${id}" class="gizmos_container whiteblock">\
 	<div class="player_header" id="player_header_${id}"><h3 style="color:#${color}" class="player_name ${class}">${name}</h3></div>\
@@ -45,7 +50,10 @@ var jstpl_trackTooltip = '<div class="gzs_track_tooltip track_tooltip_${type}" s
 <div id="gizmos_board">
 	<div id="energy_ring"> </div>
 	<div id="end_banner" class="end_banner" style="display:none">This is the last round!</div>
-	<div id="researched_gizmos" class="row whiteblock" style="display:none"> </div>
+	<div id="research_outer" class="whiteblock row" style="display:none">		
+		<span id="research_help">🛈</span>
+		<div id="researched_gizmos"></div>
+	</div>
 	<div id="current_player_gizmos"> </div>
 	<div id="sphere_row_outer" class="row">
 		<div id="dispenser"></div>

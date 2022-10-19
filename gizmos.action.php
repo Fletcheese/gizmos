@@ -43,13 +43,15 @@
     {
         self::setAjaxMode();
         $selected_card_id = self::getArg( "selected_card_id", AT_posint, true );
-        $result = $this->game->cardSelected( $selected_card_id);
+        $research = self::getArg( "research_order", AT_numberlist, false );
+        $result = $this->game->cardSelected( $selected_card_id, $research );
         self::ajaxResponse( );
     }
     public function cancel()
     {
         self::setAjaxMode();
-        $result = $this->game->cancel( );
+        $research = self::getArg( "research_order", AT_numberlist, false );
+        $result = $this->game->cancel( $research );
         self::ajaxResponse( );
 	}
     
@@ -72,15 +74,17 @@
         self::setAjaxMode();
         $spheres = self::getArg( "spheres", AT_numberlist, true );
         $converters = self::getArg( "converters", AT_json, true );
+        $research = self::getArg( "research_order", AT_numberlist, false );
         $this->game->validateJSonAlphaNum( $converters, 'converters' );
-        $result = $this->game->buildSelectedCard( $spheres, $converters );
+        $result = $this->game->buildSelectedCard( $spheres, $converters, $research );
         self::ajaxResponse( );
     }
     public function fileSelectedCard()
     {
         self::setAjaxMode();
         $selected_card_id = self::getArg( "selected_card_id", AT_posint, true );
-        $result = $this->game->fileSelectedCard( $selected_card_id );
+        $research = self::getArg( "research_order", AT_numberlist, false );
+        $result = $this->game->fileSelectedCard( $selected_card_id, $research );
         self::ajaxResponse( );
 	}
     
@@ -94,7 +98,8 @@
 	
 	public function pass() {
         self::setAjaxMode();
-        $result = $this->game->pass();
+        $research = self::getArg( "research_order", AT_numberlist, false );
+        $result = $this->game->pass($research);
         self::ajaxResponse( );		
 	}
 	

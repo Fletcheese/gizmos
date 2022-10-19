@@ -130,6 +130,7 @@ function (dojo, declare) {
 			this.addTooltipHtmlToClass('track_trigger_pick', this.format_block('jstpl_trackTooltip', {type: 'trigger_pick', offset: Const.TrackSeg_Width*3 }));
 			this.addTooltipHtmlToClass('track_trigger_build', this.format_block('jstpl_trackTooltip', {type: 'trigger_build', offset: Const.TrackSeg_Width*4 }));
 			this.addTooltipHtmlToClass('track_archive', this.format_block('jstpl_trackTooltip', {type: 'archive', offset: Const.TrackSeg_Width*5 }));
+			this.addTooltip('research_help', _('Researched Gizmos will be returned to the bottom of the deck in the order shown starting with the first card on top. You may use the arrows to adjust this order'), '');
 			 
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
@@ -258,9 +259,7 @@ function (dojo, declare) {
 					dojo.query('.discount').removeClass('selectable');
 					dojo.query('.tempnrg').forEach(dojo.destroy);
 					if (!Game.waitHideResearch) {
-						dojo.empty('researched_gizmos');
-						dojo.style('researched_gizmos', 'display', 'none');
-						Game.repositionEnergyRing();
+						Game.hideResearch(this);
 					}
 					Builder.resetVars();					
 					break;
@@ -268,9 +267,7 @@ function (dojo, declare) {
 					break;
 				case 'research':
 					if (!Game.waitHideResearch) {
-						dojo.empty('researched_gizmos');
-						dojo.style('researched_gizmos', 'display', 'none');
-						Game.repositionEnergyRing();
+						Game.hideResearch(this);
 					}
 					break;					
 				default:
@@ -384,6 +381,7 @@ function (dojo, declare) {
 		},
 		showResearch: function() {
 			if (Number.isInteger(this.r_gizmos)) {
+				// not active - show face down cards
 				let gizmoDetails = {
 					'level': this.r_level,
 					'other_class': 'researched'
@@ -391,30 +389,58 @@ function (dojo, declare) {
 				for (var i=0; i<this.r_gizmos; i++) {
 					dojo.place( this.format_block('jstpl_fd_card', gizmoDetails), 'researched_gizmos' );					
 				}
-				// not active - show face down cards
 			} else {
-				for (var card_id in this.r_gizmos) {
-					let gizmo = this.r_gizmos[card_id];
-					let gizmo_id = gizmo.type_arg;
-					this.placeResearchedGizmo(gizmo_id);
+				let gids = Object.keys(this.r_gizmos);
+				let rgs = this.r_gizmos;
+				console.log('showResearch', gids, rgs);
+				gids.sort((a,b) => rgs[b].card_location_arg - rgs[a].card_location_arg);
+				console.log('afterSort:', gids);
+				for (var i=0; i<gids.length; i++) {
+					this.placeResearchedGizmo(gids[i]);
 				}
+				this.connectClass( 'gzs_arrow_right', 'onclick', 'onArrowRight' );
+				this.connectClass( 'gzs_arrow_left', 'onclick', 'onArrowLeft' );
 			}
-			dojo.style('researched_gizmos', 'display', 'block');
+			dojo.style('research_outer', 'display', 'block');
 			Game.repositionEnergyRing();
 			Builder.handleButtonDisabled();
 		},
+		onArrowRight: function( evt ) {
+			let gizmo_ele = evt.target.parentNode;
+			let research_div = gizmo_ele.parentNode;
+			let research_gizmos = research_div.children;
+			let nthChild = Array.prototype.indexOf.call(research_gizmos, gizmo_ele);
+			if (nthChild+1 < research_gizmos.length) {
+				dojo.place(gizmo_ele, research_gizmos[nthChild+1], 'after');
+			} else {
+				// If last, move to beginning
+				dojo.place(gizmo_ele, research_gizmos[0], 'before');
+			}
+		},
+		onArrowLeft: function( evt ) {
+			let gizmo_ele = evt.target.parentNode;
+			let research_div = gizmo_ele.parentNode;
+			let research_gizmos = research_div.children;
+			let nthChild = Array.prototype.indexOf.call(research_gizmos, gizmo_ele);
+			if (nthChild > 0) {
+				dojo.place(gizmo_ele, research_gizmos[nthChild-1], 'before');
+			} else {
+				// If last, move to beginning
+				dojo.place(gizmo_ele, research_gizmos[research_gizmos.length-1], 'after');
+			}
+		},
 		placeResearchedGizmo: function(gizmo_id) {
 			let mt_gizmo = this.gamedatas.mt_gizmos[gizmo_id];
-			var other_class = 'researched selectable';
+			var other_class = '';
 			if (gizmo_id == Game.selected_card_id) {
-				other_class += ' selected';
+				other_class += 'selected';
 			}				
 			let gizmoDetails = {
 				'id': gizmo_id,
 				'level': mt_gizmo.level,
 				'other_class': other_class
 			};
-			dojo.place( this.format_block('jstpl_card', gizmoDetails), 'researched_gizmos' );
+			dojo.place( this.format_block('jstpl_research_card', gizmoDetails), 'researched_gizmos' );
 			this.connect( $('card_' + gizmo_id), 'onclick', 'onCardSelect' );
 			this.addGizmoTooltip(gizmo_id);
 		},
@@ -431,7 +457,7 @@ function (dojo, declare) {
 		pass: function(msg) {
 			if (this.checkAction( "pass" )) {
 				this.confirmationDialog(msg, () => {
-					this.ajaxcall( "/gizmos/gizmos/pass.html", {lock: true}, this, function( result ) {} );					
+					this.ajaxcall( "/gizmos/gizmos/pass.html", {lock: true, research_order: Game.getOrderedResearch()}, this, function( result ) {} );					
 				});
 			}			
 		},
@@ -568,6 +594,7 @@ function (dojo, declare) {
 				this.ajaxcall( "/gizmos/gizmos/buildSelectedCard.html", {
 					"spheres": s_spheres,
 					"converters": s_converters,
+					research_order: Game.getOrderedResearch(),
 					lock: true
 				}, this, function( result ) {} );			
 			}			
@@ -611,7 +638,8 @@ function (dojo, declare) {
 				} else {
 					this.ajaxcall( "/gizmos/gizmos/fileSelectedCard.html", {
 						lock: true,
-						"selected_card_id": this.selected_card_id ?? 0
+						"selected_card_id": this.selected_card_id ?? 0,
+						research_order: Game.getOrderedResearch()
 					}, this, function( result ) {} );					
 				}
 			}
@@ -624,7 +652,8 @@ function (dojo, declare) {
 			dojo.query('.token .selected').removeClass('selected');
 			if (this.checkAction( "cancel" )) {
                 this.ajaxcall( "/gizmos/gizmos/cancel.html", {
-					lock: true
+					lock: true,
+					research_order: Game.getOrderedResearch()
                 }, this, function( result ) {} );				
 			}
 		},
@@ -1053,6 +1082,7 @@ function (dojo, declare) {
 					//console.log('action allowed => ajax');
 					this.ajaxcall( "/gizmos/gizmos/cardSelected.html", {
 						selected_card_id: selected_card_id,
+						research_order: Game.getOrderedResearch(),
 						lock: true
 					}, this, function( result ) {			
 					} );				
@@ -1197,9 +1227,7 @@ function (dojo, declare) {
 					Game.zones[zone_id].placeInZone( pcid );
 					parent.addGizmoTooltip( purchased_id );
 					parent.connect($(pcid), 'onclick', 'onCardSelect');
-					dojo.empty('researched_gizmos');
-					dojo.style('researched_gizmos', 'display', 'none');
-					Game.repositionEnergyRing();
+					Game.hideResearch(parent);
 					Game.waitHideResearch = false;
 				}
 			}(this);

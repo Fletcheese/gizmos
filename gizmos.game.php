@@ -277,16 +277,6 @@ class Gizmos extends Table
 		$color = self::getPlayerColorById($player_id);
 		return "<span style='color:#$color'>$name</span>";
 	}
-	function handleResearch() {
-		if (self::getGameStateValue('research_level') > 0) {
-			self::returnResearchToDeck();
-			self::setGameStateValue('research_level', 0);
-		}
-	}
-	function returnResearchToDeck() {
-		$level = self::getGameStateValue('research_level');
-		$r_cards = $this->gizmo_cards->moveAllCardsInLocation( 'research', "deck_$level" );		
-	}
 	function checkFileTriggers() {
 		$player_id = self::getActivePlayerId();
 		self::DbQuery( "UPDATE gizmo_cards SET is_triggered=1 WHERE card_location='built' AND card_location_arg='$player_id' AND card_type='trigger_file'" );
@@ -387,6 +377,27 @@ class Gizmos extends Table
 	public static function stringContains($needle, $haystack) {
 		return strpos( $haystack, $needle) !== false;
 	}
+	function handleResearchReturn() {
+		if (self::getGameStateValue('research_level') > 0) {
+			self::returnResearchToDeck();
+			self::setGameStateValue('research_level', 0);
+		}
+	}
+	function returnResearchToDeck() {
+		$level = self::getGameStateValue('research_level');
+		$r_cards = $this->gizmo_cards->moveAllCardsInLocationKeepOrder( 'research', "deck_$level" );		
+	}
+	private function handleResearchOrder($research) {
+		if ($research) {
+			$gizmo_ids = explode(',', $research);
+			$level = self::getGameStateValue('research_level');
+			$bottom_pos = $this->gizmo_cards->getExtremePosition( false, "deck_$level" );
+			foreach ($gizmo_ids as $i => $gid) {
+				$bottom_pos--;
+				self::DbQuery( "UPDATE gizmo_cards SET card_location_arg=$bottom_pos WHERE card_type_arg=$gid" );
+			}
+		}
+	}
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Player actions
@@ -397,9 +408,10 @@ class Gizmos extends Table
         (note: each method below must match an input method in gizmos.action.php)
     */
 	
-	function cardSelected( $selected_card_id )
+	function cardSelected( $selected_card_id, $research )
     {
 		// Deck IDs are 1,2,3
+		$this->handleResearchOrder($research);
 		$level = self::getGameStateValue('research_level');
 		if ($level > 0) {
 			self::checkAction( 'cardSelected' );
@@ -433,8 +445,9 @@ class Gizmos extends Table
 			}
 		}		
     }
-	function cancel() {
+	function cancel($research) {
         self::checkAction( 'cancel' );
+		$this->handleResearchOrder($research);
 		// if a multiple action gizmo trigger is being cancelled after the first action, need to ensure it's set to used
 		$uses = self::getGameStateValue('triggering_multiple_uses');
 		$tg_gizmo_id = self::getGameStateValue('triggering_gizmo_id');
@@ -496,8 +509,9 @@ class Gizmos extends Table
         $this->incStat(1, 'picked_number');
 		$this->gamestate->nextState( 'sphereSelect' ); 
 	}
-	function buildSelectedCard($sphere_ids, $converters) {
+	function buildSelectedCard($sphere_ids, $converters, $research) {
 		self::checkAction( 'cardBuilt' );
+		$this->handleResearchOrder($research);
 		$selected_card_id = self::getGameStateValue('selected_card_id');
 		$player_id = self::getActivePlayerId();
 		// confirm that all the selected sphere_ids actually belong to active player
@@ -553,7 +567,7 @@ class Gizmos extends Table
 		// Increment score and apply upgrades (if applicable)
 		$new_score = DB::scoreAndUpgradeBuiltCard($player_id, $built_mt_gizmo );
 		
-		self::handleResearch();
+		self::handleResearchReturn();
 		
 		// clear selected card
 		self::setSelectedCardId(0);
@@ -586,8 +600,9 @@ class Gizmos extends Table
         $this->incStat(1, 'built_number');
 	}
 	
-	function fileSelectedCard($selected_card_id) {
+	function fileSelectedCard($selected_card_id, $research) {
 		self::checkAction( 'cardFile' );
+		$this->handleResearchOrder($research);
 		$player_id = self::getActivePlayerId();
 		if (DB::checkArchive($player_id)) {
 			throw new BgaUserException( self::_("Cannot file due to upgrade!"));
@@ -625,7 +640,7 @@ class Gizmos extends Table
 		} else {
 			$filed_from = 'Research';
 		}
-		self::handleResearch();
+		self::handleResearchReturn();
 
 		self::checkFileTriggers();
 		// clear selected card
@@ -723,8 +738,9 @@ class Gizmos extends Table
 		}
 	}
 	
-	function pass() {
+	function pass($research) {
 		self::checkAction( 'pass' );
+		$this->handleResearchOrder($research);
 		$this->gamestate->nextState( 'pass' );
 	}
 	function draw() {
@@ -814,7 +830,7 @@ class Gizmos extends Table
 		);
 	}
 	function arg_getResearchedCards() {
-		$r_cards = $this->gizmo_cards->getCardsInLocation( 'research' );
+		$r_cards = DB::getResearchCards();
 		return array(
 			'_private' => array(          // Using "_private" keyword, all data inside this array will be made private
 				'active' => array(       // Using "active" keyword inside "_private", you select active player(s)						
@@ -827,7 +843,7 @@ class Gizmos extends Table
 		);
 	}
 	function arg_getSelectedAndResearchedCard() {
-		$r_cards = $this->gizmo_cards->getCardsInLocation( 'research' );
+		$r_cards = DB::getResearchCards();
 		$limits = DB::getPlayerLimits( self::getActivePlayerId() );
 		return array (
 			'_private' => array(          // Using "_private" keyword, all data inside this array will be made private
@@ -1013,7 +1029,7 @@ class Gizmos extends Table
 	function st_triggerCheck() 
 	{
 		$debug = 'st_triggerCheck:\n';
-		self::handleResearch();
+		self::handleResearchReturn();
 		self::setSelectedCardId(0);
 		$tg_gizmo_id = self::getGameStateValue('triggering_gizmo_id');
 		$debug .= "\ttriggering_gizmo_id=$tg_gizmo_id\n";

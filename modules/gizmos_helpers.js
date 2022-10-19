@@ -40,7 +40,7 @@ let Game = {
 	},
 	repositionEnergyRing: function() {		
 		//if (window.innerWidth <= 1469) {
-		let height = $("current_player_gizmos").offsetHeight + $("researched_gizmos").offsetHeight;
+		let height = $("current_player_gizmos").offsetHeight + $("research_outer").offsetHeight;
 		dojo.style( 'energy_ring', 'top', height+"px" );	
 		//console.log("setRingTop=" + height+"px");			
 		//}
@@ -58,6 +58,20 @@ let Game = {
 		$('deck_count_2').innerHTML = deck_counts['deck_2'];
 		$('deck_count_3').innerHTML = deck_counts['deck_3'];
 		Game.deck_counts = deck_counts;
+	},
+	getOrderedResearch: function() {
+		let card_eles = dojo.query('#researched_gizmos .card');
+		return card_eles.map( (ele) => { return parseInt(Gizmo.getIdOfEle(ele.id)) } ).join(',');
+	},
+	hideResearch: function(parent) {		
+		let eles = dojo.query('#gizmos_board .arrow');
+		for (var i=0; i<eles.length; i++) {
+			parent.disconnect( eles[i], 'onclick');
+			dojo.destroy( eles[i] );
+		}
+		dojo.empty('researched_gizmos');
+		dojo.style('research_outer', 'display', 'none');
+		Game.repositionEnergyRing();
 	}
 }
 
@@ -691,10 +705,10 @@ let Builder = {
 								dojo.place(nrg_html, Gizmo.getEleId(gizmo_id));
 								this.temp_energy.push(nrg_id);
 								parent.connectClass( gizmo_id, 'onclick', 'onEnergySelect' );
-								if (picked_sphere_id > 0) {
-									this.deselectConverter(gizmo_id, parent);
-								}
-								this.applyColorConverter( gizmo_id, from_color, mt_sel_gizmo.color, null, parent );
+								// if (picked_sphere_id > 0) {
+								// 	this.deselectConverter(gizmo_id, parent);
+								// }
+								Builder.applyColorConverter( gizmo_id, from_color, mt_sel_gizmo.color, null, parent );
 							}
 						} else if (c_to == 'two') {
 							if (cost < 2) {

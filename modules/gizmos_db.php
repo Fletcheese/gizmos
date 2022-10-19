@@ -215,6 +215,9 @@ class DB
 			'deck_3' => isset($cards['deck_3']) ? count( $cards['deck_3']) : 0
 		];
 	}
+	public static function getResearchCards() {
+		return Gizmos::getCollection( "SELECT card_type_arg,card_location_arg FROM gizmo_cards WHERE card_location='research' ORDER BY card_location_arg DESC" );
+	}
     /*
     END GIZMO_CARDS
     */
