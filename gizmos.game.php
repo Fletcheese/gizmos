@@ -392,6 +392,9 @@ class Gizmos extends Table
 			$gizmo_ids = explode(',', $research);
 			$level = self::getGameStateValue('research_level');
 			$bottom_pos = $this->gizmo_cards->getExtremePosition( false, "deck_$level" );
+			if (!$bottom_pos) {
+				$bottom_pos = 0;
+			}
 			foreach ($gizmo_ids as $i => $gid) {
 				$bottom_pos--;
 				self::DbQuery( "UPDATE gizmo_cards SET card_location_arg=$bottom_pos WHERE card_type_arg=$gid" );

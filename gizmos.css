@@ -1283,7 +1283,7 @@
 	background-image: url('img/sheet2.jpg');
 	background-size: 700% 700%;
 }
-#gizmos_board #card_901, #gizmos_board #card_902, #gizmos_board #card_903, #gizmos_board #card_904 {
+#gizmos_board #card_901, #gizmos_board #card_902, #gizmos_board #card_903, #gizmos_board #card_904, .dijitTooltip #card_901, .dijitTooltip #card_902, .dijitTooltip #card_903, .dijitTooltip #card_904 {
 	background-position-y: -600%;
 	background-position-x: -200%;
 	background-image: url('img/sheet2.jpg');

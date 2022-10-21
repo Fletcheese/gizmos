@@ -1019,7 +1019,7 @@ function (dojo, declare) {
 			} );
 			Game.deselectEnergy();
 		},
-		cancelEnergySelect: function( evt ) {
+		cancelPickEnergy: function( evt ) {
 			Game.deselectEnergy();
 			Game.resetDescription(this);
 		},

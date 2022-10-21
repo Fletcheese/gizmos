@@ -98,7 +98,7 @@ let Game = {
 		parent.updatePageTitle();
 		parent.removeActionButtons();
 		parent.addActionButton( 'button_confirmPick', _('Confirm'), 'doPickEnergy' );
-		parent.addActionButton( 'button_cancelPick', _('Cancel'), 'cancelEnergySelect' );
+		parent.addActionButton( 'button_cancelPick', _('Cancel'), 'cancelPickEnergy' );
 	},
 	resetDescription: function(parent) {
 		parent.gamedatas.gamestate.descriptionmyturn = Game.saved_desc;
