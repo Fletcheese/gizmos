@@ -53,6 +53,20 @@ $game_options = array(
 
     */
 
+
+);
+
+$game_preferences = array(
+    201 => array(
+        'name' => totranslate('Pick Energy Confirm'),
+        'needReload' => true,
+        'values' => array(
+            1 => array( 'name' => totranslate( 'Touch Device Only (default)' ) ),
+            2 => array( 'name' => totranslate( 'Never' ) ),
+            3 => array( 'name' => totranslate( 'Always' ) )
+        ),
+        'default' => 1
+    )
 );
 
 

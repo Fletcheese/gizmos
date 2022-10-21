@@ -29,7 +29,6 @@ var jstpl_card = '<div id="card_${id}" class="card card_${level} ${other_class}"
 var jstpl_fd_card = '<div class="card card_${level} gzs_fd_card_${level} ${other_class}"></div>';
 var jstpl_research_card = '<div id="card_${id}" class="card card_${level} researched selectable ${other_class}">\
 	<div id="gzs_arrow_left_${id}" class="gzs_arrow_left arrow left"></div>\
-	<div class="arrow_spacer"></div>\
 	<div id="gzs_arrow_right_${id}" class="gzs_arrow_right arrow right"></div>\
 </div>';
 
@@ -48,10 +47,12 @@ var jstpl_trackTooltip = '<div class="gzs_track_tooltip track_tooltip_${type}" s
 </script>
 
 <div id="gizmos_board">
-	<div id="energy_ring"> </div>
+	<div id="energy_ring">
+		<h3 id="ring_count" class="deck_count"></h3>
+	</div>
 	<div id="end_banner" class="end_banner" style="display:none">This is the last round!</div>
 	<div id="research_outer" class="whiteblock row" style="display:none">		
-		<span id="research_help">🛈</span>
+		<span id="research_help"></span>
 		<div id="researched_gizmos"></div>
 	</div>
 	<div id="current_player_gizmos"> </div>

@@ -317,7 +317,7 @@ function (dojo, declare) {
 							}), 
 							'buildSelectedCard' );
 						this.addActionButton( 'button_file', _('File'), 'fileSelectedCard' );
-						this.addActionButton( 'button_pass', _('Cancel'), 'cancelSelectedCard' );
+						this.addActionButton( 'button_cancel', _('Cancel'), 'cancelSelectedCard' );
 						Builder.handleButtonDisabled();
 						break;
 					case 'triggerSelect':
@@ -571,6 +571,15 @@ function (dojo, declare) {
 				'archive_full': totalArch >= limitArch ? 'full' : '',
 				'research': this.gamedatas.players[player_id].research_quantity
 			}), $('player_board_'+player_id) );
+
+			if (player_id == this.player_id) {
+				$('ring_count').innerHTML = totalNrg + '/' + limitNrg;
+				if (totalNrg >= limitNrg) {
+					dojo.addClass('ring_count', 'full');
+				} else {
+					dojo.removeClass('ring_count', 'full');
+				}
+			}
 
 			// add tooltips
 			for (var i=0; i<4; i++) {
@@ -979,7 +988,6 @@ function (dojo, declare) {
 							Builder.temp_energy.push(nrgEle.id);
 						}
 					}(this);
-					//dojo.connect(anim, 'onEnd', dojo.hitch(this, 'tempSlideCallback', evt.target));
 					anim.play();
 				}
 			} else if (evt.target.classList.contains('convert_to')) {
@@ -992,17 +1000,29 @@ function (dojo, declare) {
 				if (sphere_count == this.sphere_limit) {
 					this.showMessage(_("You cannot hold more energy"), "error");
 				} else {
-					//console.log("onEnergySelect submitting sphereSelect ajax");
-					this.ajaxcall( "/gizmos/gizmos/sphereSelect.html", {
-						'sphere_id': sphere_id,
-						lock: true
-					}, this, function( result ) {
-					} );
+					Game.selectEnergy(sphere_id);
+					if (Game.isShowEnergyConfirm(this)) {
+						Game.showEnergyConfirm(this);
+					} else {
+						this.doPickEnergy();
+					}					
 				}
 			} else {
 				//console.log("sphereSelect not allowed in this state");
 			}
-		},		
+		},
+		doPickEnergy: function( evt ) {
+			this.ajaxcall( "/gizmos/gizmos/sphereSelect.html", {
+				'sphere_id': Game.selected_energy,
+				lock: true
+			}, this, function( result ) {
+			} );
+			Game.deselectEnergy();
+		},
+		cancelEnergySelect: function( evt ) {
+			Game.deselectEnergy();
+			Game.resetDescription(this);
+		},
 		onCardSelect: function( evt ) {
 			//console.log("Selected a card: " + Game.stateName);
 			//console.log(evt);

@@ -13,7 +13,6 @@ let Const = {
 }
 
 let Game = {
-
 	zones: {},
 	activePlayer: -1,
 	selected_card_id: -1,
@@ -22,6 +21,9 @@ let Game = {
 	energy_weight: 100,
 	waitHideResearch: false,
 	deck_counts: {},
+	selected_energy: -1,
+	saved_desc: null,
+
 	getPlayerArchive: function(pid) {
 		if (!pid) {
 			pid = Game.activePlayer;
@@ -72,6 +74,46 @@ let Game = {
 		dojo.empty('researched_gizmos');
 		dojo.style('research_outer', 'display', 'none');
 		Game.repositionEnergyRing();
+	},	
+	isShowEnergyConfirm: function(parent) {
+		let pref = parent.prefs[201].value;
+		console.log('isShowEnergyConfirm?', pref)
+		switch (pref) {
+			case '2': // never
+				console.log('2 => never');
+				return false;
+			case '3': // always
+				console.log('3 => always');
+				return true;
+			case '1': // Touch device only
+			default:
+				let isTouch = window.matchMedia('(hover:none)').matches;
+				console.log('1/default => if touch: ', isTouch);
+				return isTouch;
+		}		
+	},
+	showEnergyConfirm: function(parent) {
+		Game.saved_desc = parent.gamedatas.gamestate.descriptionmyturn;
+		parent.gamedatas.gamestate.descriptionmyturn = _('Confirm Pick Energy?');
+		parent.updatePageTitle();
+		parent.removeActionButtons();
+		parent.addActionButton( 'button_confirmPick', _('Confirm'), 'doPickEnergy' );
+		parent.addActionButton( 'button_cancelPick', _('Cancel'), 'cancelEnergySelect' );
+	},
+	resetDescription: function(parent) {
+		parent.gamedatas.gamestate.descriptionmyturn = Game.saved_desc;
+		parent.updatePageTitle();
+	},
+	selectEnergy: function(id) {
+		Game.selected_energy = id;
+		dojo.addClass( Energy.getEleId(id), 'selected' );
+	},
+	deselectEnergy: function() {
+		let ele_id = Energy.getEleId(Game.selected_energy);
+		if ($(ele_id))
+			dojo.removeClass( ele_id, 'selected' );
+			
+		Game.selected_energy = -1;
 	}
 }
 

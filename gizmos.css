@@ -21,6 +21,15 @@
   }
 }
 
+#button_cancel, #button_pass, #button_cancelPick {
+	background-color: #eee;
+    color: #000;
+}
+#button_pass {
+	background-color: #f11;
+    color: #fff;
+}
+
 #gizmos_board .end_banner, #logs .end_banner {
     color: #fff;
     background: #d83838;
@@ -142,7 +151,7 @@
     position: relative;
     top: 70%;
 }
-#gizmos_board .deck .deck_count {
+#gizmos_board .deck .deck_count, #energy_ring #ring_count {
 	text-align: center;
 	margin: auto;
 	width:100%;
@@ -155,15 +164,17 @@
 }
 #gizmos_board #research_help {
 	color:#fff;
-    text-shadow: 2px 0 2px #00000099, 0 -2px 2px #00000099, 0 2px 2px #00000099, -2px 0 2px #00000099;
+    box-shadow: 2px 0 2px #ffffff99, 0 -2px 2px #ffffff99, 0 2px 2px #ffffff99, -2px 0 2px #ffffff99;
     transform-origin: center;
     position: absolute;
-	font-size:30px;
-	top:1%;
+	top:3%;
 	left:1%;
-	width:20px;
-	height:20px;
+	width:30px;
+	height:30px;
 	cursor: help;
+	background-image: url('img/help.png');
+	background-size: 100% 100%;
+	border-radius:100%;
 }
 #gizmos_board #player_cards {
 	align-items: flex-start;
@@ -289,7 +300,7 @@
 #player_boards .count_0 {
 	opacity: .5;
 }
-#player_boards .counter.full {
+#player_boards .counter.full, #energy_ring #ring_count.full {
 	color: #f88;
 }
 #player_boards .counter {
@@ -506,20 +517,16 @@
 	opacity:0.5;
 	outline: 2px solid white;
 	background-size: 100% 100%;
+	padding:0%;
+	margin:0%;
 }
 #gizmos_board .arrow.right {
 	background-image: url('img/right.jpg');
+	left: 58%;
 }
 #gizmos_board .arrow.left {
 	background-image: url('img/left.jpg');
 }
-#gizmos_board .arrow_spacer {
-	width:54%;
-	height:20%;
-	top:40%;
-	position:relative;
-	display:inline-block;
-}  
 
 #gizmos_board .mycards {
     align-items: center;
