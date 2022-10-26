@@ -24,11 +24,12 @@ class Converter
             }
         }
         ksort($orders);
+        //self::debug($orders);
 
         $spend_power = array(
             'black' => 0, 'blue' => 0, 'red' => 0, 'yellow' => 0
         );
-        self::debug($energies);
+        //self::debug($energies);
         if ($energies) {
             foreach ($energies as $i => $eid) {
                 if ($eid) {
@@ -37,7 +38,7 @@ class Converter
                 }
             }
         }
-        self::debug($spend_power);
+        //self::debug($spend_power);
 
         $used_converters = array();
         foreach ($orders as $o => $c_action) {
@@ -46,7 +47,12 @@ class Converter
             }
             $c_id = $c_action['id'];
             $mt_c = self::$game->mt_gizmos[$c_id];
-            $c_action = $converters[$c_id];
+            // $c_action; 
+            // if ($o_action['is_second']) {
+            //     $c_action = $o_action;
+            // } else {
+            //     $c_action = $converters[$c_id];
+            // }
             self::validateConvert($mt_c, $c_action, $spend_power);
             array_push($used_converters, $c_id);
 		}
@@ -86,8 +92,8 @@ class Converter
 
     function validateConvert($mt_c, $c_action, &$spend_power) {
         $c_id = $mt_c['id'];
-        self::debug("\n$c_id converts ".$c_action['from']." to ".$c_action['to_number'].$c_action['to_color']."\n");
-        self::debug($c_action);
+        self::debug("[$]$c_id converts ".$c_action['from']." to ".$c_action['to_number'].$c_action['to_color']."\n");
+       // self::debug($c_action);
         if ($mt_c['effect_type'] != 'converter') {
             throw new BgaVisibleSystemException( "Gizmo[$c_id] is not a converter" );           
         }
@@ -127,14 +133,13 @@ class Converter
             default:
                 throw new BgaVisibleSystemException( "Unrecognized convert_to: $mt_to" );                
         }
-        $is_second = (isset($c_action['is_second']) ? $is_second['is_second'] : false);
+        $is_second = (isset($c_action['is_second']) ? $c_action['is_second'] : false);
         if ($is_second && !$valid_second) {
             throw new BgaVisibleSystemException( "Gizmo[$c_id] cannot include a second action" );	 
         }
         self::debug($spend_power);
     }
 
-    function _($s) { return Gizmos::_t($s); }
     function debug($o) {
         if (false) {
             var_dump($o);

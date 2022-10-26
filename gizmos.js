@@ -468,21 +468,23 @@ function (dojo, declare) {
 			Game.zones['sphere_row'].placeInZone( Energy.getEleId(sphere_id), Game.getNrgWeight() );
 			this.addTooltip( Energy.getEleId(sphere_id), '', dojo.string.substitute(Const.Tooltip_Row_Energy(), {color: Energy.getColor(sphere_id)}));
 		},
-		spendSpheres: function (player_id, spheres) {
-			let arrSpheres = spheres.split(',');
-			for (var i=0; i<arrSpheres.length; i++) {
-				let spid = arrSpheres[i];
-				Builder.decrementSphereCount(player_id, spid);
-				// place a sphere in player card then drag
-				if (player_id == this.player_id) {
-					let sp_ele_id = Energy.getEleId(spid);
-					this.disconnect( $(sp_ele_id), 'onEnergySelect' );
-					Game.zones['energy_ring'].removeFromZone(sp_ele_id);
-				} else {
-					dojo.place( 
-						Energy.getEnergyHtml(spid, Energy.getColor(spid), ''), $('player_board_'+player_id) );		
-				}		
-				this.slideToObjectAndDestroy( $('sphere_'+spid), $('dispenser') );
+		spendSpheresAndRebuildPlayerCard: function (player_id, spheres) {
+			if (spheres) {
+				let arrSpheres = spheres.split(',');
+				for (var i=0; i<arrSpheres.length; i++) {
+					let spid = arrSpheres[i];
+					Builder.decrementSphereCount(player_id, spid);
+					// place a sphere in player card then drag
+					if (player_id == this.player_id) {
+						let sp_ele_id = Energy.getEleId(spid);
+						this.disconnect( $(sp_ele_id), 'onEnergySelect' );
+						Game.zones['energy_ring'].removeFromZone(sp_ele_id);
+					} else {
+						dojo.place( 
+							Energy.getEnergyHtml(spid, Energy.getColor(spid), ''), $('player_board_'+player_id) );		
+					}		
+					this.slideToObjectAndDestroy( $('sphere_'+spid), $('dispenser') );
+				}
 			}
 			this.buildPlayerCard(player_id);			
 		},
@@ -944,6 +946,11 @@ function (dojo, declare) {
 
 		
 		onEnergySelect: function( evt ) {
+			if (Game.isLocked()) {
+				return;
+			} else {
+				Game.action_lock = true;
+			}
 			console.log('onEnergySelect', evt.target);
 			let sphere_id = Energy.getIdOfEle(evt.target.id);
 			if (evt.target.classList.contains('convert_from')) { 
@@ -972,7 +979,7 @@ function (dojo, declare) {
 					}
 				}
 			} else if (evt.target.classList.contains('picker')) {
-				if (Builder.picking > 0) {
+				if (Builder.picking > 0 && Builder.validateConvertColor(evt.target.id, this)) {
 					let nrgEle = evt.target;
 					this.disconnect( $(nrgEle.id), 'onEnergySelect' );
 					this.attachToNewParent( $(nrgEle.id), $(Gizmo.getEleId(Builder.picking)) );
@@ -986,8 +993,10 @@ function (dojo, declare) {
 							Builder.applyColorConverter( Builder.picking, null, Energy.getEleColor(nrgEle), null, parent );
 							Energy.hidePicker(parent);
 							Builder.temp_energy.push(nrgEle.id);
+							Game.anim_lock = false;
 						}
 					}(this);
+					Game.anim_lock = true;
 					anim.play();
 				}
 			} else if (evt.target.classList.contains('convert_to')) {
@@ -1010,6 +1019,7 @@ function (dojo, declare) {
 			} else {
 				//console.log("sphereSelect not allowed in this state");
 			}
+			Game.action_lock = false;
 		},
 		doPickEnergy: function( evt ) {
 			this.ajaxcall( "/gizmos/gizmos/sphereSelect.html", {
@@ -1024,6 +1034,11 @@ function (dojo, declare) {
 			Game.resetDescription(this);
 		},
 		onCardSelect: function( evt ) {
+			if (Game.isLocked()) {
+				return;
+			} else {
+				Game.action_lock = true;
+			}
 			//console.log("Selected a card: " + Game.stateName);
 			//console.log(evt);
 			
@@ -1114,6 +1129,7 @@ function (dojo, declare) {
 					this.showMessage(_('Must select a Gizmo before converting'), 'error');
 				}
 			}
+			Game.action_lock = false;
 		},
 
         
@@ -1160,8 +1176,10 @@ function (dojo, declare) {
 						Game.zones['energy_ring'].placeInZone( sp_ele_id );
 						parent.addTooltip( sp_ele_id, '', dojo.string.substitute(Const.Tooltip_Ring_Energy(), {color: Energy.getColor(sphere_id)}));
 						parent.connect($(sp_ele_id), 'onclick', 'onEnergySelect');
+						Game.anim_lock = false;
 					}
 				}(this);
+				Game.anim_lock = true;
 				anim.play();
 			} else {
 				// slide sphere to player card
@@ -1249,8 +1267,10 @@ function (dojo, declare) {
 					parent.connect($(pcid), 'onclick', 'onCardSelect');
 					Game.hideResearch(parent);
 					Game.waitHideResearch = false;
+					Game.anim_lock = false;
 				}
 			}(this);
+			Game.anim_lock = true;
 			anim.play();
 			
 			// slide new card into row if not was_filed NOR researched
@@ -1265,9 +1285,7 @@ function (dojo, declare) {
 				}
 			}
 
-			if (spheres) {
-				this.spendSpheres(player_id, spheres);
-			}
+			this.spendSpheresAndRebuildPlayerCard(player_id, spheres);
 		},
 		notif_sphereDrawn: function ( notif ) {
 			let sphere_id = notif.args.sphere_id;
@@ -1292,8 +1310,10 @@ function (dojo, declare) {
 						Game.zones['energy_ring'].placeInZone( sp_ele_id );
 						parent.addTooltip( sp_ele_id, '', dojo.string.substitute(Const.Tooltip_Ring_Energy(), {color: Energy.getColor(sphere_id)}));
 						parent.connect($(sp_ele_id), 'onclick', 'onEnergySelect');
+						Game.anim_lock = false;
 					}
 				}(this);
+				Game.anim_lock = true;
 				anim.play();
 			} else {
 				this.slideTemporaryObject( sp_html, 'sphere_row', 'dispenser', 'player_header_'+player_id ).play();

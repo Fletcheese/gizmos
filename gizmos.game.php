@@ -455,7 +455,7 @@ class Gizmos extends Table
 		$uses = self::getGameStateValue('triggering_multiple_uses');
 		$tg_gizmo_id = self::getGameStateValue('triggering_gizmo_id');
 		$next_state;
-		if ($uses > 0) {
+		if ($uses > 0 && $tg_gizmo_id > 0) {
 			DB::setGizmoUsed($tg_gizmo_id);
 			$next_state = 'triggerCheck';
 		} else if ($tg_gizmo_id > 0 && self::getStateName() == 'deckSelected') {

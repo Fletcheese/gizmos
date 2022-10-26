@@ -23,6 +23,11 @@ let Game = {
 	deck_counts: {},
 	selected_energy: -1,
 	saved_desc: null,
+	action_lock: false,
+	anim_lock: false,
+	isLocked: function() {
+		return this.action_lock || this.anim_lock;
+	},
 
 	getPlayerArchive: function(pid) {
 		if (!pid) {
@@ -193,14 +198,15 @@ let Builder = {
 		if (!this.active_converters[gid])
 			this.active_converters[gid] = {};
 
-		if (this.picking && this.picking != gid)
-			Builder.deselectConverter(this.picking, parent);			
+		let prevPicking = this.picking;
+		this.picking = gid;
+		if (prevPicking && prevPicking != gid)
+			Builder.deselectConverter(prevPicking, parent);			
 
 		if (!this.saved_desc)
 			this.saved_desc = parent.gamedatas.gamestate.descriptionmyturn;
 
 		dojo.addClass( Gizmo.getEleId(gid), 'half_selected' );
-		this.picking = gid;
 		parent.gamedatas.gamestate.descriptionmyturn = new_desc;
 		Object.assign(this.active_converters[gid], {
 			picking: true
@@ -533,7 +539,8 @@ let Builder = {
 	deselectConverter: function ( gizmo_id, parent ) {
 		var cdets = this.active_converters[gizmo_id];
 		if (cdets) {
-			if (cdets.picking) {
+			cdets.deselecting = true;
+			if (cdets.picking && gizmo_id == Builder.picking) {
 				dojo.removeClass( 'energy_ring', 'half_selected' );	
 				this.picking = 0;
 				Energy.hidePicker(parent);
@@ -543,7 +550,8 @@ let Builder = {
 					for (var i=0; i<cdets.supporteds.length; i++) {
 						var gid = cdets.supporteds[i];
 						console.log("automatically deselecting supported[" + i + "]=" + gid);
-						this.deselectConverter( gid, parent );
+						if (!this.active_converters[gid].deselecting)
+							this.deselectConverter( gid, parent );
 					}
 				}
 				console.log(this.spending_power);
@@ -579,8 +587,10 @@ let Builder = {
 							Game.zones['energy_ring'].placeInZone(energy.id);
 							parent.addTooltip( energy.id, '', dojo.string.substitute(Const.Tooltip_Ring_Energy(), {color: Energy.getColor(energy.id)}));
 							parent.connect($(energy.id), 'onclick', 'onEnergySelect');
+							Game.anim_lock = false;
 						}
 					}(parent, energy);
+					Game.anim_lock = true;
 					anim.play();
 				} else if (cdets[energy.id] && dojo.hasClass( Gizmo.getEleId(cdets[energy.id]), 'selected' )) {
 					dojo.removeClass(energy, 'convert_from');
@@ -804,7 +814,9 @@ let Builder = {
 		let anim = parent.slideToObjectPos( $(sp_ele_id), $(Gizmo.getEleId(gizmo_id)), 10, 10 );
 		anim.onEnd = function() {
 			dojo.attr( Energy.getEleId(spid), 'style', 'position:absolute;' );
+			Game.anim_lock = false;
 		};
+		Game.anim_lock = true;
 		anim.play();
 	},
 	
@@ -823,6 +835,21 @@ let Builder = {
 				dojo.removeClass( 'button_file', 'disabled');
 			}
 		}		
+	},
+
+	validateConvertColor: function(ele_id, parent) {
+		let color = Energy.getColor( ele_id ); // ele is a temp energy
+		let fc = Builder.active_converters[Builder.picking].from;
+		let gc = Gizmo.details( Builder.picking ).convert_from;
+		console.log("energy color ?= from_color OR gizmo_color", color, fc, gc, this.picking);
+		if (color == fc || color == gc) {
+			this.showMessage( parent.format_string_recursive(_("Already ${color}!"), {
+				i18n: ['color'],
+				color: color
+			}), 'error');
+		} else {
+			return true;
+		}
 	}
 
 };
@@ -945,6 +972,7 @@ let Energy = {
 				</div>', {gid: gid, temps: temps} );
 	},
 	hidePicker: function(parent) {
+		console.log("hide picker");
 		if ($('color_picker')) {
 			let nrgs = $('color_picker').childNodes;	
 			for (var i=0; i<nrgs.length; i++) {
@@ -952,14 +980,22 @@ let Energy = {
 			};
 			dojo.destroy('color_picker');
 		}
+		console.log("hide picker DONE");
 	},
 	showPicker: function(pid, gid, parent) {
+		console.log("show picker");
+		Energy.hidePicker(parent);
 		dojo.place( Energy.getPickerHtml(gid), 'converter_'+pid );
+		// if (!$('color_picker')) {
+		// 	dojo.place( Energy.getPickerHtml(gid), 'converter_'+pid );
+		// 	parent.connectClass( 'picker', 'onclick', 'onEnergySelect' );			
+		// }
 		let styleTop = $(Gizmo.getEleId(gid)).style.top;
 		let styleLeft = $(Gizmo.getEleId(gid)).offsetWidth;
 		dojo.style( $('color_picker'), 'top', styleTop );
 		dojo.style( $('color_picker'), 'left', styleLeft+"px" );
 		parent.connectClass( 'picker', 'onclick', 'onEnergySelect' );
+		console.log("show picker DONE");
 	},	
 	getEnergyHtml: function (sphere_id, classes) {
 		return Energy.energyHtmlTplt(sphere_id, Energy.getColor(sphere_id), (classes ? classes : ''));
