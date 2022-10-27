@@ -80,9 +80,9 @@ class Gizmos extends Table
         /************ Start the game initialization *****/
 		
 		// Create the spheres / energies / tokens
-		// Pick 6 spheres at random for starting row:
+		// Pick 7 spheres at random for starting row + NEXT:
 		$start_spheres = array();
-		for ($i = 0; $i < 6; $i++) {
+		for ($i = 0; $i < 7; $i++) {
 			$r = rand(1,52);
 			while (in_array($r, $start_spheres)) {
 				$r = rand(1,52);
@@ -92,11 +92,17 @@ class Gizmos extends Table
 		
         $sql = "INSERT INTO sphere (location) VALUES ";
         $sql_values = array();
+		$next = true;
         for( $x=1; $x<=52; $x++ )
         {
 			$location;
 			if (in_array($x, $start_spheres)) {
-				$location = 'row';
+				if ($next) {
+					$location = 'next';
+					$next = false;
+				} else {
+					$location = 'row';
+				}
 			} else {
                 $location = 'dispenser';
             }
@@ -200,7 +206,7 @@ class Gizmos extends Table
 		
 		$result['selected_card_id'] = self::getGameStateValue('selected_card_id');
 		$result['is_last_round'] = self::getGameStateValue('is_last_round');
-        $result['spheres'] = DB::getDispenserSpheres();
+        $result['spheres'] = DB::getRowEnergy();
 		
 		$gizmo_cards = array(
 			1 => $this->gizmo_cards->getCardsInLocation( 'row_1' ),
@@ -481,28 +487,20 @@ class Gizmos extends Table
 		}
 		
 		// ensure sphere is actually in the row to prevent cheaters:
-		$sel_sql = "SELECT location FROM sphere WHERE sphere_id='$sphere_id'";
-		$sp_location = self::getUniqueValueFromDB( $sel_sql );
+		$sp_location = DB::getSphereLocation($sphere_id);
 		if ($sp_location != 'row') {
 			throw new BgaVisibleSystemException( "Cannot pick energy sphere $sphere_id from $sp_location" );				
 		}
 		
-		$sql = "UPDATE sphere SET location='$player_id'
-                    WHERE sphere_id='$sphere_id'";
-		self::DbQuery( $sql );		
-		$sphere_sql = "SELECT sphere_id FROM sphere WHERE location='dispenser'";
-        $spheres = self::getCollectionFromDb( $sphere_sql );
-		
-		$new_sphere = array_rand($spheres);
-		$sql_new = "UPDATE sphere SET location='row' WHERE sphere_id='$new_sphere'";
-		self::DbQuery( $sql_new );
+		DB::moveSphereToPlayer($sphere_id, $player_id);		
+		$new_sphere = DB::randomDispenserNext();
+
 		self::checkPickTriggers($sphere_id);
-		$player_name = self::getPlayerNameForNotification($player_id);
-		$sphere_color = self::getSphereColor($sphere_id);
+
 		self::notifyAllPlayers('sphereSelect', clienttranslate('${player_name} Picks ${sphere_html}'), //a ${sphere_color} Energy"),
 			array (
-				'player_name' => $player_name,
-				'sphere_html' => DB::getSphereHtml($sphere_color),
+				'player_name' => self::getPlayerNameForNotification($player_id),
+				'sphere_html' => DB::getSphereHtml( self::getSphereColor($sphere_id) ),
 				'new_sphere_id' => $new_sphere,
 				'purchased_sphere_id' => $sphere_id,
 				'player_id' => $player_id

@@ -461,8 +461,13 @@ function (dojo, declare) {
 				});
 			}			
 		},
-				
-		insertSphereInRow: function ( sphere_id, slide_from_dispenser ) {
+		insertNextSphere: function( sphere_id ) {
+			let sphere_ele = Energy.getEnergyHtml(sphere_id);
+			dojo.place( sphere_ele, 'sphere_row' );
+			dojo.addClass( Energy.getEleId(sphere_id), 'next_nrg' );
+			this.addTooltip( Energy.getEleId(sphere_id), dojo.string.substitute(Const.Tooltip_Next_Energy(), {color: Energy.getColor(sphere_id)}), '' );			
+		},
+		insertSphereInRow: function ( sphere_id ) {
 			let sphere_ele = Energy.getEnergyHtml(sphere_id);
 			dojo.place( sphere_ele, 'sphere_row' );
 			Game.zones['sphere_row'].placeInZone( Energy.getEleId(sphere_id), Game.getNrgWeight() );
@@ -1191,11 +1196,15 @@ function (dojo, declare) {
 			$('token_counts_' + player_id).remove();
 			this.buildPlayerCard(player_id);
 			
+			// Get next sphere ele
+			let next_ele_id = dojo.query('#sphere_row .next_nrg')[0].id;
+			dojo.removeClass(next_ele_id, 'next_nrg');
+			// add to row zone (should work for animation)
+			Game.zones['sphere_row'].placeInZone(next_ele_id, Game.getNrgWeight());
+
 			let new_sphere_id = notif.args.new_sphere_id;
-			//console.log("Inserting new sphere: " + new_sphere_id);
-			this.insertSphereInRow(new_sphere_id, true);
+			this.insertNextSphere(new_sphere_id);
 			this.connect($(Energy.getEleId(new_sphere_id)), 'onclick', 'onEnergySelect');
-			//this.showMessage(" ", "info");
 		},
 		notif_cardBuiltOrFiled: function ( notif ) {
 			Game.waitHideResearch = true;

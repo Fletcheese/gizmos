@@ -3,8 +3,9 @@ let Const = {
 	GIDS_Discount_FromFile: [327,328],
 	GIDs_Discount_FromResearch: [329,330],
 	GIDs_Discount_All: [315,316,327,328,329,330],
-	Tooltip_Ring_Energy: function () {return _("${color} energy in your ring may be spent for building gizmos");},
-	Tooltip_Row_Energy: function() {return _("${color} energy in the row may be picked");},
+	Tooltip_Ring_Energy: function () {return _("${color} energy in your ring may be spent for building gizmos")},
+	Tooltip_Row_Energy: function() {return _("${color} energy in the row may be picked")},
+	Tooltip_Next_Energy: function() {return _("${color} energy will enter the row after the next pick")},
 	// Red: _('red'),
 	// Yellow: _('yellow'),
 	// Blue: _('blue'),
@@ -146,10 +147,12 @@ let Builder = {
 		Builder.initSphereCounts(players);
 		for (var sphere_id in spheres) {
 			let sphere = spheres[sphere_id];
-			if (sphere['location'] != 'row') {
+			if (sphere['location'] == 'next') {				
+				parent.insertNextSphere(sphere_id);
+			} else if (sphere['location'] != 'row') {
 				Builder.incrementSphereCount(sphere['location'], sphere_id);
 			} else {
-				parent.insertSphereInRow(sphere_id, false);
+				parent.insertSphereInRow(sphere_id);
 			}
 		}
 	},

@@ -225,12 +225,12 @@ class DB
 	/*
 	ENERGY/SPHERES
 	*/
-	public static function getDispenserSpheres() {
+	public static function getRowEnergy() {
 		$sphere_sql = "SELECT sphere_id,location FROM sphere WHERE location != 'dispenser'";
         return Gizmos::getCollection( $sphere_sql );
 	}
 	public static function getAllPlayersEnergy() {	
-		$sphere_sql = "SELECT sphere_id,location FROM sphere WHERE location NOT IN ('dispenser','row')";
+		$sphere_sql = "SELECT sphere_id,location FROM sphere WHERE location NOT IN ('dispenser','row','next')";
         return Gizmos::getCollection( $sphere_sql, true );
 	}
 	public static function getPlayerEnergyCount($player_id) {		
@@ -243,6 +243,28 @@ class DB
 			$sphere_sql = "UPDATE sphere SET location='dispenser' WHERE sphere_id in ($sphere_ids)";
 			Gizmos::DbQuery( $sphere_sql );
 		}
+	}
+	public static function moveNextToRow() {
+		$sphere_sql = "UPDATE sphere SET location='row' WHERE location = 'next'";
+		Gizmos::DbQuery( $sphere_sql );
+	}
+	public static function randomDispenserNext() {
+		$sphere_sql = "SELECT sphere_id FROM sphere WHERE location='dispenser'";
+        $spheres = Gizmos::getCollection( $sphere_sql );
+		
+		$new_sphere = array_rand($spheres);
+		$sql_new = "UPDATE sphere SET location='row' WHERE sphere_id='$new_sphere'";
+		Gizmos::DbQuery( $sql_new );
+		return $new_sphere;
+	}
+	public static function moveSphereToPlayer($sphere_id, $player_id) {		
+		$sql = "UPDATE sphere SET location='$player_id'
+                    WHERE sphere_id='$sphere_id'";
+		Gizmos::DbQuery( $sql );	
+	}
+	public static function getSphereLocation($sphere_id) {		
+		$sel_sql = "SELECT location FROM sphere WHERE sphere_id='$sphere_id'";
+		return Gizmos::getUniqueValue( $sel_sql );
 	}
 	/*
 	END ENERGY/SPHERES
