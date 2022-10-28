@@ -492,7 +492,8 @@ class Gizmos extends Table
 			throw new BgaVisibleSystemException( "Cannot pick energy sphere $sphere_id from $sp_location" );				
 		}
 		
-		DB::moveSphereToPlayer($sphere_id, $player_id);		
+		DB::moveSphereToPlayer($sphere_id, $player_id);
+		DB::moveNextToRow();
 		$new_sphere = DB::randomDispenserNext();
 
 		self::checkPickTriggers($sphere_id);

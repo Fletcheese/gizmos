@@ -10,7 +10,8 @@ let Const = {
 	// Yellow: _('yellow'),
 	// Blue: _('blue'),
 	// Black: _('black')
-	TrackSeg_Width: 572.7
+	TrackSeg_Width: 572.7,
+	Breakpoint: 1800
 }
 
 let Game = {
@@ -47,9 +48,15 @@ let Game = {
 		return '<div id="spl_message" class="spl_message" style="">This is the last turn!</div>';
 	},
 	repositionEnergyRing: function() {		
-		//if (window.innerWidth <= 1469) {
-		let height = $("current_player_gizmos").offsetHeight + $("research_outer").offsetHeight;
-		dojo.style( 'energy_ring', 'top', height+"px" );	
+		if (window.innerWidth < Const.Breakpoint) {
+			let height = $("current_player_gizmos").offsetHeight + $("research_outer").offsetHeight;
+			dojo.style( 'energy_ring', 'top', height+"px" );
+			dojo.style( 'energy_ring', 'left', "unset" );
+		} else {
+			dojo.style( 'energy_ring', 'top', "0px" );
+			let width = $('board_left').offsetWidth - 10;
+			dojo.style( 'energy_ring', 'left', width+"px" );
+		}
 		//console.log("setRingTop=" + height+"px");			
 		//}
 	},

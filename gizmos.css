@@ -21,6 +21,34 @@
   }
 }
 
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1800px) {
+	#board_left {
+		display:inline-block;
+		width:50%;
+	}
+	#board_right {
+		display:inline-block;
+		width:49%;
+		margin-left:1%;
+	}
+	#gizmos_board {
+		display:flex;
+		width:100%;
+	}
+}
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (max-width: 1799px) {	
+	#gizmos_board {
+		max-width: 1000px;
+		margin:auto;
+	}
+	#board_right {
+		display:none;
+	}
+}
+
+
 #button_cancel, #button_pass, #button_cancelPick {
 	background-color: #eee;
     color: #000;
@@ -208,17 +236,6 @@
 	height:200px;	
 	border-radius: 100%;
 }
-/* Extra large devices (large laptops and desktops, 1200px and up) */
-/* @media only screen and (min-width: 1470px) {
-  #gizmos_board #energy_ring {	  
-	top:5px;
-	left:1010px;
-  }
-} */
-/* Extra large devices (large laptops and desktops, 1200px and up) */
-@media only screen and (max-width: 1469px) {
- 
-}
 
 #gizmos_board #energy_ring .token {
 	position: absolute;
@@ -226,9 +243,9 @@
 	left: 85px;
 }
 
-#gizmos_board .active_player {
-	font-weight: bold;
-	text-decoration: underline;
+#gizmos_board .gizmos_container .active_player .player_name {
+    box-shadow: -7px -7px 8px #5dff35, -7px 7px 8px #5dff35, 7px -7px 8px #5dff35, 7px 7px 8px #5dff35;
+    border-radius: 7px;
 }
 
 /* #gizmos_board .blue_token, #player_boards .blue_token, #logs .gzs_log_blue {
@@ -396,11 +413,6 @@
     width: 30px;
     height: 30px;
     float: left;
-}
-
-#gizmos_board {
-	max-width: 1000px;
-	margin:auto;
 }
 
 #gizmos_board #sphere_row_outer {

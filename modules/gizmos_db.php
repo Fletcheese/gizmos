@@ -244,7 +244,15 @@ class DB
 			Gizmos::DbQuery( $sphere_sql );
 		}
 	}
+	public static function getNextEnergy() {
+		$sphere_sql = "SELECT sphere_id FROM sphere WHERE location='next'";
+        return Gizmos::getUniqueValue( $sphere_sql );
+	}
 	public static function moveNextToRow() {
+		// handle active games when deployed where next energy does not exist
+		if (!self::getNextEnergy()) {
+			self::randomDispenserNext();
+		}
 		$sphere_sql = "UPDATE sphere SET location='row' WHERE location = 'next'";
 		Gizmos::DbQuery( $sphere_sql );
 	}
@@ -253,7 +261,7 @@ class DB
         $spheres = Gizmos::getCollection( $sphere_sql );
 		
 		$new_sphere = array_rand($spheres);
-		$sql_new = "UPDATE sphere SET location='row' WHERE sphere_id='$new_sphere'";
+		$sql_new = "UPDATE sphere SET location='next' WHERE sphere_id='$new_sphere'";
 		Gizmos::DbQuery( $sql_new );
 		return $new_sphere;
 	}

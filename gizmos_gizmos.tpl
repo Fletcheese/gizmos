@@ -47,28 +47,30 @@ var jstpl_trackTooltip = '<div class="gzs_track_tooltip track_tooltip_${type}" s
 </script>
 
 <div id="gizmos_board">
-	<div id="energy_ring">
-		<h3 id="ring_count" class="deck_count"></h3>
-	</div>
 	<div id="end_banner" class="end_banner" style="display:none">This is the last round!</div>
-	<div id="research_outer" class="whiteblock row" style="display:none">		
-		<span id="research_help"></span>
-		<div id="researched_gizmos"></div>
-	</div>
-	<div id="current_player_gizmos"> </div>
-	<div id="sphere_row_outer" class="row">
-		<div id="dispenser"></div>
-		<div id="sphere_row">
+	<div id="board_left"> 
+		<div id="energy_ring">
+			<h3 id="ring_count" class="deck_count"></h3>
 		</div>
+		<div id="research_outer" class="whiteblock row" style="display:none">		
+			<span id="research_help"></span>
+			<div id="researched_gizmos"></div>
+		</div>
+		<div id="current_player_gizmos"> </div>
+		<div id="nrg_card_rows">
+			<div id="sphere_row_outer" class="row">
+				<div id="dispenser"></div>
+				<div id="sphere_row"></div>
+			</div>
+			<div id="row_3" class="row whiteblock"></div>
+			<div id="row_2" class="row whiteblock"></div>
+			<div id="row_1" class="row whiteblock"></div>
+		</div>
+		<div id="player_gizmos">
+		</div>	
 	</div>
-	<div id="row_3" class="row whiteblock">
+	<div id="board_right">
 	</div>
-	<div id="row_2" class="row whiteblock">	
-	</div>
-	<div id="row_1" class="row whiteblock">	
-	</div>
-	<div id="player_gizmos">
-	</div>	
 </div>
 
 {OVERALL_GAME_FOOTER}

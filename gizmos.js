@@ -40,6 +40,10 @@ function (dojo, declare) {
 			Builder.spend_spheres = {};
 			this.gamedatas = {};
 			
+			// Set mobile viewport for portrait orientation based on gameinfos.inc.php
+			this.default_viewport = "width=" + this.interface_min_width;
+			this.onScreenWidthChange();
+			
 			// Load production bug report handler
 			const self = this; // save the `this` context in a variable
 			dojo.subscribe("loadBug", this, function loadBug(n) {
@@ -85,8 +89,35 @@ function (dojo, declare) {
 			console.log("Notif: load bug", n.args);
 			fetchNextUrl();
 			});
-        },
-        
+        },		
+
+		onScreenWidthChange: function() {
+			// Remove broken "zoom" property added by BGA framework
+			this.gameinterface_zoomFactor = 1;
+			$("page-content").style.removeProperty("zoom");
+			$("page-title").style.removeProperty("zoom");
+			$("right-side-first-part").style.removeProperty("zoom");
+			
+			let width = window.innerWidth;
+			if (width < Const.Breakpoint) {
+				// if ($('energy_ring').parentNode.id == 'board_right') {
+				// 	dojo.place('energy_ring', 'board_left');
+				// }
+				if ($('nrg_card_rows').parentNode.id == 'board_right') {
+					dojo.place('nrg_card_rows', 'player_gizmos', 'before');
+				}
+			} else {
+				// if ($('energy_ring').parentNode.id == 'board_left') {
+				// 	dojo.place('energy_ring', 'board_right');
+				// 	Game.repositionEnergyRing();
+				// }
+				if ($('nrg_card_rows').parentNode.id == 'board_left') {
+					dojo.place('nrg_card_rows', 'board_right');
+				}
+			}
+			Game.repositionEnergyRing();
+		},
+				
         /*
             setup:
             
@@ -163,6 +194,9 @@ function (dojo, declare) {
 					dojo.query('.already_used').removeClass('already_used');
 					Game.activePlayer = this.getActivePlayerId();
 					dojo.query('.row_card').addClass('selectable');
+
+					dojo.query('.active_player').removeClass('active_player');
+					dojo.addClass('player_header_'+Game.activePlayer, 'active_player');
 
 					if (args && args.args && args.args.energy) {
 						Builder.reinitSphereCounts(this.gamedatas.players, args.args.energy, this);
@@ -951,7 +985,7 @@ function (dojo, declare) {
 
 		
 		onEnergySelect: function( evt ) {
-			if (Game.isLocked()) {
+			if (Game.isLocked() || dojo.hasClass(evt.target.id, 'next_nrg')) {
 				return;
 			} else {
 				Game.action_lock = true;
@@ -1197,14 +1231,20 @@ function (dojo, declare) {
 			this.buildPlayerCard(player_id);
 			
 			// Get next sphere ele
-			let next_ele_id = dojo.query('#sphere_row .next_nrg')[0].id;
-			dojo.removeClass(next_ele_id, 'next_nrg');
-			// add to row zone (should work for animation)
-			Game.zones['sphere_row'].placeInZone(next_ele_id, Game.getNrgWeight());
-
-			let new_sphere_id = notif.args.new_sphere_id;
-			this.insertNextSphere(new_sphere_id);
-			this.connect($(Energy.getEleId(new_sphere_id)), 'onclick', 'onEnergySelect');
+			let q = dojo.query('#sphere_row .next_nrg');
+			if (!q || q.length == 0) {
+				this.showMessage('Please refresh the page to load next energy', 'info');
+			} else {
+				let next_ele_id = q[0].id;
+				this.removeTooltip( next_ele_id );
+				dojo.removeClass(next_ele_id, 'next_nrg');
+				// add to row zone (should work for animation)
+				Game.zones['sphere_row'].placeInZone(next_ele_id, Game.getNrgWeight());
+				this.connect($(next_ele_id), 'onclick', 'onEnergySelect');
+				this.addTooltip( next_ele_id, '', dojo.string.substitute(Const.Tooltip_Row_Energy(), {color: Energy.getColor( Energy.getIdOfEle(next_ele_id) )}));
+				let new_sphere_id = notif.args.new_sphere_id;
+				this.insertNextSphere(new_sphere_id);
+			}
 		},
 		notif_cardBuiltOrFiled: function ( notif ) {
 			Game.waitHideResearch = true;
