@@ -46,8 +46,8 @@ var jstpl_cardTooltip = '<div id="card_tooltip_${id}">\
 var jstpl_trackTooltip = '<div class="gzs_track_tooltip track_tooltip_${type}" style="background-position-x:-${offset}px"></div>';
 </script>
 
+<div id="gzs_end_banner" class="gzs_end_banner" style="display:none">This is the last round!</div>
 <div id="gizmos_board">
-	<div id="end_banner" class="end_banner" style="display:none">This is the last round!</div>
 	<div id="board_left"> 
 		<div id="energy_ring">
 			<h3 id="ring_count" class="deck_count"></h3>

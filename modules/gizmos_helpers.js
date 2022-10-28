@@ -47,13 +47,14 @@ let Game = {
 	getEndHtml: function() {
 		return '<div id="spl_message" class="spl_message" style="">This is the last turn!</div>';
 	},
-	repositionEnergyRing: function() {		
+	repositionEnergyRing: function() {
 		if (window.innerWidth < Const.Breakpoint) {
 			let height = $("current_player_gizmos").offsetHeight + $("research_outer").offsetHeight;
+			height += $('gzs_end_banner').offsetHeight;
 			dojo.style( 'energy_ring', 'top', height+"px" );
 			dojo.style( 'energy_ring', 'left', "unset" );
 		} else {
-			dojo.style( 'energy_ring', 'top', "0px" );
+			dojo.style( 'energy_ring', $('gzs_end_banner').offsetHeight+"px" );
 			let width = $('board_left').offsetWidth - 10;
 			dojo.style( 'energy_ring', 'left', width+"px" );
 		}

@@ -58,7 +58,7 @@
     color: #fff;
 }
 
-#gizmos_board .end_banner, #logs .end_banner {
+#gizmos_board .end_banner, #logs .end_banner, #gzs_end_banner {
     color: #fff;
     background: #d83838;
     font-family: Courgette;

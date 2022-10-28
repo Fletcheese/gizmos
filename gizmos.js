@@ -145,7 +145,7 @@ function (dojo, declare) {
 			this.research_quantity = gamedatas.research_quantity;
 			Game.selected_card_id = gamedatas.selected_card_id;	
 			if (gamedatas.is_last_round == 1) {
-				dojo.style('end_banner', 'display', 'block');
+				dojo.style('gzs_end_banner', 'display', 'block');
 			}
 			
 			this.setupCards(gamedatas);
@@ -1376,7 +1376,8 @@ function (dojo, declare) {
 			this.scoreCtrl[notif.args.player_id].setValue( notif.args.player_score );	
 		},
 		notif_lastTurn: function ( notif ) {
-			dojo.style('end_banner', 'display', 'block');
+			dojo.style('gzs_end_banner', 'display', 'block');
+			Game.repositionEnergyRing();
 		},
 		notif_scoreSpecial: function ( notif ) {
 			this.scoreCtrl[notif.args.player_id].setValue( notif.args.player_score );	
