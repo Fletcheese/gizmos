@@ -54,7 +54,7 @@ let Game = {
 			dojo.style( 'energy_ring', 'top', height+"px" );
 			dojo.style( 'energy_ring', 'left', "unset" );
 		} else {
-			dojo.style( 'energy_ring', $('gzs_end_banner').offsetHeight+"px" );
+			dojo.style( 'energy_ring', 'top', $('gzs_end_banner').offsetHeight+"px" );
 			let width = $('board_left').offsetWidth - 10;
 			dojo.style( 'energy_ring', 'left', width+"px" );
 		}
