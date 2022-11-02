@@ -20,6 +20,7 @@ let Game = {
 	selected_card_id: -1,
 	stateName: null,
 	stack: 0.35,
+	file_stack: 1,
 	energy_weight: 100,
 	waitHideResearch: false,
 	deck_counts: {},
@@ -326,16 +327,21 @@ let Builder = {
 		} else {
 			let sel_color = Gizmo.details(Game.selected_card_id).color;
 			let cost = Builder.getCost( Gizmo.details(Game.selected_card_id) );
-			var total = 0;
+			var total;
 			if (sel_color == 'multi') {
-				for (var key in this.spending_power) {
-					total += this.spending_power[key];
-				}
+				total = this.getMultiPower();
 			} else {
 				total = (this.spending_power[sel_color] ?? 0);
 			}
 			return total >= parseInt(cost);
 		}
+	},
+	getMultiPower: function() {
+		let total = 0;
+		for (var key in this.spending_power) {
+			total += this.spending_power[key];
+		}
+		return total;
 	},
 	validateSpending: function (parent) {
 		let mtg = Gizmo.details(Game.selected_card_id);
@@ -399,10 +405,22 @@ let Builder = {
 		if (Game.selected_card_id > 100) {
 			let sel_color = Gizmo.details(Game.selected_card_id).color;
 			let cost = Builder.getCost( Gizmo.details(Game.selected_card_id) );
-			let sel_energy = dojo.query('#energy_ring .'+sel_color+'_token.selected');
-			console.log('autoDeselectSpend', sel_color, this.spending_power[sel_color], cost, sel_energy);
-			while (this.spending_power[sel_color] > cost && sel_energy.length > 0) {
-				this.despendEnergy( Energy.getIdOfEle(sel_energy.pop().id) );
+
+			if (sel_color == 'multi') {
+
+				let sel_energy = dojo.query('#energy_ring .token.selected');
+				console.log('autoDeselectSpend', sel_color, cost, sel_energy);
+				while (this.getMultiPower() > cost && sel_energy.length > 0) {
+					this.despendEnergy( Energy.getIdOfEle(sel_energy.pop().id) );
+				}
+
+			} else {
+
+				let sel_energy = dojo.query('#energy_ring .'+sel_color+'_token.selected');
+				console.log('autoDeselectSpend', sel_color, this.spending_power[sel_color], cost, sel_energy);
+				while (this.spending_power[sel_color] > cost && sel_energy.length > 0) {
+					this.despendEnergy( Energy.getIdOfEle(sel_energy.pop().id) );
+				}
 			}
 		}
 	},
@@ -561,7 +579,7 @@ let Builder = {
 					for (var i=0; i<cdets.supporteds.length; i++) {
 						var gid = cdets.supporteds[i];
 						console.log("automatically deselecting supported[" + i + "]=" + gid);
-						if (!this.active_converters[gid].deselecting)
+						if (this.active_converters[gid] && !this.active_converters[gid].deselecting)
 							this.deselectConverter( gid, parent );
 					}
 				}

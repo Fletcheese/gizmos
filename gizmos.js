@@ -862,7 +862,12 @@ function (dojo, declare) {
 			}
 		},
 		setZoneHeight: function(zone_id, num_cards, player_id) {
-			var height = (this.card_height*((1-Game.stack) + Game.stack*num_cards));
+			var height;
+			if (zone_id == Game.getPlayerArchive(player_id)) {
+				height = this.card_height*num_cards/1.5;
+			} else {
+				height = this.card_height*((1-Game.stack) + Game.stack*num_cards);
+			}
 			dojo.style(zone_id, 'min-height', height+"px");
 			console.log("setZoneHeight( " + zone_id + ", " + num_cards + ") => " + height);
 			var playerColsDiv = $('gizmos_columns_' + player_id);
@@ -937,10 +942,10 @@ function (dojo, declare) {
 			}), playerColsDiv );
 			let archive_id = Game.getPlayerArchive(player_id);
 			Game.zones[archive_id] = new ebg.zone();
-			Game.zones[archive_id].create( this, archive_id, this.card_width/2, this.card_height/2 );
+			Game.zones[archive_id].create( this, archive_id, this.card_width/2, this.card_height/1.5 );
 			Game.zones[archive_id].setPattern( 'verticalfit' );			
 			if (fileds) {
-				dojo.style(archive_id, 'min-height', ((this.card_height/2)*(1-(Game.stack) + Game.stack*fileds.length))+"px");
+				dojo.style(archive_id, 'min-height', (this.card_height*fileds.length/1.5)+"px");
 				for (var card_id in fileds) {
 					let card = fileds[card_id];
 					this.addGizmoToPlayerCard(card, player_id, true, 'selectable filed', $(archive_id));
@@ -1305,7 +1310,9 @@ function (dojo, declare) {
 				}
 			}
 			if (built_from_file) {
-				Game.zones[Game.getPlayerArchive(player_id)].removeFromZone( pcid );					
+				let archive_id = Game.getPlayerArchive(player_id);
+				this.setZoneHeight( archive_id, Game.zones[archive_id].getItemNumber()-1, player_id );
+				Game.zones[archive_id].removeFromZone( pcid );
 			}
 			this.setZoneHeight( zone_id, Game.zones[zone_id].getItemNumber()+1, player_id );
 			let anim = this.slideToObject( pcid, zone_id );
