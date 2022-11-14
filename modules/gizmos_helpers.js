@@ -108,6 +108,7 @@ let Game = {
 		}		
 	},
 	showEnergyConfirm: function(parent) {
+		Game.resetDescription(parent);
 		Game.saved_desc = parent.gamedatas.gamestate.descriptionmyturn;
 		parent.gamedatas.gamestate.descriptionmyturn = _('Confirm Pick Energy?');
 		parent.updatePageTitle();
@@ -120,6 +121,9 @@ let Game = {
 		parent.updatePageTitle();
 	},
 	selectEnergy: function(id) {
+		if (Game.selected_energy && id != Game.selected_energy) {
+			Game.deselectEnergy();
+		}
 		Game.selected_energy = id;
 		dojo.addClass( Energy.getEleId(id), 'selected' );
 	},

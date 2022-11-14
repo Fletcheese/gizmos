@@ -183,6 +183,7 @@ function (dojo, declare) {
 			} else {
 				dojo.query('.half_selected').removeClass('half_selected');
 			}
+			dojo.query('.selected').removeClass('selected');
 
 			Game.stateName = stateName;
             console.log( 'Entering state w args: '+stateName, args );
