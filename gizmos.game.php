@@ -501,10 +501,12 @@ class Gizmos extends Table
 		self::notifyAllPlayers('sphereSelect', clienttranslate('${player_name} Picks ${sphere_html}'), //a ${sphere_color} Energy"),
 			array (
 				'player_name' => self::getPlayerNameForNotification($player_id),
-				'sphere_html' => DB::getSphereHtml( self::getSphereColor($sphere_id) ),
+				'sphere_html' => null,
+				'sphere_color' => self::getSphereColor($sphere_id),
 				'new_sphere_id' => $new_sphere,
 				'purchased_sphere_id' => $sphere_id,
-				'player_id' => $player_id
+				'player_id' => $player_id,
+				'preserve' => [ 'sphere_color' ]
 			)
 		);
         $this->incStat(1, 'picked_number', $player_id);
@@ -933,10 +935,6 @@ class Gizmos extends Table
 		DB::clearAllGizmoTriggers();
         $player_id = $this->getActivePlayerId();
         $next_player_id = $this->getPlayerAfter($player_id);
-        $this->giveExtraTime($next_player_id);
-        $this->incStat(1, 'turns_number', $next_player_id);
-        $this->incStat(1, 'turns_number');
-        $this->gamestate->changeActivePlayer($next_player_id);
 		
 		$res = DB::getGameProgress();
 		if ($res['progress'] >= 100) {
@@ -988,8 +986,14 @@ class Gizmos extends Table
 				DB::setPlayerAuxScores();
 
 				$this->gamestate->nextState('endGame');
+				return;
 			}
 		}
+		
+        $this->giveExtraTime($next_player_id);
+        $this->incStat(1, 'turns_number', $next_player_id);
+        $this->incStat(1, 'turns_number');
+        $this->gamestate->changeActivePlayer($next_player_id);
 		$this->gamestate->nextState('nextTurn');
 	}
 		
@@ -1016,10 +1020,11 @@ class Gizmos extends Table
 		self::notifyAllPlayers('sphereDrawn', clienttranslate('${player_name} draws ${sphere_html}'), //a ${sphere_color} Energy"),
 			array (
 				'player_name' => $player_name,
-				'sphere_html' => DB::getSphereHtml($sphere_color),
+				'sphere_html' => null,
 				'sphere_color' => $sphere_color,
 				'sphere_id' => $new_sphere_id,
-				'player_id' => $player_id
+				'player_id' => $player_id,
+				'preserve' => [ 'sphere_color' ]
 			)
 		);
         $this->incStat(1, 'drawn_number', $player_id);
@@ -1116,7 +1121,7 @@ class Gizmos extends Table
 			array (
 				'player_name' => $player_name,
 				'number' => $add_points,
-				'vp_html' => '<div class="gzs_log_vp"></div>',
+				'vp_html' => null,
 				'player_id' => $player_id,
 				'vp_count' => $counts['vps'],
 				'player_score' => $counts['score']

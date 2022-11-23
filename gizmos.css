@@ -58,7 +58,7 @@
     color: #fff;
 }
 
-#gizmos_board .end_banner, #logs .end_banner, #gzs_end_banner {
+#gizmos_board .end_banner, #logs .end_banner, .log .end_banner, #gzs_end_banner {
     color: #fff;
     background: #d83838;
     font-family: Courgette;
@@ -262,23 +262,23 @@
 #gizmos_board .yellow_token, #player_boards .yellow_token, #logs .gzs_log_yellow {
 	background-position: -210px 0px;
 } */
-#gizmos_board .blue_token, #player_boards .blue_token, #logs .gzs_log_blue {
+#gizmos_board .blue_token, #player_boards .blue_token, .gzs_log_blue {
 	background-position-y: -100%;
 	background-position-x: -0%;
 }
-#gizmos_board .black_token, #player_boards .black_token, #logs .gzs_log_black {
+#gizmos_board .black_token, #player_boards .black_token, .gzs_log_black {
 	background-position-y: -100%;
 	background-position-x: -100%;
 }
-#gizmos_board .red_token, #player_boards .red_token, #logs .gzs_log_red {
+#gizmos_board .red_token, #player_boards .red_token, .gzs_log_red {
 	background-position-y: -0%;
 	background-position-x: -100%;
 }
-#gizmos_board .yellow_token, #player_boards .yellow_token, #logs .gzs_log_yellow {
+#gizmos_board .yellow_token, #player_boards .yellow_token, .gzs_log_yellow {
 	background-position-y: -0%;
 	background-position-x: -0%;
 }
-#logs .gzs_log_token {
+.gzs_log_token {
 	background-size: 200% 200%;
 	background-image: url('img/marbles.jpg');
 	width: 15px;
@@ -365,7 +365,7 @@
 	margin-left: 5px;
     margin-right: 5px;
 }
-#logs .gzs_log_vp {
+.gzs_log_vp {
 	background-size:100%;
 	height: 15px;
 	width: 10px;

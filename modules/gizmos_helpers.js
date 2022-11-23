@@ -10,6 +10,7 @@ let Const = {
 	// Yellow: _('yellow'),
 	// Blue: _('blue'),
 	// Black: _('black')
+	VP_Html: '<div class="gzs_log_vp"></div>',
 	TrackSeg_Width: 572.7,
 	Breakpoint: 1800
 }
@@ -23,6 +24,7 @@ let Game = {
 	file_stack: 1,
 	energy_weight: 100,
 	waitHideResearch: false,
+	isResearching: false,
 	deck_counts: {},
 	selected_energy: -1,
 	saved_desc: null,
@@ -80,15 +82,17 @@ let Game = {
 		let card_eles = dojo.query('#researched_gizmos .card');
 		return card_eles.map( (ele) => { return parseInt(Gizmo.getIdOfEle(ele.id)) } ).join(',');
 	},
-	hideResearch: function(parent) {		
-		let eles = dojo.query('#gizmos_board .arrow');
-		for (var i=0; i<eles.length; i++) {
-			parent.disconnect( eles[i], 'onclick');
-			dojo.destroy( eles[i] );
+	hideResearch: function(parent) {
+		if (!Game.waitHideResearch) {	
+			let eles = dojo.query('#gizmos_board .arrow');
+			for (var i=0; i<eles.length; i++) {
+				dojo.destroy( eles[i] );
+			}
+			dojo.empty('researched_gizmos');
+			dojo.style('research_outer', 'display', 'none');
+			Game.repositionEnergyRing();
+			Game.isResearching = false;
 		}
-		dojo.empty('researched_gizmos');
-		dojo.style('research_outer', 'display', 'none');
-		Game.repositionEnergyRing();
 	},	
 	isShowEnergyConfirm: function(parent) {
 		let pref = parent.prefs[201].value;
@@ -553,11 +557,12 @@ let Builder = {
 		let id1 = Energy.getTempId(gizmo_id, color);
 		let h1 = Energy.getTempEnergyHtml(id1, gizmo_id, color, 'convert_to');
 		dojo.place(h1, Gizmo.getEleId(gizmo_id));
+		dojo.connect( $(id1), 'onclick', parent, 'onEnergySelect' );
 		let id2 = Energy.getTempId(gizmo_id, color);
 		let h2 = Energy.getTempEnergyHtml(id2, gizmo_id, color, 'convert_to');
 		dojo.place(h2, Gizmo.getEleId(gizmo_id));
+		dojo.connect( $(id2), 'onclick', parent, 'onEnergySelect' );
 		this.temp_energy.push(id1, id2);
-		parent.connectClass( gizmo_id, 'onclick', 'onEnergySelect' );
 
 		dojo.removeClass( Gizmo.getEleId(gizmo_id), 'half_selected' );	
 		dojo.addClass( Gizmo.getEleId(gizmo_id), selClass);
@@ -606,9 +611,7 @@ let Builder = {
 				console.log(energy);
 				if (energy.classList.contains('ring')) {
 					console.log('has ring');
-					parent.disconnect( $(energy.id), 'onEnergySelect' );
-					parent.removeTooltip( energy.id );
-					parent.attachToNewParent( $(energy.id), $('energy_ring') );
+					parent.attachToNewParentNoDestroy( energy.id, 'energy_ring' );
 
 					Builder.despendEnergy(Energy.getIdOfEle(energy.id));
 					dojo.removeClass(energy.id, 'convert_from');
@@ -617,9 +620,7 @@ let Builder = {
 					let anim = parent.slideToObject( $(energy.id), $('energy_ring') );
 					anim.onEnd = function(parent, energy) {
 						return function() {
-							Game.zones['energy_ring'].placeInZone(energy.id);
-							parent.addTooltip( energy.id, '', dojo.string.substitute(Const.Tooltip_Ring_Energy(), {color: Energy.getColor(energy.id)}));
-							parent.connect($(energy.id), 'onclick', 'onEnergySelect');
+							parent.placeInZoneNoDestroy.call( Game.zones['energy_ring'], energy.id);
 							Game.anim_lock = false;
 						}
 					}(parent, energy);
@@ -635,7 +636,6 @@ let Builder = {
 					if (iNrg >= 0)
 						Builder.temp_energy.splice(iNrg, 1);
 						
-					parent.disconnect( energy, 'onclick' );
 					dojo.destroy(energy);
 				}
 			});
@@ -789,7 +789,7 @@ let Builder = {
 								let nrg_html = Energy.getTempEnergyHtml(nrg_id, gizmo_id, mt_sel_gizmo.color, 'convert_to');
 								dojo.place(nrg_html, Gizmo.getEleId(gizmo_id));
 								this.temp_energy.push(nrg_id);
-								parent.connectClass( gizmo_id, 'onclick', 'onEnergySelect' );
+								dojo.connect( nrg_id, 'onclick', parent, 'onEnergySelect' );
 								// if (picked_sphere_id > 0) {
 								// 	this.deselectConverter(gizmo_id, parent);
 								// }
@@ -825,10 +825,8 @@ let Builder = {
 		}
 		let sp_ele_id = Energy.getEleId(spid);
 		let parentGizmoId = Gizmo.getIdOfEle( $(sp_ele_id).parentNode.id );
-		parent.disconnect( $(sp_ele_id), 'onEnergySelect' );
 		parent.removeTooltip( sp_ele_id );
-		parent.attachToNewParent( $(sp_ele_id), $(Gizmo.getEleId(gizmo_id)) );
-		parent.connect($(sp_ele_id), 'onclick', 'onEnergySelect');
+		parent.attachToNewParentNoDestroy( sp_ele_id, Gizmo.getEleId(gizmo_id) );
 		if ( dojo.hasClass(sp_ele_id, 'convert_to') ) {
 			dojo.removeClass( sp_ele_id, 'convert_to' );
 			this.addSupportedGizmo(parentGizmoId, gizmo_id);
@@ -960,6 +958,9 @@ let Energy = {
 		1: 'blue',
 		2: 'black',
 		3: 'yellow'
+	},	
+	getLogSphereHtml: function(color) {
+		return dojo.string.substitute( "<div class='gzs_log_token gzs_log_${color}'></div>", {color:color} );
 	},
 	getEleId: function(id) {
 		if ((typeof id === 'string' || id instanceof String) && id.indexOf('_') > 0) {
@@ -1007,10 +1008,6 @@ let Energy = {
 	hidePicker: function(parent) {
 		console.log("hide picker");
 		if ($('color_picker')) {
-			let nrgs = $('color_picker').childNodes;	
-			for (var i=0; i<nrgs.length; i++) {
-				parent.disconnect( nrgs[i], 'onclick' );
-			};
 			dojo.destroy('color_picker');
 		}
 		console.log("hide picker DONE");
@@ -1019,15 +1016,11 @@ let Energy = {
 		console.log("show picker");
 		Energy.hidePicker(parent);
 		dojo.place( Energy.getPickerHtml(gid), 'converter_'+pid );
-		// if (!$('color_picker')) {
-		// 	dojo.place( Energy.getPickerHtml(gid), 'converter_'+pid );
-		// 	parent.connectClass( 'picker', 'onclick', 'onEnergySelect' );			
-		// }
 		let styleTop = $(Gizmo.getEleId(gid)).style.top;
 		let styleLeft = $(Gizmo.getEleId(gid)).offsetWidth;
 		dojo.style( $('color_picker'), 'top', styleTop );
 		dojo.style( $('color_picker'), 'left', styleLeft+"px" );
-		parent.connectClass( 'picker', 'onclick', 'onEnergySelect' );
+		dojo.query('#color_picker .picker').connect('onclick', parent, 'onEnergySelect' );
 		console.log("show picker DONE");
 	},	
 	getEnergyHtml: function (sphere_id, classes) {

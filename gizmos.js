@@ -202,6 +202,7 @@ function (dojo, declare) {
 					if (args && args.args && args.args.energy) {
 						Builder.reinitSphereCounts(this.gamedatas.players, args.args.energy, this);
 					}
+					Game.hideResearch(this);
 				case 'triggerResearch':
 					dojo.query('.deck').addClass('selectable');
 					break;
@@ -215,7 +216,8 @@ function (dojo, declare) {
 							dojo.addClass(Gizmo.getEleId(gizmo_id), gizmo.is_used == "1" ? 'already_used' : 'triggerable');
 							dojo.removeClass(Gizmo.getEleId(gizmo_id), gizmo.is_used == "1" ? 'triggerable' : 'already_used');
 						}
-					}					
+					}
+					Game.hideResearch(this);			
 					break;
 				case 'research':
 					// console.log("POPULATING RESEARCH:");
@@ -293,17 +295,14 @@ function (dojo, declare) {
 					dojo.query('.half_selected').removeClass('half_selected');
 					dojo.query('.discount').removeClass('selectable');
 					dojo.query('.tempnrg').forEach(dojo.destroy);
-					if (!Game.waitHideResearch) {
-						Game.hideResearch(this);
-					}
 					Builder.resetVars();					
 					break;
 				case 'triggerSelect':
 					break;
 				case 'research':
-					if (!Game.waitHideResearch) {
-						Game.hideResearch(this);
-					}
+					// if (!Game.waitHideResearch) {
+					// 	Game.hideResearch(this);
+					// }
 					break;					
 				default:
 					break;
@@ -390,6 +389,86 @@ function (dojo, declare) {
             script.
         
         */
+		/** Override this function to inject html into log items. This is a built-in BGA method.  */
+        /* @Override */
+        format_string_recursive : function format_string_recursive(log, args) {
+            try {
+                if (log && args && !args.processed) {
+                    args.processed = true;
+                    // list of special keys we want to replace with images
+                    var keys = ['vp_html','sphere_html'];
+                    for ( var i in keys) {
+                        var key = keys[i];
+						if (args[key] === null) {
+							var val;
+							switch (key) {
+								case 'vp_html':
+									val = Const.VP_Html;
+									break;
+								case 'sphere_html':
+									val = Energy.getLogSphereHtml(args['sphere_color']);
+									break;
+								default:
+									val = "UNRECOGNIZED["+key+"]";
+									break;
+							}
+							args[key] = val;
+						}
+                    }
+                }
+            } catch (e) {
+                console.error(log,args,"Exception thrown", e.stack);
+            }
+            return this.inherited({callee: format_string_recursive}, arguments);
+        },
+		/**
+         * This method will attach mobile to a new_parent without destroying, unlike original attachToNewParent which destroys mobile and
+         * all its connectors (onClick, etc)
+         */
+		attachToNewParentNoDestroy: function (mobile_in, new_parent_in, relation, place_position) {
+			const mobile = $(mobile_in);
+			const new_parent = $(new_parent_in);
+
+			var src = dojo.position(mobile);
+			if (place_position)
+				mobile.style.position = place_position;
+			dojo.place(mobile, new_parent, relation);
+			mobile.offsetTop;//force re-flow
+			var tgt = dojo.position(mobile);
+			var box = dojo.marginBox(mobile);
+			var cbox = dojo.contentBox(mobile);
+			var left = box.l + src.x - tgt.x;
+			var top = box.t + src.y - tgt.y;
+
+			mobile.style.position = "absolute";
+			mobile.style.left = left + "px";
+			mobile.style.top = top + "px";
+			box.l += box.w - cbox.w;
+			box.t += box.h - cbox.h;
+			mobile.offsetTop;//force re-flow
+			return box;
+		},		
+		placeInZoneNoDestroy: function( id, weight )
+		{
+			console.log( "placeInZoneNoDestroy: "+id );
+			if( typeof weight == 'undefined' )
+			{   weight = 0; }
+			
+			if( this.isInZone( id) )
+			{   return ;    }   // Already in zone
+
+			this.items.push( {id:id, weight:weight} );
+			
+			this.page.attachToNewParentNoDestroy( $( id ), this.container_div );
+			
+			var sort_function = function(a,b) { 
+									if( a.weight>b.weight ) {   return 1;   }
+									else if( a.weight<b.weight ) {   return -1;   }
+									else { return 0; }
+								};
+			this.items.sort( sort_function );				
+			this.updateDisplay();        
+		},
 		selectDeck: function (level) {
 			if (this.checkAction( 'deckSelected' )) 
 			{
@@ -415,30 +494,38 @@ function (dojo, declare) {
 			}			
 		},
 		showResearch: function() {
-			if (Number.isInteger(this.r_gizmos)) {
-				// not active - show face down cards
-				let gizmoDetails = {
-					'level': this.r_level,
-					'other_class': 'researched'
-				};
-				for (var i=0; i<this.r_gizmos; i++) {
-					dojo.place( this.format_block('jstpl_fd_card', gizmoDetails), 'researched_gizmos' );					
+			if (!Game.isResearching) {
+				if (Number.isInteger(this.r_gizmos)) {
+					// not active - show face down cards
+					let gizmoDetails = {
+						'level': this.r_level,
+						'other_class': 'researched'
+					};
+					for (var i=0; i<this.r_gizmos; i++) {
+						dojo.place( this.format_block('jstpl_fd_card', gizmoDetails), 'researched_gizmos' );					
+					}
+				} else {
+					let gids = Object.keys(this.r_gizmos);
+					let rgs = this.r_gizmos;
+					console.log('showResearch', gids, rgs);
+					gids.sort((a,b) => rgs[b].card_location_arg - rgs[a].card_location_arg);
+					console.log('afterSort:', gids);
+					for (var i=0; i<gids.length; i++) {
+						this.placeResearchedGizmo(gids[i]);
+					}
+					dojo.query('.gzs_arrow_right').connect( 'onclick', this, 'onArrowRight' );
+					dojo.query('.gzs_arrow_left').connect( 'onclick', this, 'onArrowLeft' );
 				}
-			} else {
-				let gids = Object.keys(this.r_gizmos);
-				let rgs = this.r_gizmos;
-				console.log('showResearch', gids, rgs);
-				gids.sort((a,b) => rgs[b].card_location_arg - rgs[a].card_location_arg);
-				console.log('afterSort:', gids);
-				for (var i=0; i<gids.length; i++) {
-					this.placeResearchedGizmo(gids[i]);
-				}
-				this.connectClass( 'gzs_arrow_right', 'onclick', 'onArrowRight' );
-				this.connectClass( 'gzs_arrow_left', 'onclick', 'onArrowLeft' );
+				dojo.style('research_outer', 'display', 'block');
+				Game.repositionEnergyRing();
+				Builder.handleButtonDisabled();
+				Game.isResearching = true;
 			}
-			dojo.style('research_outer', 'display', 'block');
-			Game.repositionEnergyRing();
-			Builder.handleButtonDisabled();
+			if (Game.selected_card_id > 0 && $(Gizmo.getEleId(Game.selected_card_id)) ) {
+				dojo.addClass( Gizmo.getEleId(Game.selected_card_id), 'selected' );
+			} else {
+				dojo.query('.selected').removeClass('selected');
+			}
 		},
 		onArrowRight: function( evt ) {
 			let gizmo_ele = evt.target.parentNode;
@@ -467,16 +554,13 @@ function (dojo, declare) {
 		placeResearchedGizmo: function(gizmo_id) {
 			let mt_gizmo = this.gamedatas.mt_gizmos[gizmo_id];
 			var other_class = '';
-			if (gizmo_id == Game.selected_card_id) {
-				other_class += 'selected';
-			}				
 			let gizmoDetails = {
 				'id': gizmo_id,
 				'level': mt_gizmo.level,
 				'other_class': other_class
 			};
 			dojo.place( this.format_block('jstpl_research_card', gizmoDetails), 'researched_gizmos' );
-			this.connect( $('card_' + gizmo_id), 'onclick', 'onCardSelect' );
+			dojo.connect( $('card_' + gizmo_id), 'onclick', this, 'onCardSelect' );
 			this.addGizmoTooltip(gizmo_id);
 		},
 		passResearch: function() {
@@ -505,7 +589,7 @@ function (dojo, declare) {
 		insertSphereInRow: function ( sphere_id ) {
 			let sphere_ele = Energy.getEnergyHtml(sphere_id);
 			dojo.place( sphere_ele, 'sphere_row' );
-			Game.zones['sphere_row'].placeInZone( Energy.getEleId(sphere_id), Game.getNrgWeight() );
+			this.placeInZoneNoDestroy.call(Game.zones['sphere_row'], Energy.getEleId(sphere_id), Game.getNrgWeight() );
 			this.addTooltip( Energy.getEleId(sphere_id), '', dojo.string.substitute(Const.Tooltip_Row_Energy(), {color: Energy.getColor(sphere_id)}));
 		},
 		spendSpheresAndRebuildPlayerCard: function (player_id, spheres) {
@@ -517,11 +601,9 @@ function (dojo, declare) {
 					// place a sphere in player card then drag
 					if (player_id == this.player_id) {
 						let sp_ele_id = Energy.getEleId(spid);
-						this.disconnect( $(sp_ele_id), 'onEnergySelect' );
 						Game.zones['energy_ring'].removeFromZone(sp_ele_id);
 					} else {
-						dojo.place( 
-							Energy.getEnergyHtml(spid, Energy.getColor(spid), ''), $('player_board_'+player_id) );		
+						dojo.place( Energy.getEnergyHtml(spid, Energy.getColor(spid), ''), $('player_board_'+player_id) );		
 					}		
 					this.slideToObjectAndDestroy( $('sphere_'+spid), $('dispenser') );
 				}
@@ -579,10 +661,10 @@ function (dojo, declare) {
 		addSphereToRing: function(spid, isConnect) {			
 			let sphere = Energy.getEnergyHtml(spid, 'ring');
 			dojo.place( sphere, 'energy_ring' );
-			Game.zones['energy_ring'].placeInZone( Energy.getEleId(spid) );			
+			this.placeInZoneNoDestroy.call( Game.zones['energy_ring'], Energy.getEleId(spid) );			
 			this.addTooltip( Energy.getEleId(spid), '', dojo.string.substitute(Const.Tooltip_Ring_Energy(), {color: Energy.getColor(spid)}));
 			if (isConnect) {				
-				this.connect( Energy.getEleId(spid), 'onclick', 'onEnergySelect');
+				dojo.connect( Energy.getEleId(spid), 'onclick', this, 'onEnergySelect');
 			}
 		},
 		buildPlayerCard: function (player_id) {
@@ -725,7 +807,7 @@ function (dojo, declare) {
 			};
 			dojo.place( this.format_block('jstpl_card', gizmoDetails), row_div );
 			this.addGizmoTooltip(gizmo_id);	
-			this.connect($(Gizmo.getEleId(gizmo_id)), 'onclick', 'onCardSelect');	
+			dojo.connect($(Gizmo.getEleId(gizmo_id)), 'onclick', this, 'onCardSelect');	
 		},
 		addGizmoTooltip: function(gizmo_id) {
 			//console.log("adding tooltip:", this.gamedatas.mt_gizmos[gizmo_id].tooltip);
@@ -795,9 +877,9 @@ function (dojo, declare) {
 			dojo.place( this.format_block('jstpl_card', gizmoDetails), div_for_this );
 			this.addGizmoTooltip(gizmo_id);
 			let new_gizmo_id = Gizmo.getEleId(gizmo_id);
-			Game.zones[div_for_this.id].placeInZone( new_gizmo_id );
+			this.placeInZoneNoDestroy.call( Game.zones[div_for_this.id], new_gizmo_id );
 			console.log("placed " + new_gizmo_id + " in zone");
-			this.connect($(new_gizmo_id), 'onclick', 'onCardSelect');
+			dojo.connect($(new_gizmo_id), 'onclick', this, 'onCardSelect');
 			console.log("and connected onCardSelect");			
 		},
 		setupDeckTooltips: function() {
@@ -988,10 +1070,10 @@ function (dojo, declare) {
             _ make a call to the game server
         
         */
-
 		
 		onEnergySelect: function( evt ) {
 			if (Game.isLocked() || dojo.hasClass(evt.target.id, 'next_nrg')) {
+				console.log('onEnergySelect LOCKED');
 				return;
 			} else {
 				Game.action_lock = true;
@@ -1026,9 +1108,7 @@ function (dojo, declare) {
 			} else if (evt.target.classList.contains('picker')) {
 				if (Builder.picking > 0 && Builder.validateConvertColor(evt.target.id, this)) {
 					let nrgEle = evt.target;
-					this.disconnect( $(nrgEle.id), 'onEnergySelect' );
-					this.attachToNewParent( $(nrgEle.id), $(Gizmo.getEleId(Builder.picking)) );
-					this.connect($(nrgEle.id), 'onclick', 'onEnergySelect');
+					this.attachToNewParentNoDestroy( nrgEle.id, Gizmo.getEleId(Builder.picking) );
 					dojo.addClass( nrgEle.id, 'convert_to' );
 					dojo.removeClass( nrgEle.id, 'picker' );
 					let anim = this.slideToObjectPos( evt.target.id, Gizmo.getEleId(Builder.picking), this.card_height-50);
@@ -1080,11 +1160,12 @@ function (dojo, declare) {
 		},
 		onCardSelect: function( evt ) {
 			if (Game.isLocked()) {
+				console.log("onCardSelect LOCKED");
 				return;
 			} else {
 				Game.action_lock = true;
 			}
-			//console.log("Selected a card: " + Game.stateName);
+			console.log("Selected a card: " + Game.stateName);
 			//console.log(evt);
 			
 			let card_ele = evt.target;
@@ -1210,17 +1291,13 @@ function (dojo, declare) {
 			// Increment player's spheres
 			Builder.incrementSphereCount(player_id, sphere_id);			
 			if (this.player_id == player_id) {
-				this.disconnect( $(sp_ele_id), 'onEnergySelect' );
-				this.removeTooltip( sp_ele_id );
 				dojo.addClass(sp_ele_id, 'ring');
 				Game.zones['sphere_row'].removeFromZone(sp_ele_id);
-				this.attachToNewParent( $(sp_ele_id), $('energy_ring') );
+				this.attachToNewParentNoDestroy( sp_ele_id, 'energy_ring' );
 				let anim = this.slideToObject( sp_ele_id, 'energy_ring' );
 				anim.onEnd = function(parent) {
 					return function() {
-						Game.zones['energy_ring'].placeInZone( sp_ele_id );
-						parent.addTooltip( sp_ele_id, '', dojo.string.substitute(Const.Tooltip_Ring_Energy(), {color: Energy.getColor(sphere_id)}));
-						parent.connect($(sp_ele_id), 'onclick', 'onEnergySelect');
+						parent.placeInZoneNoDestroy.call( Game.zones['energy_ring'], sp_ele_id );
 						Game.anim_lock = false;
 					}
 				}(this);
@@ -1228,7 +1305,6 @@ function (dojo, declare) {
 				anim.play();
 			} else {
 				// slide sphere to player card
-				this.disconnect( $(sp_ele_id), 'onEnergySelect' );
 				Game.zones['sphere_row'].removeFromZone(sp_ele_id); //, false, 'energy_ring');
 				this.slideToObjectAndDestroy( $(sp_ele_id), $('player_header_'+player_id) );				
 			}
@@ -1245,8 +1321,8 @@ function (dojo, declare) {
 				this.removeTooltip( next_ele_id );
 				dojo.removeClass(next_ele_id, 'next_nrg');
 				// add to row zone (should work for animation)
-				Game.zones['sphere_row'].placeInZone(next_ele_id, Game.getNrgWeight());
-				this.connect($(next_ele_id), 'onclick', 'onEnergySelect');
+				this.placeInZoneNoDestroy.call( Game.zones['sphere_row'], next_ele_id, Game.getNrgWeight());
+				dojo.connect($(next_ele_id), 'onclick', this, 'onEnergySelect');
 				this.addTooltip( next_ele_id, '', dojo.string.substitute(Const.Tooltip_Row_Energy(), {color: Energy.getColor( Energy.getIdOfEle(next_ele_id) )}));
 				let new_sphere_id = notif.args.new_sphere_id;
 				this.insertNextSphere(new_sphere_id);
@@ -1288,9 +1364,7 @@ function (dojo, declare) {
 				this.placeResearchedGizmo(purchased_id);
 			}
 
-			this.removeTooltip( purchased_id );
-			this.disconnect( $(pcid), 'onCardSelect' );
-			this.attachToNewParent( $(pcid), $(zone_id) );
+			this.attachToNewParentNoDestroy( pcid, zone_id );
 
 			let level = mt_gizmo.level;
 			dojo.removeClass(pcid, 'selected');
@@ -1319,12 +1393,10 @@ function (dojo, declare) {
 			let anim = this.slideToObject( pcid, zone_id );
 			anim.onEnd = function(parent) {
 				return function() {
-					Game.zones[zone_id].placeInZone( pcid );
-					parent.addGizmoTooltip( purchased_id );
-					parent.connect($(pcid), 'onclick', 'onCardSelect');
-					Game.hideResearch(parent);
+					parent.placeInZoneNoDestroy.call( Game.zones[zone_id], pcid );
 					Game.waitHideResearch = false;
 					Game.anim_lock = false;
+					Game.hideResearch(parent);
 				}
 			}(this);
 			Game.anim_lock = true;
@@ -1353,20 +1425,15 @@ function (dojo, declare) {
 			let sp_html = Energy.getEnergyHtml(sphere_id);
 			let sp_ele_id = Energy.getEleId(sphere_id);
 			if (player_id == this.player_id) {
-				// this.slideToObject( $( sp_ele_id ), $('energy_ring') );	
-				// Game.zones['energy_ring'].placeInZone( sp_ele_id );
-				// dojo.addClass(sp_ele_id, 'ring');				
-				// this.addTooltip( sp_ele_id, '', dojo.string.substitute(Const.Tooltip_Ring_Energy(), {color: Energy.getColor(sphere_id)}));
-				// this.connect( $( sp_ele_id ), 'onclick', 'onEnergySelect' );
 				dojo.place( sp_html, 'sphere_row' );
 				dojo.addClass(sp_ele_id, 'ring');
-				this.attachToNewParent( $(sp_ele_id), $('energy_ring') );
+				this.attachToNewParentNoDestroy( sp_ele_id, 'energy_ring' );
+				this.addTooltip( sp_ele_id, '', dojo.string.substitute(Const.Tooltip_Ring_Energy(), {color: Energy.getColor(sphere_id)}));
+				dojo.connect($(sp_ele_id), 'onclick', this, 'onEnergySelect');
 				let anim = this.slideToObject( sp_ele_id, 'energy_ring' );
 				anim.onEnd = function(parent) {
 					return function() {
-						Game.zones['energy_ring'].placeInZone( sp_ele_id );
-						parent.addTooltip( sp_ele_id, '', dojo.string.substitute(Const.Tooltip_Ring_Energy(), {color: Energy.getColor(sphere_id)}));
-						parent.connect($(sp_ele_id), 'onclick', 'onEnergySelect');
+						parent.placeInZoneNoDestroy.call( Game.zones['energy_ring'], sp_ele_id );
 						Game.anim_lock = false;
 					}
 				}(this);
