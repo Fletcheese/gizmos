@@ -31,9 +31,6 @@ function (dojo, declare) {
 			Game.zones = {};              
 			this.card_width = 170.5;
 			this.card_height = 170.5;
-			this.archive_limit = 1;			
-			this.energy_limit = 5;
-			this.research_quantity = 3;
 			Game.selected_card_id = 0;
 			this.deck_counters = [];
 			Builder.active = {};
@@ -140,9 +137,6 @@ function (dojo, declare) {
 			Game.activePlayer = this.getActivePlayerId();
 			Builder.showMessage = this.showMessage;
 			this.gamedatas = gamedatas;
-			this.energy_limit = gamedatas.energy_limit;
-			this.archive_limit = gamedatas.archive_limit;
-			this.research_quantity = gamedatas.research_quantity;
 			Game.selected_card_id = gamedatas.selected_card_id;	
 			if (gamedatas.is_last_round == 1) {
 				dojo.style('gzs_end_banner', 'display', 'block');
@@ -236,10 +230,7 @@ function (dojo, declare) {
 					this.handleSelectedCard();
 				case 'researchedCardSelected':
 					//console.log(args);
-					if (args && args.args) {						
-						this.archive_limit = args.args.archive_limit;
-						this.energy_limit = args.args.energy_limit;
-						this.research_quantity = args.args.research_quantity;
+					if (args && args.args) {
 
 						if (args && args.args && args.args.research_level) {							
 							if (args && args.args && args.args._private) {
@@ -316,9 +307,6 @@ function (dojo, declare) {
         {
 			if (args && args.selected_card_id) {
 				Game.selected_card_id = args.selected_card_id;
-				this.archive_limit = args.archive_limit;			
-				this.energy_limit = args.energy_limit;
-				this.research_quantity = args.research_quantity;
 				console.log('Set selected_card_id=' + Game.selected_card_id);
 			}
             console.log( 'onUpdateActionButtons: '+stateName );                      
@@ -330,7 +318,7 @@ function (dojo, declare) {
 						this.addActionButton( 'button_research', 
 							this.format_string_recursive( _('Research Level ${level} (${quantity})'), {
 									level: Gizmo.levelNumerals(Game.selected_card_id), 
-									quantity: this.research_quantity
+									quantity: this.gamedatas.players[this.getActivePlayerId()].research_quantity
 							}), 'researchSelectedDeck' );
 						this.addActionButton( 'button_cancel', _('Cancel'), 'cancelSelectedCard' );
 						break;
@@ -764,17 +752,13 @@ function (dojo, declare) {
 		},
 		fileSelectedCard: function ( evt ) {			
 			if ( this.checkAction("cardFile") ) {
-				// ensure player's archive is not full
-				let filed = dojo.query( dojo.string.substitute('#${archive_id} .card', {archive_id: Game.getPlayerArchive(this.getActivePlayerId())}) );
-				if (filed.length >= this.archive_limit) {
-					this.showMessage(_("Your archive is full"), "error");
-				} else {
-					this.ajaxcall( "/gizmos/gizmos/fileSelectedCard.html", {
-						lock: true,
-						"selected_card_id": this.selected_card_id ?? 0,
-						research_order: Game.getOrderedResearch()
-					}, this, function( result ) {} );					
-				}
+				// Archive limit checked server-side		
+				this.ajaxcall( "/gizmos/gizmos/fileSelectedCard.html", {
+					lock: true,
+					"selected_card_id": this.selected_card_id ?? 0,
+					research_order: Game.getOrderedResearch()
+				}, this, function( result ) {} );					
+				
 			}
 		},
 		cancel: function ( evt ) {
@@ -1131,7 +1115,7 @@ function (dojo, declare) {
 			} else if (this.checkAction( "sphereSelect" )) {
 				// ensure user is not at limit
 				let sphere_count = this.getPlayerSphereCount(this.getActivePlayerId());
-				if (sphere_count == this.sphere_limit) {
+				if (sphere_count >= this.gamedatas.players[this.getActivePlayerId()].energy_limit) {
 					this.showMessage(_("You cannot hold more energy"), "error");
 				} else {
 					Game.selectEnergy(sphere_id);
@@ -1159,7 +1143,7 @@ function (dojo, declare) {
 			Game.resetDescription(this);
 		},
 		onCardSelect: function( evt ) {
-			if (Game.isLocked()) {
+			if (Game.isLocked() || !this.checkLock(false)) {
 				console.log("onCardSelect LOCKED");
 				return;
 			} else {

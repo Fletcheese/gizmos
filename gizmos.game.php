@@ -672,11 +672,6 @@ class Gizmos extends Table
 		$this->gamestate->nextState( 'cardFile' );		
 	}
 	
-	/*
-		Some level 3 edge cases to handle later:
-			pick 2 spheres
-			all of the continous effects (prevent actions, build discounts)
-	*/
 	function triggerGizmo($gizmo_id) {
 		$card_sql = "SELECT card_id,card_type,card_type_arg,card_location,card_location_arg,is_used,is_triggered FROM gizmo_cards WHERE card_type_arg='".$gizmo_id."'";
 		$gizmo = self::getObjectFromDB($card_sql);
@@ -1155,17 +1150,14 @@ class Gizmos extends Table
         if ($state['type'] === "activeplayer") {
             switch ($statename) {
                 default:
+					self::notifyAllPlayers('zombiePass', clienttranslate('${player_name} is a zombie and automatically passes'),
+						array (
+							'player_name' => self::getPlayerNameForNotification($active_player)
+						)
+					);
                     $this->gamestate->nextState( "zombiePass" );
                 	break;
             }
-
-            return;
-        }
-
-        if ($state['type'] === "multipleactiveplayer") {
-            // Make sure player is in a non blocking status for role turn
-            $this->gamestate->setPlayerNonMultiactive( $active_player, '' );
-            
             return;
         }
 

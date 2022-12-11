@@ -33,7 +33,7 @@ $machinestates = array(
     		"type" => "activeplayer",
 			"args" => "arg_playerTurn",
     		"possibleactions" => array( "cardSelected", "deckSelected", "sphereSelect" ),
-    		"transitions" => array( "cardSelected" => 10, "deckSelected" => 14, "sphereSelect" => 30 )
+    		"transitions" => array( "cardSelected" => 10, "deckSelected" => 14, "sphereSelect" => 30, "zombiePass" => 3 )
     ),
     3 => array(
     		"name" => "nextPlayer",
@@ -51,7 +51,7 @@ $machinestates = array(
     		"type" => "activeplayer",
 			"args" => "arg_getSelectedCard",
     		"possibleactions" => array( "research", "cardFile", "cardBuilt", "cancel", "cancelTrigger" ),
-    		"transitions" => array( "research" => 12, "cardFile" => 30, "cardBuilt" => 30, "cancel" => 2, "cancelTrigger" => 13 )
+    		"transitions" => array( "research" => 12, "cardFile" => 30, "cardBuilt" => 30, "cancel" => 2, "cancelTrigger" => 13, "zombiePass" => 3 )
     ),
     11 => array(
     		"name" => "triggerSphereSelect",
@@ -60,7 +60,7 @@ $machinestates = array(
     		"type" => "activeplayer",
 			"args" => "arg_triggerSphereSelect",
     		"possibleactions" => array( "sphereSelect", "cancel", "triggerCheck" ),
-    		"transitions" => array( "sphereSelect" => 30, "cancel" => 13, "triggerCheck" => 30  )
+    		"transitions" => array( "sphereSelect" => 30, "cancel" => 13, "triggerCheck" => 30, "zombiePass" => 3  )
     ),
     12 => array(
     		"name" => "research",
@@ -69,7 +69,7 @@ $machinestates = array(
 			"args" => "arg_getResearchedCards",
     		"type" => "activeplayer",
     		"possibleactions" => array( "cardSelected", "pass" ),
-    		"transitions" => array( "cardSelected" => 15, "pass" => 30 )
+    		"transitions" => array( "cardSelected" => 15, "pass" => 30, "zombiePass" => 3 )
     ),
     13 => array(
     		"name" => "triggerSelect",
@@ -78,7 +78,7 @@ $machinestates = array(
 			"args" => "arg_getTriggeredCards",
     		"type" => "activeplayer",
     		"possibleactions" => array( "triggerSphereSelect", "triggerResearch", "triggerSphereRandom", "pass", "gainVictoryPoint", "buildLevel1For0", "triggerFile" ),
-    		"transitions" => array( "triggerSphereSelect" => 11, "triggerResearch" => 17, "triggerSphereRandom" => 23, "pass" => 3, "gainVictoryPoint" => 27, "buildLevel1For0" => 18, "triggerFile" => 19 )
+    		"transitions" => array( "triggerSphereSelect" => 11, "triggerResearch" => 17, "triggerSphereRandom" => 23, "pass" => 3, "gainVictoryPoint" => 27, "buildLevel1For0" => 18, "triggerFile" => 19, "zombiePass" => 3 )
     ),
     14 => array(
     		"name" => "deckSelected",
@@ -87,7 +87,7 @@ $machinestates = array(
 			"args" => "arg_getSelectedCard",
     		"type" => "activeplayer",
     		"possibleactions" => array( "research", "cancel", "cancelTrigger" ),
-    		"transitions" => array( "research" => 12, "cancel" => 2, "cancelTrigger" => 13 )
+    		"transitions" => array( "research" => 12, "cancel" => 2, "cancelTrigger" => 13, "zombiePass" => 3 )
     ),
 	15 => array(
     		"name" => "researchedCardSelected",
@@ -96,7 +96,7 @@ $machinestates = array(
     		"type" => "activeplayer",
 			"args" => "arg_getSelectedAndResearchedCard",
     		"possibleactions" => array( "cardFile", "cardBuilt", "cancel"),
-    		"transitions" => array( "cardFile" => 30, "cardBuilt" => 30, "cancel" => 12 )
+    		"transitions" => array( "cardFile" => 30, "cardBuilt" => 30, "cancel" => 12, "zombiePass" => 3 )
     ),
 	16 => array(
     		"name" => "triggerDraw",
@@ -105,7 +105,7 @@ $machinestates = array(
     		"type" => "activeplayer",
 			"args" => "arg_triggerDraw",
     		"possibleactions" => array( "triggerSphereRandom", "cancel", "triggerCheck"),
-    		"transitions" => array( "triggerSphereRandom" => 23, "cancel" => 13, "triggerCheck" => 30 )
+    		"transitions" => array( "triggerSphereRandom" => 23, "cancel" => 13, "triggerCheck" => 30, "zombiePass" => 3 )
     ),
 	17 => array(
     		"name" => "triggerResearch",
@@ -114,7 +114,7 @@ $machinestates = array(
     		"type" => "activeplayer",
 			"args" => "arg_triggeringGizmo",
     		"possibleactions" => array( "deckSelected", "cancel" ),
-    		"transitions" => array( "deckSelected" => 14, "cancel" => 13 )
+    		"transitions" => array( "deckSelected" => 14, "cancel" => 13, "zombiePass" => 3 )
     ),
 	18 => array(
 		"name" => "buildLevel1For0",
@@ -123,7 +123,7 @@ $machinestates = array(
 		"type" => "activeplayer",
 		"args" => "arg_triggeringGizmo",
 		"possibleactions" => array( "buildLevel1For0", "cancel" ),
-		"transitions" => array( "buildLevel1For0" => 30, "cancel" => 13 )
+		"transitions" => array( "buildLevel1For0" => 30, "cancel" => 13, "zombiePass" => 3 )
 	),
 	19 => array(
 		"name" => "triggerFile",
@@ -132,7 +132,7 @@ $machinestates = array(
 		"type" => "activeplayer",
 		"args" => "arg_triggeringGizmo",
 		"possibleactions" => array( "cardFile", "cancel" ),
-		"transitions" => array( "cardFile" => 30, "cancel" => 13 )
+		"transitions" => array( "cardFile" => 30, "cancel" => 13, "zombiePass" => 3 )
 	),
 	
     23 => array(
