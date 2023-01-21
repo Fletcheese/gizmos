@@ -556,11 +556,11 @@ class Gizmos extends Table
 		$level = $this->mt_gizmos[$selected_card_id]['level'];
 		$built_from;
 		if ( $built_from_file ) {
-			$built_from = self::_('File');
+			$built_from = clienttranslate('File');
 		} else if ( self::getGameStateValue('research_level') > 0 ) {
-			$built_from = self::_('Research');
+			$built_from = clienttranslate('Research');
 		} else {
-			$built_from = self::_('the row');
+			$built_from = clienttranslate('the row');
 			$new_card = $this->gizmo_cards->pickCardForLocation( "deck_$level", "row_$level" );
 			if (!empty($new_card)) {
 				$new_card_id = $new_card['type_arg'];
@@ -582,7 +582,7 @@ class Gizmos extends Table
 			array (
 				'i18n' => ['color', 'built_from', 'action'],
 				'player_name' => $player_name,
-				'action' => 'Builds',
+				'action' => clienttranslate('Builds'),
 				'level' => DB::LevelAsNumerals($level),
 				'color' => $built_mt_gizmo['color'],
 				'built_from' => $built_from,
@@ -599,9 +599,20 @@ class Gizmos extends Table
 				],
 				'deck_counts' => DB::getDeckCounts()
 			)
-		);
+		);	
+		$card_score;
+		// All level 1s are worth 1 point
+		if ($level == 1) {
+			$card_score = 1;
+		} else {
+			$card_score = $built_mt_gizmo['points'];
+		}
         $this->incStat(1, 'built_number', $player_id);
         $this->incStat(1, 'built_number');
+		$this->incStat(1, "level$level".'_built', $player_id);
+		$this->incStat(1, "level$level".'_built');
+		$this->incStat($card_score, "level$level".'_score', $player_id);
+		$this->incStat($card_score, "level$level".'_score');
 	}
 	
 	function fileSelectedCard($selected_card_id, $research) {
@@ -642,7 +653,7 @@ class Gizmos extends Table
 				$new_card_id = $new_card['type_arg'];
 			}
 		} else {
-			$filed_from = 'Research';
+			$filed_from = clienttranslate('Research');
 		}
 		self::handleResearchReturn();
 
@@ -655,7 +666,7 @@ class Gizmos extends Table
 			array (
 				'i18n' => ['color', 'built_from', 'action'],
 				'player_name' => $player_name,
-				'action' => 'Files',
+				'action' => clienttranslate('Files'),
 				'level' => DB::LevelAsNumerals($level),
 				'color' => $mt_gizmo['color'],
 				'built_from' => $filed_from,
@@ -767,7 +778,6 @@ class Gizmos extends Table
 		}
 
 		self::setGameStateValue('research_level', $level);
-		$this->gamestate->nextState( 'research' );
 		self::notifyAllPlayers('research', clienttranslate('${player_name} Researches ${n} Level ${level} Gizmo(s)'),
 			array (
 				'player_name' => self::getPlayerNameForNotification($player_id),
@@ -778,6 +788,10 @@ class Gizmos extends Table
 		);
         $this->incStat(1, 'research_number', $player_id);
         $this->incStat(1, 'research_number');
+		$this->incStat(1, "level$level"."_research", $player_id);
+		$this->incStat(1, "level$level"."_research");
+		
+		$this->gamestate->nextState( 'research' );
 	}
 	
 	function buildLevel1For0($gizmo_id) {
@@ -863,9 +877,9 @@ class Gizmos extends Table
 		$uses = self::getGameStateValue('triggering_multiple_uses');
 		$desc;
 		if ($uses > 0) {
-			$desc = self::_('may pick a second energy or cancel to skip');			
+			$desc = clienttranslate('may pick a second energy or cancel to skip');			
 		} else {
-			$desc = self::_('may pick an available energy from the row');
+			$desc = clienttranslate('may pick an available energy from the row');
 		}
 		
 		return array(
@@ -878,9 +892,9 @@ class Gizmos extends Table
 		$uses = self::getGameStateValue('triggering_multiple_uses');
 		$desc;
 		if ($uses == 1) {
-			$desc = self::_('may draw a second energy or cancel to skip');			
+			$desc = clienttranslate('may draw a second energy or cancel to skip');			
 		} else if ($uses == 2) {
-			$desc = self::_('may draw a third energy or cancel to skip');			
+			$desc = clienttranslate('may draw a third energy or cancel to skip');			
 		} else {
 			throw new BgaVisibleSystemException( "arg_triggerDraw has unexpected triggering_multiple_uses: $uses" );						
 		}
@@ -955,17 +969,18 @@ class Gizmos extends Table
 					switch ($mtg['upgrade_special']) {
 						case 'score_energy':
 							$gizmo_score = DB::getPlayerEnergyCount($player_id);
-							//$notif_trailer .= self::_("score equal to number of energy");
 							break;
 						case 'score_scores':
 							$counts = DB::scoreVictoryPoints($player_id, 0);
 							$gizmo_score = $counts['vps'];
-							//$notif_trailer .= self::_("score equal to number of victory points");
 							break;
 						default:
 							throw new BgaVisibleSystemException( "Unrecognized upgrade_special: ".$mtg['upgrade_special'] );
 					}
 					$player_score = DB::score($player_id, $gizmo_score);
+					$this->incStat($gizmo_score, 'level3_score', $player_id);
+					$this->incStat($gizmo_score, 'level3_score');
+
 					self::notifyAllPlayers('scoreSpecial', clienttranslate('${player_name} scores ${n} points for their upgrade: ${upgrade}'), 
 						array (
 							'player_name' => self::getPlayerNameForNotification($player_id),
@@ -1075,8 +1090,7 @@ class Gizmos extends Table
 					$this->incStat(1, 'trigger_number', self::getActivePlayerId());
 					$this->incStat(1, 'trigger_number');
 					break;				
-			}
-			
+			}			
 		}
 		
 		$player_id = self::getActivePlayerId();
@@ -1112,6 +1126,9 @@ class Gizmos extends Table
 		$player_name = self::getPlayerNameForNotification($player_id);
 
 		$counts = DB::scoreVictoryPoints($player_id, $add_points);
+		$this->incStat($add_points, 'vps_score', $player_id);
+		$this->incStat($add_points, 'vps_score');
+
 		self::notifyAllPlayers('victoryPoint', clienttranslate('${player_name} gains ${number} ${vp_html}'), //victory point token(s)"), 
 			array (
 				'player_name' => $player_name,

@@ -7,7 +7,7 @@ class DB
 
     public static function init( $theGame ) {
         self::$game = $theGame;
-    }
+	}
 
     /*
     UTILS

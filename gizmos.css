@@ -189,6 +189,7 @@
     position: relative;
     top: 5%;
 	font-size:20px;
+	height:0px;
 }
 #gizmos_board #research_help {
 	color:#fff;
@@ -472,21 +473,21 @@
 #gizmos_board .row_1, #gizmos_board #deck_1 {
 	width: 18%;
 	height: auto;
-	aspect-ratio: 1;
+	padding-bottom:18%;
 	margin: 1%;
 	float: left;
 }
 #gizmos_board .row_2, #gizmos_board #deck_2 {
 	width: 23%;
 	height: auto;
-	aspect-ratio: 1;
+	padding-bottom: 23%;
 	margin: 1%;
 	float: left;
 }
 #gizmos_board .row_3, #gizmos_board #deck_3 {
 	width: 30.3%;
 	height: auto;
-	aspect-ratio: 1;
+	padding-bottom: 30.3%;
 	margin: 1.5%;
 	float: left;
 }
@@ -518,7 +519,7 @@
 #gizmos_board .researched {
 	height:auto;
 	width:18%;
-	aspect-ratio:1;
+	padding-bottom:14.4%;
 	margin:1%;
 	float:left;
 }
@@ -526,14 +527,13 @@
 #gizmos_board .arrow {
 	display: inline-block;
 	position:relative;
-	top:40%;
+	top:40px;
 	width:20%;
-	height:20%;
+	padding-bottom:20%;
 	border-radius:100%;
 	opacity:0.5;
 	outline: 2px solid white;
 	background-size: 100% 100%;
-	padding:0%;
 	margin:0%;
 }
 #gizmos_board .arrow.right {
@@ -573,15 +573,15 @@
     background-image: url('img/playerboard.png');
 	height: auto;
 	width: 100%;
-	aspect-ratio: 90 / 7;
+	padding-bottom: 7.77%;
 	background-size: contain;
-    background-repeat: no-repeat;	
+    background-repeat: no-repeat;
 }
 #gizmos_board .gizmo_track_first {
     background-image: url('img/playerboard_first.png');
 	height: auto;
 	width: 100%;
-	aspect-ratio: 90 / 7;
+	padding-bottom: 7.77%;
 	background-size: contain;
     background-repeat: no-repeat;	
 }
@@ -592,6 +592,7 @@
 	margin-left:1%;
 	margin-right:1%;
     cursor: help;
+	min-height:1px;
 }
 #gizmos_board .track_archive {
 	height: 100%;
@@ -644,7 +645,7 @@
 #gizmos_board .built, #gizmos_board .filed {
 	width:100%;
 	height:auto;
-	aspect-ratio:1;
+	padding-bottom:100%;
 }
 #gizmos_board .card, #gizmos_board .deck, .dijitTooltip .card {
 	border-radius: 7%;

@@ -189,6 +189,7 @@ function (dojo, declare) {
 					dojo.query('.already_used').removeClass('already_used');
 					Game.activePlayer = this.getActivePlayerId();
 					dojo.query('.row_card').addClass('selectable');
+					dojo.query(Game.getPlayerArchive(Game.activePlayer)+' .filed').addClass('selectable');
 
 					dojo.query('.active_player').removeClass('active_player');
 					dojo.addClass('player_header_'+Game.activePlayer, 'active_player');
@@ -249,7 +250,7 @@ function (dojo, declare) {
 					}
 					if (this.player_id == this.getActivePlayerId() && stateName != 'deckSelected' && dojo.query( '#converter_'+this.player_id+' .card' ).length > 0) {
 						dojo.addClass('converter_' + this.player_id, 'highlighted');
-					}					
+					}
 					Builder.refreshHeader(this);
 					break;
 				case 'buildLevel1For0':
@@ -273,6 +274,7 @@ function (dojo, declare) {
 			switch (stateName) {
 				case 'playerTurn':
 					dojo.query('.row_card').removeClass('selectable');
+					dojo.query(Game.getPlayerArchive(Game.activePlayer)+' .filed').removeClass('selectable');
 				case 'triggerResearch':
 					dojo.query('.deck').removeClass('selectable');
 					break;
@@ -833,7 +835,6 @@ function (dojo, declare) {
 			if (!div_for_this) {
 				if (was_filed) {
 					div_for_this = this.getPlayerFiledDiv(player_id);
-					other_class = 'selectable';
 				} else {
 					div_for_this = $( Game.getBuiltGizmoDiv(gizmo_id, player_id) );
 					other_class = '';
@@ -862,7 +863,7 @@ function (dojo, declare) {
 			this.addGizmoTooltip(gizmo_id);
 			let new_gizmo_id = Gizmo.getEleId(gizmo_id);
 			this.placeInZoneNoDestroy.call( Game.zones[div_for_this.id], new_gizmo_id );
-			console.log("placed " + new_gizmo_id + " in zone");
+			console.log("placed " + new_gizmo_id + " in zone: " + div_for_this);
 			dojo.connect($(new_gizmo_id), 'onclick', this, 'onCardSelect');
 			console.log("and connected onCardSelect");			
 		},
@@ -1232,7 +1233,7 @@ function (dojo, declare) {
 					}, this, function( result ) {			
 					} );				
 				}
-			} else if (card_ele.classList.contains('converter')) {
+			} else if (card_ele.classList.contains('converter') && dojo.query('#gizmos_container_'+Game.activePlayer+' #'+card_ele.id).length > 0) {
 				if ( this.checkAction("cardBuilt", true) ) {
 					Builder.toggleConverter(selected_card_id, this);
 				} else {
@@ -1352,7 +1353,7 @@ function (dojo, declare) {
 
 			let level = mt_gizmo.level;
 			dojo.removeClass(pcid, 'selected');
-			dojo.removeClass(pcid, 'row');
+			dojo.removeClass(pcid, 'row_card');
 			dojo.removeClass(pcid, 'researched');
 			dojo.removeClass(pcid, 'row_' + level);
 			if (action == 'Files') {

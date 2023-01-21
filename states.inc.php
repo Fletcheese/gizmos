@@ -32,7 +32,7 @@ $machinestates = array(
     		"descriptionmyturn" => clienttranslate('${you} may File, Pick, Build, or Research'),
     		"type" => "activeplayer",
 			"args" => "arg_playerTurn",
-    		"possibleactions" => array( "cardSelected", "deckSelected", "sphereSelect" ),
+    		"possibleactions" => array( "cardSelected", "deckSelected", "sphereSelect", "zombiePass" ),
     		"transitions" => array( "cardSelected" => 10, "deckSelected" => 14, "sphereSelect" => 30, "zombiePass" => 3 )
     ),
     3 => array(
@@ -50,7 +50,7 @@ $machinestates = array(
     		"descriptionmyturn" => clienttranslate('${you} may Build or File selected Gizmo'),
     		"type" => "activeplayer",
 			"args" => "arg_getSelectedCard",
-    		"possibleactions" => array( "research", "cardFile", "cardBuilt", "cancel", "cancelTrigger" ),
+    		"possibleactions" => array( "research", "cardFile", "cardBuilt", "cancel", "cancelTrigger", "zombiePass" ),
     		"transitions" => array( "research" => 12, "cardFile" => 30, "cardBuilt" => 30, "cancel" => 2, "cancelTrigger" => 13, "zombiePass" => 3 )
     ),
     11 => array(
@@ -59,7 +59,7 @@ $machinestates = array(
     		"descriptionmyturn" => clienttranslate('${you} ${desc}'),
     		"type" => "activeplayer",
 			"args" => "arg_triggerSphereSelect",
-    		"possibleactions" => array( "sphereSelect", "cancel", "triggerCheck" ),
+    		"possibleactions" => array( "sphereSelect", "cancel", "triggerCheck", "zombiePass" ),
     		"transitions" => array( "sphereSelect" => 30, "cancel" => 13, "triggerCheck" => 30, "zombiePass" => 3  )
     ),
     12 => array(
@@ -68,7 +68,7 @@ $machinestates = array(
     		"descriptionmyturn" => clienttranslate('${you} may Build or File a Researched Gizmo'),
 			"args" => "arg_getResearchedCards",
     		"type" => "activeplayer",
-    		"possibleactions" => array( "cardSelected", "pass" ),
+    		"possibleactions" => array( "cardSelected", "pass", "zombiePass" ),
     		"transitions" => array( "cardSelected" => 15, "pass" => 30, "zombiePass" => 3 )
     ),
     13 => array(
@@ -77,7 +77,7 @@ $machinestates = array(
     		"descriptionmyturn" => clienttranslate('${you} may select a Gizmo to trigger'),
 			"args" => "arg_getTriggeredCards",
     		"type" => "activeplayer",
-    		"possibleactions" => array( "triggerSphereSelect", "triggerResearch", "triggerSphereRandom", "pass", "gainVictoryPoint", "buildLevel1For0", "triggerFile" ),
+    		"possibleactions" => array( "triggerSphereSelect", "triggerResearch", "triggerSphereRandom", "pass", "gainVictoryPoint", "buildLevel1For0", "triggerFile", "zombiePass" ),
     		"transitions" => array( "triggerSphereSelect" => 11, "triggerResearch" => 17, "triggerSphereRandom" => 23, "pass" => 3, "gainVictoryPoint" => 27, "buildLevel1For0" => 18, "triggerFile" => 19, "zombiePass" => 3 )
     ),
     14 => array(
@@ -86,7 +86,7 @@ $machinestates = array(
     		"descriptionmyturn" => clienttranslate('${you} may research'),
 			"args" => "arg_getSelectedCard",
     		"type" => "activeplayer",
-    		"possibleactions" => array( "research", "cancel", "cancelTrigger" ),
+    		"possibleactions" => array( "research", "cancel", "cancelTrigger", "zombiePass" ),
     		"transitions" => array( "research" => 12, "cancel" => 2, "cancelTrigger" => 13, "zombiePass" => 3 )
     ),
 	15 => array(
@@ -95,7 +95,7 @@ $machinestates = array(
     		"descriptionmyturn" => clienttranslate('${you} may Build or File selected Gizmo'),
     		"type" => "activeplayer",
 			"args" => "arg_getSelectedAndResearchedCard",
-    		"possibleactions" => array( "cardFile", "cardBuilt", "cancel"),
+    		"possibleactions" => array( "cardFile", "cardBuilt", "cancel", "zombiePass"),
     		"transitions" => array( "cardFile" => 30, "cardBuilt" => 30, "cancel" => 12, "zombiePass" => 3 )
     ),
 	16 => array(
@@ -104,7 +104,7 @@ $machinestates = array(
     		"descriptionmyturn" => '${you} ${desc}',
     		"type" => "activeplayer",
 			"args" => "arg_triggerDraw",
-    		"possibleactions" => array( "triggerSphereRandom", "cancel", "triggerCheck"),
+    		"possibleactions" => array( "triggerSphereRandom", "cancel", "triggerCheck", "zombiePass"),
     		"transitions" => array( "triggerSphereRandom" => 23, "cancel" => 13, "triggerCheck" => 30, "zombiePass" => 3 )
     ),
 	17 => array(
@@ -113,7 +113,7 @@ $machinestates = array(
     		"descriptionmyturn" => clienttranslate('${you} may select a deck to Research'),
     		"type" => "activeplayer",
 			"args" => "arg_triggeringGizmo",
-    		"possibleactions" => array( "deckSelected", "cancel" ),
+    		"possibleactions" => array( "deckSelected", "cancel", "zombiePass" ),
     		"transitions" => array( "deckSelected" => 14, "cancel" => 13, "zombiePass" => 3 )
     ),
 	18 => array(
@@ -122,7 +122,7 @@ $machinestates = array(
 		"descriptionmyturn" => clienttranslate('${you} may build a Level I Gizmo for free'),
 		"type" => "activeplayer",
 		"args" => "arg_triggeringGizmo",
-		"possibleactions" => array( "buildLevel1For0", "cancel" ),
+		"possibleactions" => array( "buildLevel1For0", "cancel", "zombiePass" ),
 		"transitions" => array( "buildLevel1For0" => 30, "cancel" => 13, "zombiePass" => 3 )
 	),
 	19 => array(
@@ -131,7 +131,7 @@ $machinestates = array(
 		"descriptionmyturn" => clienttranslate('${you} may File a Gizmo'),
 		"type" => "activeplayer",
 		"args" => "arg_triggeringGizmo",
-		"possibleactions" => array( "cardFile", "cancel" ),
+		"possibleactions" => array( "cardFile", "cancel", "zombiePass" ),
 		"transitions" => array( "cardFile" => 30, "cancel" => 13, "zombiePass" => 3 )
 	),
 	
