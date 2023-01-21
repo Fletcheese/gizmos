@@ -189,7 +189,7 @@ function (dojo, declare) {
 					dojo.query('.already_used').removeClass('already_used');
 					Game.activePlayer = this.getActivePlayerId();
 					dojo.query('.row_card').addClass('selectable');
-					dojo.query(Game.getPlayerArchive(Game.activePlayer)+' .filed').addClass('selectable');
+					dojo.query('#'+Game.getPlayerArchive(Game.activePlayer)+' .filed').addClass('selectable');
 
 					dojo.query('.active_player').removeClass('active_player');
 					dojo.addClass('player_header_'+Game.activePlayer, 'active_player');
@@ -1323,6 +1323,7 @@ function (dojo, declare) {
 			let built_from_file = notif.args.built_from_file;
 			let new_score = notif.args.new_score;
 			let limits = notif.args.limits;
+			let was_filed = notif.args.was_filed;
 
 			Game.updateDeckCounts(notif.args.deck_counts);
 
@@ -1340,7 +1341,7 @@ function (dojo, declare) {
 			// slide purchased card to player
 			let pcid = Gizmo.getEleId(purchased_id);
 			var mt_gizmo = Gizmo.details(purchased_id);
-			let zone_id = (action == 'Files' ?
+			let zone_id = (was_filed ?
 				Game.getPlayerArchive(player_id) :
 				Game.getBuiltGizmoDiv(purchased_id, player_id)
 			);
@@ -1357,7 +1358,7 @@ function (dojo, declare) {
 			dojo.removeClass(pcid, 'row_card');
 			dojo.removeClass(pcid, 'researched');
 			dojo.removeClass(pcid, 'row_' + level);
-			if (action == 'Files') {
+			if (was_filed) {
 				dojo.addClass(pcid, 'filed');
 			} else {					
 				dojo.removeClass(pcid, 'selectable');

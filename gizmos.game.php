@@ -675,7 +675,8 @@ class Gizmos extends Table
 				'spent_spheres' => null,
 				'new_card_id' => $new_card_id,
 				'player_id' => $player_id,
-				'deck_counts' => DB::getDeckCounts()
+				'deck_counts' => DB::getDeckCounts(),
+				'was_filed' => true
 			)
 		);
         $this->incStat(1, 'filed_number', $player_id);

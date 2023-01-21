@@ -516,12 +516,17 @@
 #gizmos_board .research_dialog {
 	width: 100%;
 }
+/* 3.6% accounts for the 20% height arrows on face-up cards */
 #gizmos_board .researched {
 	height:auto;
 	width:18%;
 	padding-bottom:14.4%;
 	margin:1%;
 	float:left;
+}
+/* The face-down cards don't have arrows so need full height */
+#gizmos_board .researched.gzs_fd_card_1, #gizmos_board .researched.gzs_fd_card_2, #gizmos_board .researched.gzs_fd_card_3 {
+	padding-bottom:18%;
 }
 
 #gizmos_board .arrow {
