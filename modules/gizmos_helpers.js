@@ -323,9 +323,10 @@ let Builder = {
 				total = (this.spending_power[sel_color] ?? 0);
 			}
 			return {
+				i18n: ['color'],
+				color: sel_color,
 				x: total,
-				y: cost,
-				color: sel_color
+				y: cost
 			};
 		}
 	},

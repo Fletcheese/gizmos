@@ -1,82 +1,3 @@
-<?php
-/**
- *------
- * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * gizmos implementation : © Fletcheese <1337ch33z@gmail.com>
- * 
- * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
- * See http://en.boardgamearena.com/#!doc/Studio for more information.
- * -----
- *
- * material.inc.php
- *
- * gizmos game material description
- *
- * Here, you can describe the material of your game with PHP variables.
- *   
- * This file is loaded in your game logic class constructor, ie these variables
- * are available everywhere in your game logic code.
- *
- */
- 
-$this->mt_colors = array(
-	0 => clienttranslate('red'),
-	1 => clienttranslate('blue'),
-	2 => clienttranslate('black'),
-	3 => clienttranslate('yellow'),
-	4 => clienttranslate('any'), // in the context of colors,
-	5 => clienttranslate('multi') // in the context of colors
-);
-
-$this->tooltip_types = array(
-	'trigger' => clienttranslate('When you ${trigger} a ${color}${space}${object}: ${action}'),
-	'converter' => clienttranslate('Convert ${number} ${from} energy to ${to} energy'),
-	'upgrade' => clienttranslate('Upgrade: ${details}')	
-);
-$this->action_types = array(
-	0 => clienttranslate('File'),
-	1 => clienttranslate('Pick'),
-	2 => clienttranslate('Build'),
-	3 => clienttranslate('Research'),
-	4 => clienttranslate('draw'),
-	//5 => clienttranslate('gain ${n} victory point token(s)'),
-	6 => clienttranslate('Build a Level I Gizmo for free'),
-	7 => clienttranslate('up to 3 times'),
-  8 => clienttranslate('up to 2'),
-  9 => clienttranslate('Pick up to twice')
-);
-// $this->present_tense_actions = array(
-// 	0 => clienttranslate('Files'),
-// 	1 => clienttranslate('Picks'),
-// 	2 => clienttranslate('Builds'),
-// 	3 => clienttranslate('Researches'),
-// 	4 => clienttranslate('draws'),
-// 	5 => clienttranslate('gains ${n} victory point token(s)')
-// );
-$this->upgrade_types = array(
-	'upgrade_energy' => clienttranslate('energy capacity'),
-	'upgrade_archive' => clienttranslate('archive limit'),
-	'upgrade_research' => clienttranslate('research quantity'),
-	'no' => clienttranslate('You cannot ${action} for the rest of the game'),
-	'no_research' => clienttranslate('Research'),
-	'no_file' => clienttranslate('File'),
-	'discount' => clienttranslate('You may spend 1 less Energy when building a ${discount_type}'),
-	'discount_buildfromfile' => clienttranslate('Gizmo from your Archive'),
-	'discount_buildfromresearch' => clienttranslate('Gizmo directly from Research'),
-	'discount_level2' => clienttranslate('Level II Gizmo'),
-	'score' => clienttranslate('At the end of the game score points equal to your ${score}'),
-	'score_energy' => clienttranslate('remaining unspent Energy'),
-	'score_scores' => clienttranslate('victory point token count')
-);
-$this->misc_terms = array(
-	0 => clienttranslate('Gizmo'), // The game cards that represent inventions
-	1 => clienttranslate('Energy'), // Spendable colored resource for building Gizmos - may also be referred to as spheres or tokens
-	2 => clienttranslate('Level'), // Level I, II, or III Gizmos/Decks
-	3 => clienttranslate('the row'), // where Gizmos exist on the board to be Built or Filed
-	4 => clienttranslate('or'), // in the context of colors e.g. red or blue
-	5 => clienttranslate('and/or'), // in the context of colors e.g. red and/or blue
-);
-
 $this->mt_gizmos = array(
 	101 => array(
 		'id' => 101,
@@ -917,7 +838,7 @@ $this->mt_gizmos = array(
 		'cost' => 1,
 		'points' => 1,
 		'effect_type' => 'trigger_build',
-		'trigger_action' => 'score',
+		'trigger_action' => 'point',
 		'trigger_color' => array(
 			'red'
 		),
@@ -936,14 +857,7 @@ $this->mt_gizmos = array(
     'color' => 'red',
     'space' => ' ',
     'object' => 'Gizmo',
-    'action' => 
-    array (
-      'log' => 'gain ${number} victory point token(s)',
-      'args' => 
-      array (
-        'number' => 1,
-      ),
-    ),
+    'action' => 'point',
   ),
 )	),
 	134 => array(
@@ -953,7 +867,7 @@ $this->mt_gizmos = array(
 		'cost' => 1,
 		'points' => 1,
 		'effect_type' => 'trigger_build',
-		'trigger_action' => 'score',
+		'trigger_action' => 'point',
 		'trigger_color' => array(
 			'black'
 		),
@@ -972,14 +886,7 @@ $this->mt_gizmos = array(
     'color' => 'black',
     'space' => ' ',
     'object' => 'Gizmo',
-    'action' => 
-    array (
-      'log' => 'gain ${number} victory point token(s)',
-      'args' => 
-      array (
-        'number' => 1,
-      ),
-    ),
+    'action' => 'point',
   ),
 )	),
 	135 => array(
@@ -989,7 +896,7 @@ $this->mt_gizmos = array(
 		'cost' => 1,
 		'points' => 1,
 		'effect_type' => 'trigger_build',
-		'trigger_action' => 'score',
+		'trigger_action' => 'point',
 		'trigger_color' => array(
 			'yellow'
 		),
@@ -1008,14 +915,7 @@ $this->mt_gizmos = array(
     'color' => 'yellow',
     'space' => ' ',
     'object' => 'Gizmo',
-    'action' => 
-    array (
-      'log' => 'gain ${number} victory point token(s)',
-      'args' => 
-      array (
-        'number' => 1,
-      ),
-    ),
+    'action' => 'point',
   ),
 )	),
 	136 => array(
@@ -1025,7 +925,7 @@ $this->mt_gizmos = array(
 		'cost' => 1,
 		'points' => 1,
 		'effect_type' => 'trigger_build',
-		'trigger_action' => 'score',
+		'trigger_action' => 'point',
 		'trigger_color' => array(
 			'blue'
 		),
@@ -1044,14 +944,7 @@ $this->mt_gizmos = array(
     'color' => 'blue',
     'space' => ' ',
     'object' => 'Gizmo',
-    'action' => 
-    array (
-      'log' => 'gain ${number} victory point token(s)',
-      'args' => 
-      array (
-        'number' => 1,
-      ),
-    ),
+    'action' => 'point',
   ),
 )	),
 	201 => array(
@@ -1172,7 +1065,7 @@ $this->mt_gizmos = array(
 		'level' => 2,
 		'cost' => 3,
 		'points' => 3,
-		'effect_type' => 'trigger_build_from_file',
+		'effect_type' => 'trigger_buildfromfile',
 		'trigger_action' => 'pick_two',
 		'tooltip' => array (
   'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
@@ -1197,7 +1090,7 @@ $this->mt_gizmos = array(
 		'level' => 2,
 		'cost' => 3,
 		'points' => 3,
-		'effect_type' => 'trigger_build_from_file',
+		'effect_type' => 'trigger_buildfromfile',
 		'trigger_action' => 'pick_two',
 		'tooltip' => array (
   'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
@@ -1222,7 +1115,7 @@ $this->mt_gizmos = array(
 		'level' => 2,
 		'cost' => 3,
 		'points' => 3,
-		'effect_type' => 'trigger_build_from_file',
+		'effect_type' => 'trigger_buildfromfile',
 		'trigger_action' => 'pick_two',
 		'tooltip' => array (
   'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
@@ -1247,7 +1140,7 @@ $this->mt_gizmos = array(
 		'level' => 2,
 		'cost' => 3,
 		'points' => 3,
-		'effect_type' => 'trigger_build_from_file',
+		'effect_type' => 'trigger_buildfromfile',
 		'trigger_action' => 'pick_two',
 		'tooltip' => array (
   'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
@@ -2093,7 +1986,7 @@ $this->mt_gizmos = array(
 		'cost' => 3,
 		'points' => 3,
 		'effect_type' => 'trigger_build',
-		'trigger_action' => 'score',
+		'trigger_action' => 'point',
 		'trigger_color' => array(
 			'blue',
 			'yellow'
@@ -2128,14 +2021,7 @@ $this->mt_gizmos = array(
     ),
     'space' => ' ',
     'object' => 'Gizmo',
-    'action' => 
-    array (
-      'log' => 'gain ${number} victory point token(s)',
-      'args' => 
-      array (
-        'number' => 1,
-      ),
-    ),
+    'action' => 'point',
   ),
 )	),
 	234 => array(
@@ -2145,7 +2031,7 @@ $this->mt_gizmos = array(
 		'cost' => 3,
 		'points' => 3,
 		'effect_type' => 'trigger_build',
-		'trigger_action' => 'score',
+		'trigger_action' => 'point',
 		'trigger_color' => array(
 			'black',
 			'red'
@@ -2180,14 +2066,7 @@ $this->mt_gizmos = array(
     ),
     'space' => ' ',
     'object' => 'Gizmo',
-    'action' => 
-    array (
-      'log' => 'gain ${number} victory point token(s)',
-      'args' => 
-      array (
-        'number' => 1,
-      ),
-    ),
+    'action' => 'point',
   ),
 )	),
 	235 => array(
@@ -2197,7 +2076,7 @@ $this->mt_gizmos = array(
 		'cost' => 3,
 		'points' => 3,
 		'effect_type' => 'trigger_build',
-		'trigger_action' => 'score',
+		'trigger_action' => 'point',
 		'trigger_color' => array(
 			'yellow',
 			'black'
@@ -2232,14 +2111,7 @@ $this->mt_gizmos = array(
     ),
     'space' => ' ',
     'object' => 'Gizmo',
-    'action' => 
-    array (
-      'log' => 'gain ${number} victory point token(s)',
-      'args' => 
-      array (
-        'number' => 1,
-      ),
-    ),
+    'action' => 'point',
   ),
 )	),
 	236 => array(
@@ -2249,7 +2121,7 @@ $this->mt_gizmos = array(
 		'cost' => 3,
 		'points' => 3,
 		'effect_type' => 'trigger_build',
-		'trigger_action' => 'score',
+		'trigger_action' => 'point',
 		'trigger_color' => array(
 			'red',
 			'blue'
@@ -2284,14 +2156,7 @@ $this->mt_gizmos = array(
     ),
     'space' => ' ',
     'object' => 'Gizmo',
-    'action' => 
-    array (
-      'log' => 'gain ${number} victory point token(s)',
-      'args' => 
-      array (
-        'number' => 1,
-      ),
-    ),
+    'action' => 'point',
   ),
 )	),
 	301 => array(
@@ -2466,8 +2331,8 @@ $this->mt_gizmos = array(
 		'level' => 3,
 		'cost' => 5,
 		'points' => 5,
-		'effect_type' => 'trigger_build_from_file',
-		'trigger_action' => 'score_2',
+		'effect_type' => 'trigger_buildfromfile',
+		'trigger_action' => 'point_2',
 		'tooltip' => array (
   'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
   'args' => 
@@ -2482,14 +2347,7 @@ $this->mt_gizmos = array(
     'color' => '',
     'space' => '',
     'object' => 'Gizmo from your Archive',
-    'action' => 
-    array (
-      'log' => 'gain ${number} victory point token(s)',
-      'args' => 
-      array (
-        'number' => 2,
-      ),
-    ),
+    'action' => 'point 2',
   ),
 )	),
 	308 => array(
@@ -2498,8 +2356,8 @@ $this->mt_gizmos = array(
 		'level' => 3,
 		'cost' => 5,
 		'points' => 5,
-		'effect_type' => 'trigger_build_from_file',
-		'trigger_action' => 'score_2',
+		'effect_type' => 'trigger_buildfromfile',
+		'trigger_action' => 'point_2',
 		'tooltip' => array (
   'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
   'args' => 
@@ -2514,14 +2372,7 @@ $this->mt_gizmos = array(
     'color' => '',
     'space' => '',
     'object' => 'Gizmo from your Archive',
-    'action' => 
-    array (
-      'log' => 'gain ${number} victory point token(s)',
-      'args' => 
-      array (
-        'number' => 2,
-      ),
-    ),
+    'action' => 'point 2',
   ),
 )	),
 	309 => array(
@@ -2531,7 +2382,7 @@ $this->mt_gizmos = array(
 		'cost' => 4,
 		'points' => 4,
 		'effect_type' => 'trigger_file',
-		'trigger_action' => 'score',
+		'trigger_action' => 'point',
 		'tooltip' => array (
   'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
   'args' => 
@@ -2546,14 +2397,7 @@ $this->mt_gizmos = array(
     'color' => '',
     'space' => '',
     'object' => 'Gizmo',
-    'action' => 
-    array (
-      'log' => 'gain ${number} victory point token(s)',
-      'args' => 
-      array (
-        'number' => 1,
-      ),
-    ),
+    'action' => 'point',
   ),
 )	),
 	310 => array(
@@ -2563,7 +2407,7 @@ $this->mt_gizmos = array(
 		'cost' => 4,
 		'points' => 4,
 		'effect_type' => 'trigger_file',
-		'trigger_action' => 'score',
+		'trigger_action' => 'point',
 		'tooltip' => array (
   'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
   'args' => 
@@ -2578,14 +2422,7 @@ $this->mt_gizmos = array(
     'color' => '',
     'space' => '',
     'object' => 'Gizmo',
-    'action' => 
-    array (
-      'log' => 'gain ${number} victory point token(s)',
-      'args' => 
-      array (
-        'number' => 1,
-      ),
-    ),
+    'action' => 'point',
   ),
 )	),
 	311 => array(
@@ -2644,7 +2481,7 @@ $this->mt_gizmos = array(
 		'level' => 3,
 		'cost' => 6,
 		'points' => 6,
-		'effect_type' => 'trigger_build_level_2',
+		'effect_type' => 'trigger_buildlevel2',
 		'trigger_action' => 'pick_2',
 		'tooltip' => array (
   'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
@@ -2669,7 +2506,7 @@ $this->mt_gizmos = array(
 		'level' => 3,
 		'cost' => 6,
 		'points' => 6,
-		'effect_type' => 'trigger_build_level_2',
+		'effect_type' => 'trigger_buildlevel2',
 		'trigger_action' => 'pick_2',
 		'tooltip' => array (
   'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
@@ -2733,11 +2570,7 @@ $this->mt_gizmos = array(
 		'cost' => 5,
 		'points' => 5,
 		'effect_type' => 'trigger_build',
-		'trigger_action' => 'score_2',
-		'trigger_color' => array(
-			'red',
-			'blue'
-		),
+		'trigger_action' => 'point_2',
 		'tooltip' => array (
   'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
   'args' => 
@@ -2750,32 +2583,10 @@ $this->mt_gizmos = array(
       3 => 'action',
     ),
     'trigger' => 'Build',
-    'color' => 
-    array (
-      'log' => '${c1} ${andor} ${c2}',
-      'args' => 
-      array (
-        'i18n' => 
-        array (
-          0 => 'c1',
-          1 => 'andor',
-          2 => 'c2',
-        ),
-        'c1' => 'red',
-        'andor' => 'or',
-        'c2' => 'blue',
-      ),
-    ),
+    'color' => '',
     'space' => ' ',
     'object' => 'Gizmo',
-    'action' => 
-    array (
-      'log' => 'gain ${number} victory point token(s)',
-      'args' => 
-      array (
-        'number' => 2,
-      ),
-    ),
+    'action' => 'point 2',
   ),
 )	),
 	318 => array(
@@ -2785,11 +2596,7 @@ $this->mt_gizmos = array(
 		'cost' => 5,
 		'points' => 5,
 		'effect_type' => 'trigger_build',
-		'trigger_action' => 'score_2',
-		'trigger_color' => array(
-			'yellow',
-			'black'
-		),
+		'trigger_action' => 'point_2',
 		'tooltip' => array (
   'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
   'args' => 
@@ -2802,32 +2609,10 @@ $this->mt_gizmos = array(
       3 => 'action',
     ),
     'trigger' => 'Build',
-    'color' => 
-    array (
-      'log' => '${c1} ${andor} ${c2}',
-      'args' => 
-      array (
-        'i18n' => 
-        array (
-          0 => 'c1',
-          1 => 'andor',
-          2 => 'c2',
-        ),
-        'c1' => 'yellow',
-        'andor' => 'or',
-        'c2' => 'black',
-      ),
-    ),
+    'color' => '',
     'space' => ' ',
     'object' => 'Gizmo',
-    'action' => 
-    array (
-      'log' => 'gain ${number} victory point token(s)',
-      'args' => 
-      array (
-        'number' => 2,
-      ),
-    ),
+    'action' => 'point 2',
   ),
 )	),
 	319 => array(
@@ -2838,10 +2623,6 @@ $this->mt_gizmos = array(
 		'points' => 6,
 		'effect_type' => 'trigger_build',
 		'trigger_action' => 'build_level1_for0',
-		'trigger_color' => array(
-			'yellow',
-			'red'
-		),
 		'tooltip' => array (
   'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
   'args' => 
@@ -2854,22 +2635,7 @@ $this->mt_gizmos = array(
       3 => 'action',
     ),
     'trigger' => 'Build',
-    'color' => 
-    array (
-      'log' => '${c1} ${andor} ${c2}',
-      'args' => 
-      array (
-        'i18n' => 
-        array (
-          0 => 'c1',
-          1 => 'andor',
-          2 => 'c2',
-        ),
-        'c1' => 'yellow',
-        'andor' => 'or',
-        'c2' => 'red',
-      ),
-    ),
+    'color' => '',
     'space' => ' ',
     'object' => 'Gizmo',
     'action' => 'Build a Level I Gizmo for free',
@@ -2883,10 +2649,6 @@ $this->mt_gizmos = array(
 		'points' => 6,
 		'effect_type' => 'trigger_build',
 		'trigger_action' => 'build_level1_for0',
-		'trigger_color' => array(
-			'blue',
-			'black'
-		),
 		'tooltip' => array (
   'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
   'args' => 
@@ -2899,22 +2661,7 @@ $this->mt_gizmos = array(
       3 => 'action',
     ),
     'trigger' => 'Build',
-    'color' => 
-    array (
-      'log' => '${c1} ${andor} ${c2}',
-      'args' => 
-      array (
-        'i18n' => 
-        array (
-          0 => 'c1',
-          1 => 'andor',
-          2 => 'c2',
-        ),
-        'c1' => 'blue',
-        'andor' => 'or',
-        'c2' => 'black',
-      ),
-    ),
+    'color' => '',
     'space' => ' ',
     'object' => 'Gizmo',
     'action' => 'Build a Level I Gizmo for free',
@@ -3257,7 +3004,7 @@ $this->mt_gizmos = array(
 		'color' => 'multi',
 		'level' => 3,
 		'cost' => 7,
-		'points' => 0,
+		'points' => X,
 		'effect_type' => 'upgrade',
 		'upgrade_special' => 'score_energy',
 		'tooltip' => array (
@@ -3276,7 +3023,7 @@ $this->mt_gizmos = array(
 		'color' => 'multi',
 		'level' => 3,
 		'cost' => 7,
-		'points' => 0,
+		'points' => X,
 		'effect_type' => 'upgrade',
 		'upgrade_special' => 'score_energy',
 		'tooltip' => array (
@@ -3295,39 +3042,19 @@ $this->mt_gizmos = array(
 		'color' => 'multi',
 		'level' => 3,
 		'cost' => 7,
-		'points' => 0,
+		'points' => X,
 		'effect_type' => 'upgrade',
-		'upgrade_special' => 'score_scores',
-		'tooltip' => array (
-  'log' => 'At the end of the game score points equal to your ${score}',
-  'args' => 
-  array (
-    'i18n' => 
-    array (
-      0 => 'score',
-    ),
-    'score' => 'victory point token count',
-  ),
-)	),
+		'upgrade_special' => 'score_points',
+		'tooltip' => 'Unhandled upgrade_special: score_points'	),
 	336 => array(
 		'id' => 336,
 		'color' => 'multi',
 		'level' => 3,
 		'cost' => 7,
-		'points' => 0,
+		'points' => X,
 		'effect_type' => 'upgrade',
-		'upgrade_special' => 'score_scores',
-		'tooltip' => array (
-  'log' => 'At the end of the game score points equal to your ${score}',
-  'args' => 
-  array (
-    'i18n' => 
-    array (
-      0 => 'score',
-    ),
-    'score' => 'victory point token count',
-  ),
-)	),
+		'upgrade_special' => 'score_points',
+		'tooltip' => 'Unhandled upgrade_special: score_points'	),
 	901 => array(
 		'id' => 901,
 		'color' => 'none',

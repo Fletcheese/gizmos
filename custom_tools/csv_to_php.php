@@ -84,7 +84,7 @@
 					$tooltip = [
 						'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
 						'args' => [
-							'i18n' => ['from', 'to'],
+							'i18n' => ['number', 'from', 'to'],
 							'number' => 'up to 2',
 							'from' => insertSmartCommas($csv_row['convert_from'], false),
 							'to' => 'any'
@@ -294,7 +294,7 @@
 			// break;
     }
 	$to_write = substr($to_write, 0, -2)."\n);";
-	$myfile = fopen("2022-10-09_the_array.php", "w");
+	$myfile = fopen("2023-01-20v2_the_array.php", "w");
 	fwrite($myfile, $to_write);
 	fclose($myfile);
 ?>

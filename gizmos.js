@@ -319,6 +319,7 @@ function (dojo, declare) {
 					case 'deckSelected':
 						this.addActionButton( 'button_research', 
 							this.format_string_recursive( _('Research Level ${level} (${quantity})'), {
+									i18n: ['level', 'quantity'],
 									level: Gizmo.levelNumerals(Game.selected_card_id), 
 									quantity: this.gamedatas.players[this.getActivePlayerId()].research_quantity
 							}), 'researchSelectedDeck' );
@@ -574,13 +575,13 @@ function (dojo, declare) {
 			let sphere_ele = Energy.getEnergyHtml(sphere_id);
 			dojo.place( sphere_ele, 'sphere_row' );
 			dojo.addClass( Energy.getEleId(sphere_id), 'next_nrg' );
-			this.addTooltip( Energy.getEleId(sphere_id), dojo.string.substitute(Const.Tooltip_Next_Energy(), {color: Energy.getColor(sphere_id)}), '' );			
+			this.addTooltip( Energy.getEleId(sphere_id), this.format_string_recursive(Const.Tooltip_Next_Energy(), {i18n: ['color'], color: Energy.getColor(sphere_id)}), '' );			
 		},
 		insertSphereInRow: function ( sphere_id ) {
 			let sphere_ele = Energy.getEnergyHtml(sphere_id);
 			dojo.place( sphere_ele, 'sphere_row' );
 			this.placeInZoneNoDestroy.call(Game.zones['sphere_row'], Energy.getEleId(sphere_id), Game.getNrgWeight() );
-			this.addTooltip( Energy.getEleId(sphere_id), '', dojo.string.substitute(Const.Tooltip_Row_Energy(), {color: Energy.getColor(sphere_id)}));
+			this.addTooltip( Energy.getEleId(sphere_id), '', this.format_string_recursive(Const.Tooltip_Row_Energy(), {i18n: ['color'], color: Energy.getColor(sphere_id)}));
 		},
 		spendSpheresAndRebuildPlayerCard: function (player_id, spheres) {
 			if (spheres) {
@@ -652,7 +653,7 @@ function (dojo, declare) {
 			let sphere = Energy.getEnergyHtml(spid, 'ring');
 			dojo.place( sphere, 'energy_ring' );
 			this.placeInZoneNoDestroy.call( Game.zones['energy_ring'], Energy.getEleId(spid) );			
-			this.addTooltip( Energy.getEleId(spid), '', dojo.string.substitute(Const.Tooltip_Ring_Energy(), {color: Energy.getColor(spid)}));
+			this.addTooltip( Energy.getEleId(spid), '', this.format_string_recursive(Const.Tooltip_Ring_Energy(), {i18n: ['color'], color: Energy.getColor(spid)}));
 			if (isConnect) {				
 				dojo.connect( Energy.getEleId(spid), 'onclick', this, 'onEnergySelect');
 			}
@@ -1308,7 +1309,7 @@ function (dojo, declare) {
 				// add to row zone (should work for animation)
 				this.placeInZoneNoDestroy.call( Game.zones['sphere_row'], next_ele_id, Game.getNrgWeight());
 				dojo.connect($(next_ele_id), 'onclick', this, 'onEnergySelect');
-				this.addTooltip( next_ele_id, '', dojo.string.substitute(Const.Tooltip_Row_Energy(), {color: Energy.getColor( Energy.getIdOfEle(next_ele_id) )}));
+				this.addTooltip( next_ele_id, '', this.format_string_recursive(Const.Tooltip_Row_Energy(), {i18n: ['color'], color: Energy.getColor( Energy.getIdOfEle(next_ele_id) )}));
 				let new_sphere_id = notif.args.new_sphere_id;
 				this.insertNextSphere(new_sphere_id);
 			}
@@ -1413,7 +1414,7 @@ function (dojo, declare) {
 				dojo.place( sp_html, 'sphere_row' );
 				dojo.addClass(sp_ele_id, 'ring');
 				this.attachToNewParentNoDestroy( sp_ele_id, 'energy_ring' );
-				this.addTooltip( sp_ele_id, '', dojo.string.substitute(Const.Tooltip_Ring_Energy(), {color: Energy.getColor(sphere_id)}));
+				this.addTooltip( sp_ele_id, '', this.format_string_recursive(Const.Tooltip_Ring_Energy(), {i18n: ['color'], color: Energy.getColor(sphere_id)}));
 				dojo.connect($(sp_ele_id), 'onclick', this, 'onEnergySelect');
 				let anim = this.slideToObject( sp_ele_id, 'energy_ring' );
 				anim.onEnd = function(parent) {
