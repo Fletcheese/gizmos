@@ -139,6 +139,7 @@ function (dojo, declare) {
 			this.gamedatas = gamedatas;
 			Game.selected_card_id = gamedatas.selected_card_id;	
 			if (gamedatas.is_last_round == 1) {
+				$('gzs_end_banner').innerHTML = _("This is the last round!");
 				dojo.style('gzs_end_banner', 'display', 'block');
 			}
 			
@@ -1438,6 +1439,7 @@ function (dojo, declare) {
 			this.scoreCtrl[notif.args.player_id].setValue( notif.args.player_score );	
 		},
 		notif_lastTurn: function ( notif ) {
+			$('gzs_end_banner').innerHTML = _("This is the last round!");
 			dojo.style('gzs_end_banner', 'display', 'block');
 			Game.repositionEnergyRing();
 		},

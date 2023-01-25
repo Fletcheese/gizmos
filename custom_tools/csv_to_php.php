@@ -57,6 +57,7 @@
 			case 'score':
 				return [
 					'log' => 'gain ${number} victory point token(s)',
+					'i18n' => ['number'],
 					'args' => [
 						'number' => 1
 					]
@@ -64,6 +65,7 @@
 			case 'score_2':
 				return [
 					'log' => 'gain ${number} victory point token(s)',
+					'i18n' => ['number'],
 					'args' => [
 						'number' => 2
 					]
@@ -95,7 +97,7 @@
 					$tooltip = [
 						'log' => 'Convert ${number} ${from} Energy to ${to} Energy', // $this->tooltip_types['converter'],
 						'args' => [
-							'i18n' => ['from', 'to'],
+							'i18n' => ['number', 'from', 'to'],
 							'number' => '1',
 							'from' => insertSmartCommas($csv_row['convert_from'], true),
 							'to' => $csv_row['convert_to']
@@ -108,7 +110,7 @@
 				$tooltip = [
 					'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
 					'args' => [
-						'i18n' => ['trigger', 'color', 'object', 'action'],
+						'i18n' => ['trigger', 'color', 'space', 'object', 'action'],
 						'trigger' => 'Pick',
 						'color' => insertSmartCommas($csv_row['trigger_color'], false),
 						'space' => ' ',
@@ -122,7 +124,7 @@
 				$tooltip = [
 					'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
 					'args' => [
-						'i18n' => ['trigger', 'object', 'action'],
+						'i18n' => ['trigger', 'color', 'space', 'object', 'action'],
 						'trigger' => 'File',
 						'color' => '',
 						'space' => '',
@@ -136,7 +138,7 @@
 				$tooltip = [
 					'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
 					'args' => [
-						'i18n' => ['trigger', 'color', 'object', 'action'],
+						'i18n' => ['trigger', 'color', 'space', 'object', 'action'],
 						'trigger' => 'Build',
 						'color' => insertSmartCommas($csv_row['trigger_color'], false),
 						'space' => ' ',
@@ -151,7 +153,7 @@
 				$tooltip = [
 					'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
 					'args' => [
-						'i18n' => ['trigger', 'object', 'action'],
+						'i18n' => ['trigger', 'color', 'space', 'object', 'action'],
 						'trigger' => 'Build',
 						'color' => '',
 						'space' => '',
@@ -166,7 +168,7 @@
 				$tooltip = [
 					'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}', //$this->tooltip_types['trigger'],
 					'args' => [
-						'i18n' => ['trigger', 'object', 'action'],
+						'i18n' => ['trigger', 'color', 'space', 'object', 'action'],
 						'trigger' => 'Build',
 						'color' => '',
 						'space' => '',
@@ -203,11 +205,18 @@
 							$args['num' . $i] = $csv_row[$upg];
 							$args['upg' . $i] = $upgrade_types[$upg]; // constants holding clienttranslated names of resources
 							$args['i18n'][] = 'upg' . $i;
+							$args['i18n'][] = 'num' . $i;
 						}
 					}
 					$tooltip = [
-						'log' => 'Upgrade: '.implode(',', $infos),
-						'args' => $args
+						'log' => 'Upgrade: ${details}',
+						'args' => [
+							'i18n' => ['details'],
+							'details' => [
+								'log' => implode(', ', $infos),
+								'args' => $args
+							]
+						]
 					];
 					//$tooltip .= addUpgradeDesc($csv_row, 'energy') . addUpgradeDesc($csv_row, 'archive') . addUpgradeDesc($csv_row, 'research');
 					//$tooltip = substr($tooltip, 0, -2);
@@ -294,7 +303,7 @@
 			// break;
     }
 	$to_write = substr($to_write, 0, -2)."\n);";
-	$myfile = fopen("2023-01-20v2_the_array.php", "w");
+	$myfile = fopen("2023-01-24v2_the_array.php", "w");
 	fwrite($myfile, $to_write);
 	fclose($myfile);
 ?>

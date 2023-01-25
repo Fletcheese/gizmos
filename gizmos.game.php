@@ -556,7 +556,7 @@ class Gizmos extends Table
 		$level = $this->mt_gizmos[$selected_card_id]['level'];
 		$built_from;
 		if ( $built_from_file ) {
-			$built_from = clienttranslate('File');
+			$built_from = clienttranslate('Archive');
 		} else if ( self::getGameStateValue('research_level') > 0 ) {
 			$built_from = clienttranslate('Research');
 		} else {
@@ -885,6 +885,7 @@ class Gizmos extends Table
 		
 		return array(
 			//'triggering_multiple_uses' => $uses,
+			'i18n' => ['desc'],
 			'desc' => $desc,
 			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id')
 		);
@@ -955,8 +956,18 @@ class Gizmos extends Table
 				} else {
 					$msg = clienttranslate('${player_name} Builds their 16th Gizmo');
 				}
-				self::notifyAllPlayers('lastTurn', "$msg<br/><div class='end_banner'>".clienttranslate("LAST ROUND")."</div>", 
-					array ('player_name' => self::getPlayerNameForNotification($player_id))
+				self::notifyAllPlayers('lastTurn', '${msg}<br/><div class="end_banner">${last_round}</div>', 
+					array (
+						'i18n' => ['msg', 'last_round'],
+						'msg' => [
+							'log' => $msg,
+							'args' => [
+								'i18n' => ['player_name'],
+								'player_name' => self::getPlayerNameForNotification($player_id),
+							]
+						],
+						'last_round' => clienttranslate("LAST ROUND")
+					)
 				);
 				self::setGameStateValue('is_last_round', 1);
 			}

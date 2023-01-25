@@ -40,13 +40,13 @@ var jstpl_gizmos_container = '<div id="gizmos_container_${id}" class="gizmos_con
 var jstpl_gizmos_column = '<div id="${col}_${id}" class="${col} gizmos_column"></div>';
 
 var jstpl_cardTooltip = '<div id="card_tooltip_${id}">\
-	<div class="tooltip_desc"><span class="tooltip_desc">🛈 ${tooltip}</span></div>\
+	<div class="tooltip_desc"><span class="tooltip_desc">${tooltip}</span></div>\
 	<div id="card_${id}" class="card tooltipcard"></div></div>';
 
 var jstpl_trackTooltip = '<div class="gzs_track_tooltip track_tooltip_${type}" style="background-position-x:-${offset}px"></div>';
 </script>
 
-<div id="gzs_end_banner" class="gzs_end_banner" style="display:none">This is the last round!</div>
+<div id="gzs_end_banner" class="gzs_end_banner" style="display:none"></div>
 <div id="gizmos_board">
 	<div id="board_left"> 
 		<div id="energy_ring">
