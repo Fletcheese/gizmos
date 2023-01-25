@@ -580,7 +580,7 @@ class Gizmos extends Table
 		$limits = DB::getPlayerLimits($player_id);
 		self::notifyAllPlayers('cardBuiltOrFiled', clienttranslate('${player_name} ${action} a Level ${level} ${color} Gizmo from ${built_from}'), 
 			array (
-				'i18n' => ['color', 'built_from', 'action'],
+				'i18n' => ['player_name', 'action', 'level', 'color', 'built_from'],
 				'player_name' => $player_name,
 				'action' => clienttranslate('Builds'),
 				'level' => DB::LevelAsNumerals($level),
@@ -664,7 +664,7 @@ class Gizmos extends Table
 		$player_name = self::getPlayerNameForNotification($player_id);
 		self::notifyAllPlayers('cardBuiltOrFiled', clienttranslate('${player_name} ${action} a Level ${level} ${color} Gizmo from ${built_from}'), // add back tooltip?
 			array (
-				'i18n' => ['color', 'built_from', 'action'],
+				'i18n' => ['player_name', 'color', 'built_from', 'action', 'level'],
 				'player_name' => $player_name,
 				'action' => clienttranslate('Files'),
 				'level' => DB::LevelAsNumerals($level),
@@ -781,6 +781,7 @@ class Gizmos extends Table
 		self::setGameStateValue('research_level', $level);
 		self::notifyAllPlayers('research', clienttranslate('${player_name} Researches ${n} Level ${level} Gizmo(s)'),
 			array (
+				'i18n' => ['player_name', 'n', 'level'],
 				'player_name' => self::getPlayerNameForNotification($player_id),
 				'n' => count($cards),
 				'level' => DB::LevelAsNumerals($level),
@@ -903,6 +904,7 @@ class Gizmos extends Table
 		
 		return array(
 			//'triggering_multiple_uses' => $uses,
+			'i18n' => ['desc'],
 			'desc' => $desc,
 			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id')
 		);		
@@ -995,6 +997,7 @@ class Gizmos extends Table
 
 					self::notifyAllPlayers('scoreSpecial', clienttranslate('${player_name} scores ${n} points for their upgrade: ${upgrade}'), 
 						array (
+							'i18n' => ['player_name', 'n', 'upgrade'],
 							'player_name' => self::getPlayerNameForNotification($player_id),
 							'n' => $gizmo_score,
 							'upgrade' => $mtg['tooltip'],
@@ -1041,6 +1044,7 @@ class Gizmos extends Table
 		// send notification to indicate what sphere was drawn
 		self::notifyAllPlayers('sphereDrawn', clienttranslate('${player_name} draws ${sphere_html}'), //a ${sphere_color} Energy"),
 			array (
+				'i18n' => ['player_name', 'sphere_html'],
 				'player_name' => $player_name,
 				'sphere_html' => null,
 				'sphere_color' => $sphere_color,
@@ -1143,6 +1147,7 @@ class Gizmos extends Table
 
 		self::notifyAllPlayers('victoryPoint', clienttranslate('${player_name} gains ${number} ${vp_html}'), //victory point token(s)"), 
 			array (
+				'i18n' => ['player_name', 'number', 'vp_html'],
 				'player_name' => $player_name,
 				'number' => $add_points,
 				'vp_html' => null,
