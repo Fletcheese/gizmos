@@ -497,12 +497,12 @@ class Gizmos extends Table
 		$new_sphere = DB::randomDispenserNext();
 
 		self::checkPickTriggers($sphere_id);
-
-		self::notifyAllPlayers('sphereSelect', clienttranslate('${player_name} Picks ${sphere_html}'), //a ${sphere_color} Energy"),
+		$sphere_color = self::getSphereColor($sphere_id);
+		self::notifyAllPlayers('sphereSelect', clienttranslate('${player_name} Picks ${sphere_html}'),
 			array (
 				'player_name' => self::getPlayerNameForNotification($player_id),
-				'sphere_html' => null,
-				'sphere_color' => self::getSphereColor($sphere_id),
+				'sphere_html' => $sphere_color,
+				'sphere_color' => $sphere_color,
 				'new_sphere_id' => $new_sphere,
 				'purchased_sphere_id' => $sphere_id,
 				'player_id' => $player_id,
@@ -1042,11 +1042,11 @@ class Gizmos extends Table
 		$sphere_color = self::getSphereColor($new_sphere_id);
 		$player_name = self::getPlayerNameForNotification($player_id);
 		// send notification to indicate what sphere was drawn
-		self::notifyAllPlayers('sphereDrawn', clienttranslate('${player_name} draws ${sphere_html}'), //a ${sphere_color} Energy"),
+		self::notifyAllPlayers('sphereDrawn', clienttranslate('${player_name} draws ${sphere_html}'), 
 			array (
 				'i18n' => ['player_name', 'sphere_html'],
 				'player_name' => $player_name,
-				'sphere_html' => null,
+				'sphere_html' => $sphere_color,
 				'sphere_color' => $sphere_color,
 				'sphere_id' => $new_sphere_id,
 				'player_id' => $player_id,
@@ -1150,7 +1150,7 @@ class Gizmos extends Table
 				'i18n' => ['player_name', 'number', 'vp_html'],
 				'player_name' => $player_name,
 				'number' => $add_points,
-				'vp_html' => null,
+				'vp_html' => 'VP(s)',
 				'player_id' => $player_id,
 				'vp_count' => $counts['vps'],
 				'player_score' => $counts['score']

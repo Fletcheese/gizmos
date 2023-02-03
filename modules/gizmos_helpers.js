@@ -961,7 +961,7 @@ let Energy = {
 		3: 'yellow'
 	},	
 	getLogSphereHtml: function(color) {
-		return dojo.string.substitute( "<div class='gzs_log_token gzs_log_${color}'></div>", {color:color} );
+		return "<div class='gzs_log_token gzs_log_"+color+"'></div>";
 	},
 	getEleId: function(id) {
 		if ((typeof id === 'string' || id instanceof String) && id.indexOf('_') > 0) {

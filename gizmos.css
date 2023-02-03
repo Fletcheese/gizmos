@@ -177,7 +177,7 @@
     text-shadow: 2px 0 2px #00000099, 0 -2px 2px #00000099, 0 2px 2px #00000099, -2px 0 2px #00000099;
     transform-origin: center;
     position: relative;
-    top: 70%;
+    padding-top: 50%;
 }
 #gizmos_board .deck .deck_count, #energy_ring #ring_count {
 	text-align: center;
@@ -597,7 +597,7 @@
 	margin-left:1%;
 	margin-right:1%;
     cursor: help;
-	min-height:1px;
+	min-height:50px;
 }
 #gizmos_board .track_archive {
 	height: 100%;

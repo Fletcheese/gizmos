@@ -88,7 +88,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'yellow',
 		'convert_to' => 'any',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -112,7 +112,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'red',
 		'convert_to' => 'any',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -136,7 +136,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'black',
 		'convert_to' => 'any',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -160,7 +160,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'blue',
 		'convert_to' => 'any',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -184,7 +184,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'red',
 		'convert_to' => 'any',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -208,7 +208,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'yellow',
 		'convert_to' => 'any',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -232,7 +232,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'blue',
 		'convert_to' => 'any',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -256,7 +256,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'black',
 		'convert_to' => 'any',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -1676,7 +1676,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'blue',
 		'convert_to' => 'any2',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -1700,7 +1700,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'black',
 		'convert_to' => 'any2',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -1724,7 +1724,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'yellow',
 		'convert_to' => 'any2',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -1748,7 +1748,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'red',
 		'convert_to' => 'any2',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -1772,7 +1772,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'yellow',
 		'convert_to' => 'two',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -1796,7 +1796,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'red',
 		'convert_to' => 'two',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -1820,7 +1820,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'blue',
 		'convert_to' => 'two',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -1844,7 +1844,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'black',
 		'convert_to' => 'two',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -1868,7 +1868,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'red',
 		'convert_to' => 'two',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -1892,7 +1892,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'yellow',
 		'convert_to' => 'two',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -1916,7 +1916,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'black',
 		'convert_to' => 'two',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -1940,7 +1940,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'blue',
 		'convert_to' => 'two',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -2628,7 +2628,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'any',
 		'convert_to' => 'any',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -2652,7 +2652,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'any',
 		'convert_to' => 'any',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -2676,7 +2676,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'blue,yellow',
 		'convert_to' => 'two',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 
@@ -2715,7 +2715,7 @@ $this->mt_gizmos = array(
 		'convert_from' => 'black,red',
 		'convert_to' => 'two',
 		'tooltip' => array (
-  'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+  'log' => 'Convert ${number} ${from} energy to ${to} energy',
   'args' => 
   array (
     'i18n' => 

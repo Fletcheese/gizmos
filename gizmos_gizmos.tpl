@@ -35,7 +35,7 @@ var jstpl_research_card = '<div id="card_${id}" class="card card_${level} resear
 var jstpl_gizmos_container = '<div id="gizmos_container_${id}" class="gizmos_container whiteblock">\
 	<div class="player_header" id="player_header_${id}"><h3 style="color:#${color}" class="player_name ${class}">${name}</h3></div>\
 	<div id="gizmo_track_${id}" class="gizmo_track${first}"><div class="track_slot track_upgrades" id="track_upgrades_${id}"></div><div class="track_slot track_converters" id="track_converters_${id}"></div><div class="track_slot track_trigger_file" id="track_trigger_file_${id}"></div><div class="track_slot track_trigger_pick" id="track_trigger_pick_${id}"></div><div class="track_slot track_trigger_build" id="track_trigger_build_${id}"></div>\
-		<div class="track_archive" id="track_archive_${id}"><h3 class="archive_header">Archive</h3></div></div><div id="gizmos_columns_${id}" class="gizmos_columns"></div></div>';
+		<div class="track_archive" id="track_archive_${id}"><h3 class="archive_header">${archive_translated}</h3></div></div><div id="gizmos_columns_${id}" class="gizmos_columns"></div></div>';
 
 var jstpl_gizmos_column = '<div id="${col}_${id}" class="${col} gizmos_column"></div>';
 

@@ -391,14 +391,14 @@ function (dojo, declare) {
                     var keys = ['vp_html','sphere_html'];
                     for ( var i in keys) {
                         var key = keys[i];
-						if (args[key] === null) {
+						if (key in args) {
 							var val;
 							switch (key) {
 								case 'vp_html':
-									val = Const.VP_Html;
+									val = '<div class="gzs_log_vp"></div>';
 									break;
 								case 'sphere_html':
-									val = Energy.getLogSphereHtml(args['sphere_color']);
+									val = "<div class='gzs_log_token gzs_log_"+args['sphere_color']+"'></div>";
 									break;
 								default:
 									val = "UNRECOGNIZED["+key+"]";
@@ -965,7 +965,8 @@ function (dojo, declare) {
 				"name": player.name,
 				"class": player_id == this.getActivePlayerId() ? 'active_player' : '',
 				"first": is_first ? '_first' : '',
-				"color": player.color
+				"color": player.color,
+				"archive_translated": _('Archive')
 			}), $(div_id) );	
 			var playerColsDiv = $('gizmos_columns_' + player_id);
 			var colsWidth = playerColsDiv.offsetWidth;
