@@ -368,7 +368,9 @@ class DB
 	}
 	
 	public static function setPlayerPref($player_id, $pref_id, $pref_val) {
-		$sql = "UPDATE user_preferences SET pref_value=$pref_val WHERE player_id=$player_id AND pref_id=$pref_id";
+		$sql = "INSERT INTO user_preferences (player_id,pref_id,pref_value) VALUES ($player_id,$pref_id,$pref_val) ON DUPLICATE KEY UPDATE player_id=VALUES(player_id),pref_id=VALUES(pref_id),pref_value=VALUES(pref_value)"; 
+			//"UPDATE user_preferences SET pref_value=$pref_val WHERE player_id=$player_id AND pref_id=$pref_id";
+		//var_dump($sql);
 		Gizmos::DbQuery( $sql );
 	}
 	public static function isAutoPassTriggers($player_id) {

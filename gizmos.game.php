@@ -80,7 +80,7 @@ class Gizmos extends Table
 		$values = [];
 		foreach ( $this->player_preferences as $player_id => $prefs ) {
 			$val;
-			if ( array_key_exists( 202, $prefs ) ) { // auto-pass unusable triggers
+			if ( array_key_exists( 202, $prefs ) && $prefs[202] ) { // auto-pass unusable triggers
 				$val = $prefs[202];
 			} else {
 				$val = 1;
@@ -1359,23 +1359,43 @@ class Gizmos extends Table
 //        // Please add your future database scheme changes here
 //
 //
-		if ($from_version <= 2302030350) {
-			$sql = "CREATE TABLE IF NOT EXISTS `DBPREFIX_user_preferences` (
+		$changes = [
+			[2302052111, "CREATE TABLE IF NOT EXISTS `DBPREFIX_user_preferences` (
 				`player_id` int(10) NOT NULL,
 				`pref_id` int(10) NOT NULL,
 				`pref_value` int(10) NOT NULL,
 				PRIMARY KEY (`player_id`, `pref_id`)
-			  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-			self::applyDbUpgradeToAllDB( $sql );
-			
-			$sql = "INSERT INTO user_preferences (player_id, pref_id, pref_value) VALUES ";
-			$values = [];
-			foreach ($this->loadPlayersBasicInfos() as $player_id => $info) {
-				$values[] = "($player_id, 202, 1)";
+			  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;"]
+		];
+		foreach ($changes as [$version, $sql]) {
+			if ($from_version <= $version) {
+				try {
+					self::warn("upgradeTableDb apply 1: from_version=$from_version, change=[ $version, $sql ]");
+					self::applyDbUpgradeToAllDB($sql);
+				} catch (Exception $e) {
+					// See https://studio.boardgamearena.com/bug?id=64
+					// BGA framework can produce invalid SQL with non-existant tables when using DBPREFIX_.
+					// The workaround is to retry the query on the base table only.
+					self::error("upgradeTableDb apply 1 failed: from_version=$from_version, change=[ $version, $sql ]");
+					$sql = str_replace("DBPREFIX_", "", $sql);
+					self::warn("upgradeTableDb apply 2: from_version=$from_version, change=[ $version, $sql ]");
+					self::applyDbUpgradeToAllDB($sql);
+				}
+
+				$sql = "INSERT INTO user_preferences (player_id, pref_id, pref_value) VALUES ";
+				$values = [];
+				foreach ($this->loadPlayersBasicInfos() as $player_id => $info) {
+					$values[] = "($player_id, 202, 1)";
+				}
+				$sql .= implode( $values, ',' )." ON DUPLICATE KEY UPDATE player_id=VALUES(player_id),pref_id=VALUES(pref_id),pref_value=VALUES(pref_value)";
+				self::DbQuery( $sql );	
 			}
-			$sql .= implode( $values, ',' );
-			self::DbQuery( $sql );	
 		}
+		self::warn("upgradeTableDb complete: from_version=$from_version");
+		
+		
+		
+		
     }
 
 /// DEBUG UTILS
