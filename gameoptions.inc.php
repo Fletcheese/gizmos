@@ -66,6 +66,16 @@ $game_preferences = array(
             3 => array( 'name' => totranslate( 'Always' ) )
         ),
         'default' => 1
+    ),
+    
+    202 => array(
+        'name' => totranslate('Auto-Pass on Unusable Triggers'),
+        'needReload' => false,
+        'values' => array(
+            1 => array( 'name' => totranslate( 'Never (default)' ) ),
+            2 => array( 'name' => totranslate( 'Always' ) )
+        ),
+        'default' => 1
     )
 );
 

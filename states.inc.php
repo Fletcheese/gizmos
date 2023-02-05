@@ -28,8 +28,8 @@ $machinestates = array(
     // Note: ID=2 => your first state
     2 => array(
     		"name" => "playerTurn",
-    		"description" => clienttranslate('${actplayer} may File, Pick, Build, or Research'),
-    		"descriptionmyturn" => clienttranslate('${you} may File, Pick, Build, or Research'),
+    		"description" => clienttranslate('${actplayer} may ${html_file}, ${html_pick}, Build, or ${html_research}'),
+    		"descriptionmyturn" => clienttranslate('${you} may ${html_file}, ${html_pick}, Build, or ${html_research}'),
     		"type" => "activeplayer",
 			"args" => "arg_playerTurn",
     		"possibleactions" => array( "cardSelected", "deckSelected", "sphereSelect", "zombiePass" ),
@@ -46,8 +46,8 @@ $machinestates = array(
 	// begin gizmos-specific actions
     10 => array(
     		"name" => "cardSelected",
-    		"description" => clienttranslate('${actplayer} may Build or File selected Gizmo'),
-    		"descriptionmyturn" => clienttranslate('${you} may Build or File selected Gizmo'),
+    		"description" => clienttranslate('${actplayer} may Build or ${html_file} selected Gizmo'),
+    		"descriptionmyturn" => clienttranslate('${you} may Build or ${html_file} selected Gizmo'),
     		"type" => "activeplayer",
 			"args" => "arg_getSelectedCard",
     		"possibleactions" => array( "research", "cardFile", "cardBuilt", "cancel", "cancelTrigger", "zombiePass" ),
@@ -64,8 +64,8 @@ $machinestates = array(
     ),
     12 => array(
     		"name" => "research",
-    		"description" => clienttranslate('${actplayer} may Build or File a Researched Gizmo'),
-    		"descriptionmyturn" => clienttranslate('${you} may Build or File a Researched Gizmo'),
+    		"description" => clienttranslate('${actplayer} may Build or ${html_file} a Researched Gizmo'),
+    		"descriptionmyturn" => clienttranslate('${you} may Build or ${html_file} a Researched Gizmo'),
 			"args" => "arg_getResearchedCards",
     		"type" => "activeplayer",
     		"possibleactions" => array( "cardSelected", "pass", "zombiePass" ),
@@ -91,8 +91,8 @@ $machinestates = array(
     ),
 	15 => array(
     		"name" => "researchedCardSelected",
-    		"description" => clienttranslate('${actplayer} may Build or File selected Gizmo'),
-    		"descriptionmyturn" => clienttranslate('${you} may Build or File selected Gizmo'),
+    		"description" => clienttranslate('${actplayer} may Build or ${html_file} selected Gizmo'),
+    		"descriptionmyturn" => clienttranslate('${you} may Build or ${html_file} selected Gizmo'),
     		"type" => "activeplayer",
 			"args" => "arg_getSelectedAndResearchedCard",
     		"possibleactions" => array( "cardFile", "cardBuilt", "cancel", "zombiePass"),

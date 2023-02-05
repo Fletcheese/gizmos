@@ -36,3 +36,10 @@ CREATE TABLE IF NOT EXISTS `sphere` (
 	`location` varchar(16) NOT NULL,
 	PRIMARY KEY (`sphere_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `user_preferences` (
+  `player_id` int(10) NOT NULL,
+  `pref_id` int(10) NOT NULL,
+  `pref_value` int(10) NOT NULL,
+  PRIMARY KEY (`player_id`, `pref_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

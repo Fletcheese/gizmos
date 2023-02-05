@@ -160,8 +160,10 @@ function (dojo, declare) {
 			 
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
+			
+			this.initPreferencesObserver();
 
-            console.log( "Ending game setup" );
+			console.log( "Ending game setup" );
         },
 
         ///////////////////////////////////////////////////
@@ -172,6 +174,8 @@ function (dojo, declare) {
         //
         onEnteringState: function( stateName, args )
         {
+			Game.unlock();
+			Builder.resetRingEnergies(this);
 			if (args && args.args && args.args.tg_gizmo_id && $(Gizmo.getEleId(args.args.tg_gizmo_id) )) {
 				dojo.removeClass( Gizmo.getEleId(args.args.tg_gizmo_id), 'triggerable' );
 				dojo.addClass( Gizmo.getEleId(args.args.tg_gizmo_id), 'half_selected' );
@@ -179,7 +183,7 @@ function (dojo, declare) {
 				dojo.query('.half_selected').removeClass('half_selected');
 			}
 			dojo.query('.selected').removeClass('selected');
-
+			
 			Game.stateName = stateName;
             console.log( 'Entering state w args: '+stateName, args );
 			
@@ -187,6 +191,7 @@ function (dojo, declare) {
             {
 				case 'playerTurn':
 					dojo.query('.triggerable').removeClass('triggerable');
+					dojo.query('.gzs_illegal').removeClass('gzs_illegal');
 					dojo.query('.already_used').removeClass('already_used');
 					Game.activePlayer = this.getActivePlayerId();
 					dojo.query('.row_card').addClass('selectable');
@@ -207,10 +212,15 @@ function (dojo, declare) {
 					console.log(args);					
 					if (args && args.args && args.args.triggered_gizmos) {
 						let tg_gizmos = args.args.triggered_gizmos;
+						let illegals = args.args.illegal_actions;
+						console.log("triggerSelect", tg_gizmos, illegals);
 						for (var gizmo_id in tg_gizmos) {
 							let gizmo = tg_gizmos[gizmo_id];
 							dojo.addClass(Gizmo.getEleId(gizmo_id), gizmo.is_used == "1" ? 'already_used' : 'triggerable');
 							dojo.removeClass(Gizmo.getEleId(gizmo_id), gizmo.is_used == "1" ? 'triggerable' : 'already_used');
+							if (illegals && illegals.findIndex(x => x == gizmo_id) >= 0) {
+								dojo.addClass(Gizmo.getEleId(gizmo_id), 'gzs_illegal');
+							}
 						}
 					}
 					Game.hideResearch(this);			
@@ -369,6 +379,9 @@ function (dojo, declare) {
 					default:
 						break;
 				}
+				if (args && args.can_file !== undefined && !args.can_file && $('button_file')) {
+					dojo.addClass( 'button_file', 'disabled');
+				}
             }
         },        
 
@@ -383,12 +396,14 @@ function (dojo, declare) {
         */
 		/** Override this function to inject html into log items. This is a built-in BGA method.  */
         /* @Override */
-        format_string_recursive : function format_string_recursive(log, args) {
+        format_string_recursive: function format_string_recursive(log, args) {
+			//console.log("OVERRIDE format_string_recursive", log, args);
             try {
                 if (log && args && !args.processed) {
                     args.processed = true;
                     // list of special keys we want to replace with images
-                    var keys = ['vp_html','sphere_html'];
+                    var keys = ['vp_html','sphere_html','gizmo_html',
+						'html_file', 'html_pick', 'html_research'];
                     for ( var i in keys) {
                         var key = keys[i];
 						if (key in args) {
@@ -400,7 +415,43 @@ function (dojo, declare) {
 								case 'sphere_html':
 									val = "<div class='gzs_log_token gzs_log_"+args['sphere_color']+"'></div>";
 									break;
-								default:
+								case 'gizmo_html':
+									val = "<div class='gzs_log_card gzs_log_card_"+args['purchased_card_id']+"'></div>";
+									break;
+								case 'html_file':
+									if (args['can_file'] !== undefined && !args['can_file']) {
+										val = {
+											log: "<s>${file}</s>",
+											args: {
+												i18n: ['file'],
+												file: 'File'
+											}
+										};
+									} else {continue;}
+									break;
+								case 'html_pick':
+									if (args['can_pick'] !== undefined && !args['can_pick']) {
+										val = {
+											log: "<s>${pick}</s>",
+											args: {
+												i18n: ['pick'],
+												pick: 'Pick'
+											}
+										};
+									} else {continue;}
+									break;
+								case 'html_research':
+									if (args['can_research'] !== undefined && !args['can_research']) {
+										val = {
+											log: "<s>${research}</s>",
+											args: {
+												i18n: ['research'],
+												research: 'Research'
+											}
+										};
+									} else {continue;}
+									break;
+							default:
 									val = "UNRECOGNIZED["+key+"]";
 									break;
 							}
@@ -411,6 +462,7 @@ function (dojo, declare) {
             } catch (e) {
                 console.error(log,args,"Exception thrown", e.stack);
             }
+			//console.log("after: ", log, args);
             return this.inherited({callee: format_string_recursive}, arguments);
         },
 		/**
@@ -460,6 +512,28 @@ function (dojo, declare) {
 								};
 			this.items.sort( sort_function );				
 			this.updateDisplay();        
+		},
+		onPreferenceChange(prefId, prefValue) {
+			prefId = parseInt(prefId);
+			if (prefId == 202) { // Auto-Pass Unusable Triggers
+				this.ajaxcall( "/gizmos/gizmos/updatePlayerPref.html", {
+					pref_id: prefId,
+					pref_val: prefValue
+				}, this, function( result ) {} );				
+			}
+		},
+		initPreferencesObserver: function () {      
+			// Call onPreferenceChange() when any value changes
+			dojo.query('.preference_control').on('change', (e) => {
+				const match = e.target.id.match(/^preference_[cf]ontrol_(\d+)$/);
+				if (!match) {
+					return;
+				}
+				const pref = match[1];
+				const newValue = e.target.value;
+				this.prefs[pref].value = newValue;
+				this.onPreferenceChange(pref, newValue);
+			});
 		},
 		selectDeck: function (level) {
 			if (this.checkAction( 'deckSelected' )) 
@@ -576,7 +650,8 @@ function (dojo, declare) {
 			let sphere_ele = Energy.getEnergyHtml(sphere_id);
 			dojo.place( sphere_ele, 'sphere_row' );
 			dojo.addClass( Energy.getEleId(sphere_id), 'next_nrg' );
-			this.addTooltip( Energy.getEleId(sphere_id), this.format_string_recursive(Const.Tooltip_Next_Energy(), {i18n: ['color'], color: Energy.getColor(sphere_id)}), '' );			
+			this.addTooltip( Energy.getEleId(sphere_id), this.format_string_recursive(Const.Tooltip_Next_Energy(), {i18n: ['color'], color: Energy.getColor(sphere_id)}), '' );
+			dojo.attr( Energy.getEleId(sphere_id), 'style', '');		
 		},
 		insertSphereInRow: function ( sphere_id ) {
 			let sphere_ele = Energy.getEnergyHtml(sphere_id);

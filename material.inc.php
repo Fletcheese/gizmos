@@ -1783,7 +1783,7 @@ $this->mt_gizmos = array(
     ),
     'number' => '1',
     'from' => 'yellow',
-    'to' => 'two',
+    'to' => '2',
   ),
 )	),
 	218 => array(
@@ -1807,7 +1807,7 @@ $this->mt_gizmos = array(
     ),
     'number' => '1',
     'from' => 'red',
-    'to' => 'two',
+    'to' => '2',
   ),
 )	),
 	219 => array(
@@ -1831,7 +1831,7 @@ $this->mt_gizmos = array(
     ),
     'number' => '1',
     'from' => 'blue',
-    'to' => 'two',
+    'to' => '2',
   ),
 )	),
 	220 => array(
@@ -1855,7 +1855,7 @@ $this->mt_gizmos = array(
     ),
     'number' => '1',
     'from' => 'black',
-    'to' => 'two',
+    'to' => '2',
   ),
 )	),
 	221 => array(
@@ -1879,7 +1879,7 @@ $this->mt_gizmos = array(
     ),
     'number' => '1',
     'from' => 'red',
-    'to' => 'two',
+    'to' => '2',
   ),
 )	),
 	222 => array(
@@ -1903,7 +1903,7 @@ $this->mt_gizmos = array(
     ),
     'number' => '1',
     'from' => 'yellow',
-    'to' => 'two',
+    'to' => '2',
   ),
 )	),
 	223 => array(
@@ -1927,7 +1927,7 @@ $this->mt_gizmos = array(
     ),
     'number' => '1',
     'from' => 'black',
-    'to' => 'two',
+    'to' => '2',
   ),
 )	),
 	224 => array(
@@ -1951,7 +1951,7 @@ $this->mt_gizmos = array(
     ),
     'number' => '1',
     'from' => 'blue',
-    'to' => 'two',
+    'to' => '2',
   ),
 )	),
 	225 => array(
@@ -2702,7 +2702,7 @@ $this->mt_gizmos = array(
         'c2' => 'yellow',
       ),
     ),
-    'to' => 'two',
+    'to' => '2',
   ),
 )	),
 	306 => array(
@@ -2741,7 +2741,7 @@ $this->mt_gizmos = array(
         'c2' => 'red',
       ),
     ),
-    'to' => 'two',
+    'to' => '2',
   ),
 )	),
 	307 => array(

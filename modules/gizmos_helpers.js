@@ -33,6 +33,10 @@ let Game = {
 	isLocked: function() {
 		return this.action_lock || this.anim_lock;
 	},
+	unlock: function() {
+		this.action_lock = false;
+		this.anim_lock = false;
+	},
 
 	getPlayerArchive: function(pid) {
 		if (!pid) {
@@ -575,6 +579,23 @@ let Builder = {
 			this.deselectConverter( gid, parent);
 		}
 	},
+	returnEnergyToRing: function(parent, energy_id) {
+		parent.attachToNewParentNoDestroy( energy_id, 'energy_ring' );
+		Builder.despendEnergy(Energy.getIdOfEle(energy_id));
+		dojo.removeClass(energy_id, 'convert_from');
+		dojo.removeClass(energy_id, 'f2');
+
+		let anim = parent.slideToObject( $(energy_id), $('energy_ring') );
+		anim.onEnd = function(parent, id) {
+			return function() {
+				parent.placeInZoneNoDestroy.call( Game.zones['energy_ring'], id);
+				Game.anim_lock = false;
+			}
+		}(parent, energy_id);
+		Game.anim_lock = true;
+		anim.play();
+	},
+
 	deselectConverter: function ( gizmo_id, parent ) {
 		var cdets = this.active_converters[gizmo_id];
 		if (cdets) {
@@ -612,21 +633,7 @@ let Builder = {
 				console.log(energy);
 				if (energy.classList.contains('ring')) {
 					console.log('has ring');
-					parent.attachToNewParentNoDestroy( energy.id, 'energy_ring' );
-
-					Builder.despendEnergy(Energy.getIdOfEle(energy.id));
-					dojo.removeClass(energy.id, 'convert_from');
-					dojo.removeClass(energy.id, 'f2');
-
-					let anim = parent.slideToObject( $(energy.id), $('energy_ring') );
-					anim.onEnd = function(parent, energy) {
-						return function() {
-							parent.placeInZoneNoDestroy.call( Game.zones['energy_ring'], energy.id);
-							Game.anim_lock = false;
-						}
-					}(parent, energy);
-					Game.anim_lock = true;
-					anim.play();
+					Builder.returnEnergyToRing(parent, energy.id);
 				} else if (cdets[energy.id] && dojo.hasClass( Gizmo.getEleId(cdets[energy.id]), 'selected' )) {
 					dojo.removeClass(energy, 'convert_from');
 					dojo.removeClass(energy, 'f2');
@@ -882,6 +889,13 @@ let Builder = {
 		} else {
 			return true;
 		}
+	},
+
+	resetRingEnergies: function(parent) {
+		dojo.query('.card .token.ring').forEach(function(energy) {
+			Builder.returnEnergyToRing(parent, energy.id);
+		});
+		Energy.hidePicker();
 	}
 
 };
@@ -930,11 +944,11 @@ let Gizmo = {
 		return gizmo.convert_to && (gizmo.convert_to == 'any2' || gizmo.convert_to == 'two');
 	},
 	hasFileDiscount: function() {
-		return Game.selected_card_id && dojo.hasClass( Gizmo.getEleId(Game.selected_card_id), 'filed');
+		return Game.selected_card_id && $(Gizmo.getEleId(Game.selected_card_id)) && dojo.hasClass( Gizmo.getEleId(Game.selected_card_id), 'filed');
 	},
 	hasResearchDiscount: function() {
 		if (Game.selected_card_id)
-		return Game.selected_card_id && dojo.hasClass( Gizmo.getEleId(Game.selected_card_id), 'researched');
+		return Game.selected_card_id && $(Gizmo.getEleId(Game.selected_card_id)) && dojo.hasClass( Gizmo.getEleId(Game.selected_card_id), 'researched');
 	},
 	hasLvl2Discount: function() {
 		return Game.selected_card_id && Gizmo.details(Game.selected_card_id).level == 2;

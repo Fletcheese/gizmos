@@ -122,6 +122,14 @@
         self::ajaxResponse( );		
     }
 
+    public function updatePlayerPref() {
+        self::setAjaxMode();
+        $pref_id = self::getArg( "pref_id", AT_posint, true );
+        $pref_val = self::getArg( "pref_val", AT_posint, true );
+        $result = $this->game->updatePlayerPref($pref_id, $pref_val);
+        self::ajaxResponse( );
+    }
+
 
     public function loadBugSQL() {
         self::setAjaxMode();

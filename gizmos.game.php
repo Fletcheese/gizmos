@@ -63,8 +63,6 @@ class Gizmos extends Table
  
         // Create players
         // Note: if you added some extra field on "player" table in the database (dbmodel.sql), you can initialize it there.
-		
-		
         $sql = "INSERT INTO player (player_id, player_color, player_canal, player_name, player_avatar) VALUES ";
         $values = array();
         foreach( $players as $player_id => $player )
@@ -76,6 +74,21 @@ class Gizmos extends Table
         self::DbQuery( $sql );
         self::reattributeColorsBasedOnPreferences( $players, $gameinfos['player_colors'] );
         self::reloadPlayersBasicInfos();
+
+		// Create player preferences
+		$sql = "INSERT INTO user_preferences (player_id, pref_id, pref_value) VALUES ";
+		$values = [];
+		foreach ( $this->player_preferences as $player_id => $prefs ) {
+			$val;
+			if ( array_key_exists( 202, $prefs ) ) { // auto-pass unusable triggers
+				$val = $prefs[202];
+			} else {
+				$val = 1;
+			}
+			$values[] = "($player_id, 202, $val)";
+		}
+        $sql .= implode( $values, ',' );
+		self::DbQuery( $sql );
         
         /************ Start the game initialization *****/
 		
@@ -578,7 +591,7 @@ class Gizmos extends Table
 		// notify everyone
 		$player_name = self::getPlayerNameForNotification($player_id);
 		$limits = DB::getPlayerLimits($player_id);
-		self::notifyAllPlayers('cardBuiltOrFiled', clienttranslate('${player_name} ${action} a Level ${level} ${color} Gizmo from ${built_from}'), 
+		self::notifyAllPlayers('cardBuiltOrFiled', clienttranslate('${player_name} ${action} a Level ${level} ${color} Gizmo from ${built_from}${gizmo_html}'), 
 			array (
 				'i18n' => ['player_name', 'action', 'level', 'color', 'built_from'],
 				'player_name' => $player_name,
@@ -597,7 +610,9 @@ class Gizmos extends Table
 					'energy' => $limits['energy_limit'],
 					'research' => $limits['research_quantity']
 				],
-				'deck_counts' => DB::getDeckCounts()
+				'deck_counts' => DB::getDeckCounts(),
+				'gizmo_html' => $selected_card_id,
+				'preserve' => ['purchased_card_id']
 			)
 		);	
 		$card_score;
@@ -662,7 +677,7 @@ class Gizmos extends Table
 		self::setSelectedCardId(0);
 		// notify everyone
 		$player_name = self::getPlayerNameForNotification($player_id);
-		self::notifyAllPlayers('cardBuiltOrFiled', clienttranslate('${player_name} ${action} a Level ${level} ${color} Gizmo from ${built_from}'), // add back tooltip?
+		self::notifyAllPlayers('cardBuiltOrFiled', clienttranslate('${player_name} ${action} a Level ${level} ${color} Gizmo from ${built_from}${gizmo_html}'), // add back tooltip?
 			array (
 				'i18n' => ['player_name', 'color', 'built_from', 'action', 'level'],
 				'player_name' => $player_name,
@@ -676,7 +691,9 @@ class Gizmos extends Table
 				'new_card_id' => $new_card_id,
 				'player_id' => $player_id,
 				'deck_counts' => DB::getDeckCounts(),
-				'was_filed' => true
+				'was_filed' => true,
+				'gizmo_html' => $selected_card_id,
+				'preserve' => ['purchased_card_id']
 			)
 		);
         $this->incStat(1, 'filed_number', $player_id);
@@ -811,6 +828,10 @@ class Gizmos extends Table
 		$this->gamestate->nextState( 'buildLevel1For0' ); 
 	}
 
+	function updatePlayerPref($pref_id, $pref_val) {
+		DB::setPlayerPref($this->getCurrentPlayerId(), $pref_id, $pref_val);
+	}
+
     
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state arguments
@@ -824,27 +845,51 @@ class Gizmos extends Table
 	function arg_playerTurn() {
 		// refresh the energy counts for each player to ensure accuracy
 		$energy = DB::getAllPlayersEnergy();
+		$player_id = self::getActivePlayerId();
 		return array (
-			'energy'=> $energy
+			'energy'=> $energy,
+			'can_pick' => DB::canPlayerPickOrDraw($player_id),
+			'can_file' => DB::canPlayerFile($player_id),
+			'can_research' => DB::canPlayerResearch($player_id),
+			'html_file' => "File",
+			'html_pick' => "Pick",
+			'html_research' => "Research",
+			'i18n' => ['html_file','html_pick','html_research']
 		);
 	}
 	
 	function arg_getSelectedCard() {
-		$limits = DB::getPlayerLimits( self::getActivePlayerId() );
+		$player_id = self::getActivePlayerId();
+		$limits = DB::getPlayerLimits( $player_id );
 		return array (
 			'selected_card_id' => self::getGameStateValue('selected_card_id'),
 			'archive_limit' => $limits['archive_limit'],
 			'energy_limit' => $limits['energy_limit'],
-			'research_quantity' => $limits['research_quantity']
+			'research_quantity' => $limits['research_quantity'],
+			'can_file' => !DB::checkArchive($player_id) && !DB::checkArchiveLimit($player_id),
+			'html_file' => 'File',
+			'i18n' => ['html_file']
 		);
 	}
 	function arg_getTriggeredCards() {
-		$select_sql = "SELECT card_type_arg,is_used FROM gizmo_cards WHERE card_location = 'built' and card_location_arg=".self::getActivePlayerId()." and is_triggered=1";	
+		$select_sql = "SELECT card_type_arg,is_used FROM gizmo_cards WHERE card_location = 'built' and card_location_arg=".self::getActivePlayerId()." and is_triggered=1";
+		$gizmos = self::getCollectionFromDb( $select_sql );
+		// If usage of trigger is not legal, show it differently
+		// DB::isLegalTrigger()
+		$unusables = [];
+		$player_id = self::getActivePlayerId();
+		foreach ($gizmos as $gizmo_id => $gizmo) {
+			if (!DB::isLegalTrigger($gizmo_id, $player_id)) {
+				$unusables[] = $gizmo_id;
+			}
+		}
         return array( 
-			'triggered_gizmos' => self::getCollectionFromDb( $select_sql )
+			'triggered_gizmos' => $gizmos,
+			'illegal_actions' => $unusables
 		);
 	}
 	function arg_getResearchedCards() {
+		$player_id = self::getActivePlayerId();
 		$r_cards = DB::getResearchCards();
 		return array(
 			'_private' => array(          // Using "_private" keyword, all data inside this array will be made private
@@ -854,12 +899,16 @@ class Gizmos extends Table
 			),
 			'num_cards' => count( $r_cards ),
 			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id'),
-			'research_level' => self::getGameStateValue('research_level')
+			'research_level' => self::getGameStateValue('research_level'),
+			'can_file' => !DB::checkArchive($player_id) && !DB::checkArchiveLimit($player_id),
+			'html_file' => 'File',
+			'i18n' => ['html_file']
 		);
 	}
 	function arg_getSelectedAndResearchedCard() {
+		$player_id = self::getActivePlayerId();
 		$r_cards = DB::getResearchCards();
-		$limits = DB::getPlayerLimits( self::getActivePlayerId() );
+		$limits = DB::getPlayerLimits( $player_id );
 		return array (
 			'_private' => array(          // Using "_private" keyword, all data inside this array will be made private
 				'active' => array(       // Using "active" keyword inside "_private", you select active player(s)						
@@ -872,7 +921,10 @@ class Gizmos extends Table
 			'archive_limit' => $limits['archive_limit'],
 			'energy_limit' => $limits['energy_limit'],
 			'research_quantity' => $limits['research_quantity'],
-			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id')
+			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id'),
+			'can_file' => !DB::checkArchive($player_id) && !DB::checkArchiveLimit($player_id),
+			'html_file' => 'File',
+			'i18n' => ['html_file']
 		);
 	}
 	function arg_triggerSphereSelect() {
@@ -895,7 +947,7 @@ class Gizmos extends Table
 		$uses = self::getGameStateValue('triggering_multiple_uses');
 		$desc;
 		if ($uses == 1) {
-			$desc = clienttranslate('may draw a second energy or cancel to skip');			
+			$desc = clienttranslate('may draw a second energy or cancel to skip');
 		} else if ($uses == 2) {
 			$desc = clienttranslate('may draw a third energy or cancel to skip');			
 		} else {
@@ -948,6 +1000,8 @@ class Gizmos extends Table
 		DB::clearAllGizmoTriggers();
         $player_id = $this->getActivePlayerId();
         $next_player_id = $this->getPlayerAfter($player_id);
+        $this->incStat(1, 'turns_number', $next_player_id);
+        $this->incStat(1, 'turns_number');
 		
 		$res = DB::getGameProgress();
 		if ($res['progress'] >= 100) {
@@ -1016,8 +1070,6 @@ class Gizmos extends Table
 		}
 		
         $this->giveExtraTime($next_player_id);
-        $this->incStat(1, 'turns_number', $next_player_id);
-        $this->incStat(1, 'turns_number');
         $this->gamestate->changeActivePlayer($next_player_id);
 		$this->gamestate->nextState('nextTurn');
 	}
@@ -1110,14 +1162,84 @@ class Gizmos extends Table
 		}
 		
 		$player_id = self::getActivePlayerId();
-		// All we care is if there exists at least one (LIMIT 1) gizmo that has triggered but has not been used
-		$first_gizmo = DB::getTriggeredGizmo($player_id);
-		
-		//var_dump($debug);
-		if (empty( $first_gizmo )) {
-			// No more triggers -> next turn
+
+		// TODO: if player option for auto-pass is turned on, check if all remaining triggers are legal
+		$triggered_gizmos = DB::getTriggeredGizmos($player_id);
+		$is_pass;
+
+		$debug = "";
+		if (empty($triggered_gizmos)) {
+			$is_pass = true;
+			$debug .= "No usable triggered gizmos => pass";
+		}
+		else if (DB::isAutoPassTriggers($player_id)) {
+			// default to true - if any gizmo is usable, do not pass
+			$debug .= count($triggered_gizmos)." triggered gizmos; checking usability... ";
+			$is_pass = true;
+			$can_hold_energy;
+			$can_file;
+			$can_research;
+			foreach ($triggered_gizmos as $gizmo_id => $gz) {
+				$mt_gizmo = $this->mt_gizmos[$gizmo_id];
+				switch ( $mt_gizmo['trigger_action'] ) {
+					case 'pick':
+					case 'pick_2':
+					case 'pick_two':
+					case 'draw':
+					case 'draw_3':
+					case 'draw_three':
+						// Check energy capacity
+						if (!isset($can_hold_energy)) {
+							$can_hold_energy = DB::checkPlayerEnergyCapacity($player_id);
+						}
+						if ($can_hold_energy) {
+							$is_pass = false;
+						}
+						$debug .= "pick/draw trigger[$gizmo_id]: can hold energy? ".($can_hold_energy?'yes':'no')."; ";
+						break;
+					case 'file':
+						if (!isset($can_file)) {
+							$can_file = !DB::checkArchive($player_id) && !DB::checkArchiveLimit($player_id);
+						}
+						if ($can_file) {
+							$is_pass = false;
+						}
+						$debug .= "file trigger[$gizmo_id]: can file? ".($can_file?'yes':'no')."; ";
+						break;			
+					case 'research':
+						if (!isset($can_research)) {
+							$can_research = !DB::checkResearch($player_id);
+						}
+						if ($can_research) {
+							$is_pass = false;
+						}
+						$debug .= "research trigger[$gizmo_id]: can research? ".($can_research?'yes':'no')."; ";
+						break;
+					case 'score': // gaining VP is always possible
+					case 'score_2':
+					case 'build_level1_for0': // building a level I is always possible (unless the deck AND row runs out I guess? Incredibly unlikely)
+						$debug .= "score/build trigger => never pass";						
+						$is_pass = false;
+						break;		
+					default:
+						throw new BgaVisibleSystemException( "Gizmo ".$gizmo_id." has unhandled trigger_action: ".$mt_gizmo['trigger_action'] );
+						break;
+				}
+				if (!$is_pass) {
+					break;
+				}
+			}
+		} 
+		else {
+			$debug .= "has triggered gizmo(s) and auto-pass off => triggerSelect";
+			$is_pass = false;
+		}
+		//var_dump( $debug );
+		if ($is_pass) {
+			// No more [usable] triggers -> next turn
 			$this->gamestate->nextState('nextTurn');						
 		} else {
+
 			// More triggers to be used!
 			$this->gamestate->nextState('triggerSelect');					
 		}
@@ -1237,8 +1359,23 @@ class Gizmos extends Table
 //        // Please add your future database scheme changes here
 //
 //
-
-
+		if ($from_version <= 2302030350) {
+			$sql = "CREATE TABLE IF NOT EXISTS `DBPREFIX_user_preferences` (
+				`player_id` int(10) NOT NULL,
+				`pref_id` int(10) NOT NULL,
+				`pref_value` int(10) NOT NULL,
+				PRIMARY KEY (`player_id`, `pref_id`)
+			  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+			self::applyDbUpgradeToAllDB( $sql );
+			
+			$sql = "INSERT INTO user_preferences (player_id, pref_id, pref_value) VALUES ";
+			$values = [];
+			foreach ($this->loadPlayersBasicInfos() as $player_id => $info) {
+				$values[] = "($player_id, 202, 1)";
+			}
+			$sql .= implode( $values, ',' );
+			self::DbQuery( $sql );	
+		}
     }
 
 /// DEBUG UTILS

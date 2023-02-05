@@ -57,6 +57,7 @@ class DB
 		Gizmos::DbQuery( $update_sql );
 		return $score;
 	}
+	// Returns TRUE if player CAN hold more energy
 	public static function checkPlayerEnergyCapacity($player_id) {		
         $sql = "SELECT player_energy_limit FROM player WHERE player_id=$player_id";
 		$limit = Gizmos::getUniqueValue( $sql );
@@ -173,9 +174,9 @@ class DB
 		}
 		return $built_card;
 	}
-	public static function getTriggeredGizmo($player_id) {
-		$select_sql = "SELECT card_id FROM gizmo_cards WHERE is_triggered=1 AND is_used=0 AND card_location='built' AND card_location_arg='$player_id' LIMIT 1";	
-        return Gizmos::getUniqueValue( $select_sql );
+	public static function getTriggeredGizmos($player_id) {
+		$select_sql = "SELECT card_type_arg,card_id FROM gizmo_cards WHERE is_triggered=1 AND is_used=0 AND card_location='built' AND card_location_arg='$player_id'";	
+        return Gizmos::getCollection( $select_sql );
 	}
 	public function getDiscount($gid, $pid) {
 		$valid_ids = array();
@@ -214,6 +215,42 @@ class DB
 	}
 	public static function getResearchCards() {
 		return Gizmos::getCollection( "SELECT card_type_arg,card_location_arg FROM gizmo_cards WHERE card_location='research' ORDER BY card_location_arg DESC" );
+	}
+	
+	public static function canPlayerPickOrDraw($player_id) {
+		return DB::checkPlayerEnergyCapacity($player_id);
+	}
+	public static function canPlayerFile($player_id) {
+		return !DB::checkArchive($player_id) && !DB::checkArchiveLimit($player_id);
+	}
+	public static function canPlayerResearch($player_id) {
+		return !DB::checkResearch($player_id);
+	}
+	public static function isLegalTrigger($gizmo_id, $player_id) {
+		$mt_gizmo = self::$game->mt_gizmos[$gizmo_id];
+		switch ( $mt_gizmo['trigger_action'] ) {
+			case 'pick':
+			case 'pick_2':
+			case 'pick_two':
+			case 'draw':
+			case 'draw_3':
+			case 'draw_three':
+				// Check energy capacity
+				return DB::canPlayerPickOrDraw($player_id);
+			case 'file':
+				return DB::canPlayerFile($player_id);		
+			case 'research':
+				return DB::canPlayerResearch($player_id);
+				break;
+			case 'score': // gaining VP is always possible
+			case 'score_2':
+			case 'build_level1_for0': 
+				return true;
+				break;		
+			default:
+				throw new BgaVisibleSystemException( "Gizmo ".$gizmo_id." has unhandled trigger_action: ".$mt_gizmo['trigger_action'] );
+				break;
+		}
 	}
     /*
     END GIZMO_CARDS
@@ -322,11 +359,22 @@ class DB
 		}
 		//throw new BgaUserException("TIE BREAKERS DEBUG");
 	}
+	// returns TRUE if Archive IS FULL
 	public static function checkArchiveLimit($player_id) {
         $sql = "SELECT player_archive_limit FROM player WHERE player_id = '$player_id'";
         $limit = Gizmos::getUniqueValue( $sql );
 		$filed = self::getPlayerFiledCount($player_id);
 		return $filed >= $limit;
+	}
+	
+	public static function setPlayerPref($player_id, $pref_id, $pref_val) {
+		$sql = "UPDATE user_preferences SET pref_value=$pref_val WHERE player_id=$player_id AND pref_id=$pref_id";
+		Gizmos::DbQuery( $sql );
+	}
+	public static function isAutoPassTriggers($player_id) {
+		$sql = "SELECT pref_value FROM user_preferences WHERE player_id=$player_id AND pref_id=202";
+		$val = Gizmos::getUniqueValue( $sql );
+		return $val && $val == 2;
 	}
     /*
     END PLAYERS
