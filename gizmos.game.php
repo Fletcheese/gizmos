@@ -64,11 +64,21 @@ class Gizmos extends Table
         // Create players
         // Note: if you added some extra field on "player" table in the database (dbmodel.sql), you can initialize it there.
         $sql = "INSERT INTO player (player_id, player_color, player_canal, player_name, player_avatar) VALUES ";
-        $values = array();
+        $values = [];
+		$prefs = $this->player_preferences;
+		$pref_values = [];
         foreach( $players as $player_id => $player )
         {
             $color = array_shift( $default_colors );
             $values[] = "('".$player_id."','$color','".$player['player_canal']."','".addslashes( $player['player_name'] )."','".addslashes( $player['player_avatar'] )."')";
+			$pref_val;
+			$sPid = (string)$player_id;
+			if ($prefs && array_key_exists($sPid, $prefs) && array_key_exists('202',$prefs[$sPid])) {
+				$pref_val = $prefs[$sPid]['202'];
+			} else {
+				$pref_val = 1;
+			}
+			$pref_values[] = "($player_id, 202, $pref_val)";
         }
         $sql .= implode( $values, ',' );
         self::DbQuery( $sql );
@@ -76,18 +86,8 @@ class Gizmos extends Table
         self::reloadPlayersBasicInfos();
 
 		// Create player preferences
-		$sql = "INSERT INTO user_preferences (player_id, pref_id, pref_value) VALUES ";
-		$values = [];
-		foreach ( $this->player_preferences as $player_id => $prefs ) {
-			$val;
-			if ( array_key_exists( 202, $prefs ) && $prefs[202] ) { // auto-pass unusable triggers
-				$val = $prefs[202];
-			} else {
-				$val = 1;
-			}
-			$values[] = "($player_id, 202, $val)";
-		}
-        $sql .= implode( $values, ',' );
+		$sql = "INSERT INTO user_preferences (player_id, pref_id, pref_value) VALUES ";		
+        $sql .= implode( $pref_values, ',' );
 		self::DbQuery( $sql );
         
         /************ Start the game initialization *****/
@@ -1336,29 +1336,7 @@ class Gizmos extends Table
     */
     
     function upgradeTableDb( $from_version )
-    {
-        // $from_version is the current version of this game database, in numerical form.
-        // For example, if the game was running with a release of your game named "140430-1345",
-        // $from_version is equal to 1404301345
-        
-        // Example:
-//        if( $from_version <= 1404301345 )
-//        {
-//            // ! important ! Use DBPREFIX_<table_name> for all tables
-//
-//            $sql = "ALTER TABLE DBPREFIX_xxxxxxx ....";
-//            self::applyDbUpgradeToAllDB( $sql );
-//        }
-//        if( $from_version <= 1405061421 )
-//        {
-//            // ! important ! Use DBPREFIX_<table_name> for all tables
-//
-//            $sql = "CREATE TABLE DBPREFIX_xxxxxxx ....";
-//            self::applyDbUpgradeToAllDB( $sql );
-//        }
-//        // Please add your future database scheme changes here
-//
-//
+    {        
 		$changes = [
 			[2302052111, "CREATE TABLE IF NOT EXISTS `DBPREFIX_user_preferences` (
 				`player_id` int(10) NOT NULL,
@@ -1388,14 +1366,11 @@ class Gizmos extends Table
 					$values[] = "($player_id, 202, 1)";
 				}
 				$sql .= implode( $values, ',' )." ON DUPLICATE KEY UPDATE player_id=VALUES(player_id),pref_id=VALUES(pref_id),pref_value=VALUES(pref_value)";
-				self::DbQuery( $sql );	
+				//var_dump($sql);
+				self::DbQuery( $sql ); // default all players to Never auto-pass
 			}
 		}
 		self::warn("upgradeTableDb complete: from_version=$from_version");
-		
-		
-		
-		
     }
 
 /// DEBUG UTILS
