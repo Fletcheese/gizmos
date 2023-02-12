@@ -415,6 +415,11 @@
     height: 30px;
     float: left;
 }
+#player_boards .gzs_upgrade_score {
+	font-style: italic;
+	font-size: 12px;
+	vertical-align: middle;
+}
 
 #gizmos_board #sphere_row_outer {
 	min-height: 50px;

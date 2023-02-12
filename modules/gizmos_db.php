@@ -107,8 +107,11 @@ class DB
 			return array('progress' => $prog_3s, '3s' => true);
 		}
     }
-	public function getSpecialUpgradeGizmos() {
+	public function getSpecialUpgradeGizmos($player_id = null) {
 		$card_sql = "SELECT card_type_arg,card_location_arg FROM gizmo_cards WHERE card_type_arg IN (333,334,335,336) AND card_location = 'built'";
+		if ($player_id) {
+			$card_sql .= " AND card_location_arg = $player_id";
+		}
 		return Gizmos::getCollection($card_sql);
 	}
 

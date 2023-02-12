@@ -319,16 +319,38 @@ let Builder = {
 				cost += dojo.string.substitute("<sup class='discount_sup'> -${discount}</sup>",{discount: this.discount});
 			}
 			var total = 0;
+			var color;
 			if (sel_color == 'multi') {
 				for (var key in this.spending_power) {
 					total += this.spending_power[key];
 				}
+				color = sel_color;
 			} else {
 				total = (this.spending_power[sel_color] ?? 0);
+				// Ensure that extra energies of different colors are not being spent - show if they are
+				var adtlColors = {args:{i18n:[]}};
+				var arrColors = [];
+				for (var i in Energy.colors) {
+					let aColor = Energy.colors[i];
+					if (aColor != sel_color && this.spending_power[aColor] > 0) {
+						arrColors.push("+"+this.spending_power[aColor]+" ${"+aColor+"}");
+						adtlColors.args.i18n.push(aColor);
+						adtlColors.args[aColor] = aColor;
+					}
+				}
+				if (arrColors.length > 0) {
+					adtlColors.log = "${"+sel_color+"} | "+arrColors.join(' | ');
+					adtlColors.args[sel_color] = sel_color;
+					adtlColors.args.i18n.push(sel_color);
+					color = adtlColors;
+				} else {
+					color = sel_color;
+				}
 			}
+			console.log("getSpendSpheresArgs",color);
 			return {
 				i18n: ['color'],
-				color: sel_color,
+				color: color,
 				x: total,
 				y: cost
 			};
@@ -345,8 +367,14 @@ let Builder = {
 				total = this.getMultiPower();
 			} else {
 				total = (this.spending_power[sel_color] ?? 0);
+				// Ensure that extra energies of different colors are not being spent
+				for (var i in Energy.colors) {
+					if (Energy.colors[i] != sel_color && this.spending_power[Energy.colors[i]] > 0) {
+						return false;
+					}
+				}
 			}
-			return total >= parseInt(cost);
+			return total == parseInt(cost);
 		}
 	},
 	getMultiPower: function() {

@@ -220,6 +220,7 @@ class Gizmos extends Table
 		$result['selected_card_id'] = self::getGameStateValue('selected_card_id');
 		$result['is_last_round'] = self::getGameStateValue('is_last_round');
         $result['spheres'] = DB::getRowEnergy();
+		$result['upgrade_scores'] = self::getUpgradeScores($result['players']);
 		
 		$gizmo_cards = array(
 			1 => $this->gizmo_cards->getCardsInLocation( 'row_1' ),
@@ -420,6 +421,40 @@ class Gizmos extends Table
 			}
 		}
 	}
+	private function getUpgradeGizmoScore($gizmo_id, $player_id) {
+		$mtg = $this->mt_gizmos[$gizmo_id];
+		switch ($mtg['upgrade_special']) {
+			case 'score_energy':
+				return DB::getPlayerEnergyCount($player_id);
+				break;
+			case 'score_scores':
+				$counts = DB::scoreVictoryPoints($player_id, 0);
+				return $counts['vps'];
+				break;
+			default:
+				throw new BgaVisibleSystemException( "Unrecognized upgrade_special: ".$mtg['upgrade_special'] );
+		}
+	}
+	private function getPlayerUpgradeScores($player_id) {
+		$cards = DB::getSpecialUpgradeGizmos($player_id);
+		$score = 0;
+		foreach ($cards as $gizmo_id => $card) {
+			$score += self::getUpgradeGizmoScore($gizmo_id, $player_id);
+		}
+		return $score;
+	}
+	private function getUpgradeScores($players) {
+		$scores = [];
+		$cards = DB::getSpecialUpgradeGizmos();
+		foreach ($players as $player_id => $player) {
+			$scores[$player_id] = 0;
+		}		
+		foreach ($cards as $gizmo_id => $card) {
+			$player_id = $card['card_location_arg'];
+			$scores[$player_id] += self::getUpgradeGizmoScore($gizmo_id, $player_id);
+		}
+		return $scores;
+	}
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Player actions
@@ -519,6 +554,7 @@ class Gizmos extends Table
 				'new_sphere_id' => $new_sphere,
 				'purchased_sphere_id' => $sphere_id,
 				'player_id' => $player_id,
+				'upgrade_score' => self::getPlayerUpgradeScores($player_id),
 				'preserve' => [ 'sphere_color' ]
 			)
 		);
@@ -605,6 +641,7 @@ class Gizmos extends Table
 				'player_id' => $player_id,
 				'built_from_file' => $built_from_file,
 				'new_score' => $new_score,
+				'upgrade_score' => self::getPlayerUpgradeScores($player_id),
 				'limits' => [
 					'archive' => $limits['archive_limit'],
 					'energy' => $limits['energy_limit'],
@@ -693,6 +730,7 @@ class Gizmos extends Table
 				'deck_counts' => DB::getDeckCounts(),
 				'was_filed' => true,
 				'gizmo_html' => $selected_card_id,
+				'upgrade_score' => self::getPlayerUpgradeScores($player_id),
 				'preserve' => ['purchased_card_id']
 			)
 		);
@@ -1033,18 +1071,7 @@ class Gizmos extends Table
 				foreach ($cards as $gizmo_id => $card) {
 					$player_id = $card['card_location_arg'];
 					$mtg = $this->mt_gizmos[$gizmo_id];
-					$gizmo_score;
-					switch ($mtg['upgrade_special']) {
-						case 'score_energy':
-							$gizmo_score = DB::getPlayerEnergyCount($player_id);
-							break;
-						case 'score_scores':
-							$counts = DB::scoreVictoryPoints($player_id, 0);
-							$gizmo_score = $counts['vps'];
-							break;
-						default:
-							throw new BgaVisibleSystemException( "Unrecognized upgrade_special: ".$mtg['upgrade_special'] );
-					}
+					$gizmo_score = self::getUpgradeGizmoScore($gizmo_id, $player_id);					
 					$player_score = DB::score($player_id, $gizmo_score);
 					$this->incStat($gizmo_score, 'level3_score', $player_id);
 					$this->incStat($gizmo_score, 'level3_score');
@@ -1102,6 +1129,7 @@ class Gizmos extends Table
 				'sphere_color' => $sphere_color,
 				'sphere_id' => $new_sphere_id,
 				'player_id' => $player_id,
+				'upgrade_score' => self::getPlayerUpgradeScores($player_id),
 				'preserve' => [ 'sphere_color' ]
 			)
 		);
@@ -1275,7 +1303,8 @@ class Gizmos extends Table
 				'vp_html' => 'VP(s)',
 				'player_id' => $player_id,
 				'vp_count' => $counts['vps'],
-				'player_score' => $counts['score']
+				'player_score' => $counts['score'],
+				'upgrade_score' => self::getPlayerUpgradeScores($player_id)
 			)
 		);
 		

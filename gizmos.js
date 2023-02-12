@@ -175,7 +175,6 @@ function (dojo, declare) {
         onEnteringState: function( stateName, args )
         {
 			Game.unlock();
-			Builder.resetRingEnergies(this);
 			if (args && args.args && args.args.tg_gizmo_id && $(Gizmo.getEleId(args.args.tg_gizmo_id) )) {
 				dojo.removeClass( Gizmo.getEleId(args.args.tg_gizmo_id), 'triggerable' );
 				dojo.addClass( Gizmo.getEleId(args.args.tg_gizmo_id), 'half_selected' );
@@ -394,6 +393,26 @@ function (dojo, declare) {
             script.
         
         */
+
+		setUpgradeScores: function(player_scores) {
+			for (var player_id in player_scores) {
+				this.setUpgradeScore(player_id, player_scores[player_id]);
+			}
+		},
+		setUpgradeScore: function(player_id, score) {
+			let upg_score_id = 'player_upgrade_score_'+player_id;
+			var upg_score = $(upg_score_id);
+			if (upg_score) {
+				if (score > 0) {
+					upg_score.innerHTML = " (+"+score+")";
+				} else {
+					upg_score.innerHTML = "";
+				}
+			} else if (score > 0) {
+				upg_score = dojo.place("<span id='"+upg_score_id+"' class='gzs_upgrade_score'> (+"+score+")</span>",'player_score_'+player_id,'after');
+			}
+		},
+
 		/** Override this function to inject html into log items. This is a built-in BGA method.  */
         /* @Override */
         format_string_recursive: function format_string_recursive(log, args) {
@@ -717,13 +736,13 @@ function (dojo, declare) {
 						let spid = p_spheres[i];
 						this.addSphereToRing(spid);
 					}					
-				}
-				
+				}				
 				if (this.gamedatas.players[player_id].player_no == '1') {
 					dojo.place('<span id="gzs_first_player">'+_('1st')+'</span>', 'icon_point_'+player_id, 'after' );
 					this.addTooltip('gzs_first_player', _('This player went first'), '');
 				}
-            }			
+            }
+			this.setUpgradeScores(this.gamedatas.upgrade_scores);					
 		},
 		addSphereToRing: function(spid, isConnect) {			
 			let sphere = Energy.getEnergyHtml(spid, 'ring');
@@ -829,15 +848,15 @@ function (dojo, declare) {
 				}
 			}
 		},
-		fileSelectedCard: function ( evt ) {			
+		fileSelectedCard: function ( evt ) {
 			if ( this.checkAction("cardFile") ) {
+				Builder.deselectAllConverters(this);
 				// Archive limit checked server-side		
 				this.ajaxcall( "/gizmos/gizmos/fileSelectedCard.html", {
 					lock: true,
 					"selected_card_id": this.selected_card_id ?? 0,
 					research_order: Game.getOrderedResearch()
-				}, this, function( result ) {} );					
-				
+				}, this, function( result ) {} );
 			}
 		},
 		cancel: function ( evt ) {
@@ -1390,6 +1409,7 @@ function (dojo, declare) {
 				let new_sphere_id = notif.args.new_sphere_id;
 				this.insertNextSphere(new_sphere_id);
 			}
+			this.setUpgradeScore(player_id, notif.args.upgrade_score);
 		},
 		notif_cardBuiltOrFiled: function ( notif ) {
 			Game.waitHideResearch = true;
@@ -1479,6 +1499,7 @@ function (dojo, declare) {
 			}
 
 			this.spendSpheresAndRebuildPlayerCard(player_id, spheres);
+			this.setUpgradeScore(player_id, notif.args.upgrade_score);
 		},
 		notif_sphereDrawn: function ( notif ) {
 			let sphere_id = notif.args.sphere_id;
@@ -1507,12 +1528,15 @@ function (dojo, declare) {
 				this.slideTemporaryObject( sp_html, 'sphere_row', 'dispenser', 'player_header_'+player_id ).play();
 			}
 			this.buildPlayerCard(player_id);
+			this.setUpgradeScore(player_id, notif.args.upgrade_score);
 			//console.log(player_name + ' drew a ' + sphere_color + ' sphere');	
 		},
 		notif_victoryPoint: function ( notif ) {
-			this.gamedatas.players[notif.args.player_id].victory_points = notif.args.vp_count;		
-			this.buildPlayerCard(notif.args.player_id);
-			this.scoreCtrl[notif.args.player_id].setValue( notif.args.player_score );	
+			let player_id = notif.args.player_id;
+			this.gamedatas.players[player_id].victory_points = notif.args.vp_count;		
+			this.buildPlayerCard(player_id);
+			this.scoreCtrl[player_id].setValue( notif.args.player_score );	
+			this.setUpgradeScore(player_id, notif.args.upgrade_score);
 		},
 		notif_lastTurn: function ( notif ) {
 			$('gzs_end_banner').innerHTML = _("This is the last round!");
