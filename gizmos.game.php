@@ -96,9 +96,9 @@ class Gizmos extends Table
 		// Pick 7 spheres at random for starting row + NEXT:
 		$start_spheres = array();
 		for ($i = 0; $i < 7; $i++) {
-			$r = rand(1,52);
+			$r = bga_rand(1,52);
 			while (in_array($r, $start_spheres)) {
-				$r = rand(1,52);
+				$r = bga_rand(1,52);
 			}
 			$start_spheres[$i] = $r;
 		}
@@ -134,9 +134,9 @@ class Gizmos extends Table
 		// Randomly select 16 level 3 IDs to include
 		$start_3s = array();
 		for ($i = 0; $i < 16; $i++) {
-			$r = rand(301,336);
+			$r = bga_rand(301,336);
 			while (in_array($r, $start_3s)) {
-				$r = rand(301,336);
+				$r = bga_rand(301,336);
 			}
 			$start_3s[$i] = $r;
 		}
@@ -904,6 +904,7 @@ class Gizmos extends Table
 			'archive_limit' => $limits['archive_limit'],
 			'energy_limit' => $limits['energy_limit'],
 			'research_quantity' => $limits['research_quantity'],
+			'used_gizmos' => DB::getUsedGizmos($player_id),
 			'can_file' => !DB::checkArchive($player_id) && !DB::checkArchiveLimit($player_id),
 			'html_file' => 'File',
 			'i18n' => ['html_file']
@@ -959,6 +960,7 @@ class Gizmos extends Table
 			'archive_limit' => $limits['archive_limit'],
 			'energy_limit' => $limits['energy_limit'],
 			'research_quantity' => $limits['research_quantity'],
+			'used_gizmos' => DB::getUsedGizmos($player_id),
 			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id'),
 			'can_file' => !DB::checkArchive($player_id) && !DB::checkArchiveLimit($player_id),
 			'html_file' => 'File',
@@ -1113,7 +1115,10 @@ class Gizmos extends Table
 		$sphere_sql = "SELECT sphere_id FROM sphere WHERE location='dispenser'";
         $dispenser_spheres = self::getCollectionFromDb( $sphere_sql );
 		// get a random sphere from the dispenser
-		$new_sphere_id = array_rand($dispenser_spheres);
+		$sphere_ids = array_keys($dispenser_spheres);
+		$i_new = bga_rand(0, count($sphere_ids)-1);
+		$new_sphere_id = $sphere_ids[$i_new];
+			//array_rand($dispenser_spheres);
 		// update sphere.status -> player, sphere.belngs-to-player -> current player
 		$sql_new = "UPDATE sphere SET location='".$player_id."' WHERE sphere_id='$new_sphere_id'";
 		self::DbQuery( $sql_new );

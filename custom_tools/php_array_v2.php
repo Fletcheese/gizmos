@@ -1,85 +1,3 @@
-<?php
-/**
- *------
- * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * gizmos implementation : © Fletcheese <1337ch33z@gmail.com>
- * 
- * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
- * See http://en.boardgamearena.com/#!doc/Studio for more information.
- * -----
- *
- * material.inc.php
- *
- * gizmos game material description
- *
- * Here, you can describe the material of your game with PHP variables.
- *   
- * This file is loaded in your game logic class constructor, ie these variables
- * are available everywhere in your game logic code.
- *
- */
- 
-$this->mt_colors = array(
-	0 => clienttranslate('red'),
-	1 => clienttranslate('blue'),
-	2 => clienttranslate('black'),
-	3 => clienttranslate('yellow'),
-	4 => clienttranslate('any'), // in the context of colors,
-	5 => clienttranslate('multi') // in the context of colors
-);
-
-$this->tooltip_types = array(
-	'trigger' => clienttranslate('${trigger} a ${object}: ${action}'),
-	'converter' => clienttranslate('Convert ${number} ${from} energy to ${to} energy'),
-	'upgrade' => clienttranslate('Upgrade: ${details}')	
-);
-$this->action_types = array(
-	0 => clienttranslate('File'),
-	1 => clienttranslate('Pick'),
-	2 => clienttranslate('Build'),
-	3 => clienttranslate('Research'),
-	4 => clienttranslate('draw'),
-	5 => clienttranslate('gain ${number} victory point token(s)'),
-	6 => clienttranslate('Build a Level I Gizmo for free'),
-	7 => clienttranslate('up to 3 times'),
-  8 => clienttranslate('up to 2'),
-  9 => clienttranslate('Pick up to twice'),
-	10 => clienttranslate('When you File'),
-	11 => clienttranslate('When you Pick'),
-	12 => clienttranslate('When you Build')
-);
-// $this->present_tense_actions = array(
-// 	0 => clienttranslate('Files'),
-// 	1 => clienttranslate('Picks'),
-// 	2 => clienttranslate('Builds'),
-// 	3 => clienttranslate('Researches'),
-// 	4 => clienttranslate('draws'),
-// 	5 => clienttranslate('gains ${n} victory point token(s)')
-// );
-$this->upgrade_types = array(
-	'upgrade_energy' => clienttranslate('energy capacity'),
-	'upgrade_archive' => clienttranslate('archive limit'),
-	'upgrade_research' => clienttranslate('research quantity'),
-	'no' => clienttranslate('You cannot ${action} for the rest of the game'),
-	'no_research' => clienttranslate('Research'),
-	'no_file' => clienttranslate('File'),
-	'discount' => clienttranslate('You may spend 1 less Energy when building a ${discount_type}'),
-	'discount_buildfromfile' => clienttranslate('Gizmo from your Archive'),
-	'discount_buildfromresearch' => clienttranslate('Gizmo directly from Research'),
-	'discount_level2' => clienttranslate('Level II Gizmo'),
-	'score' => clienttranslate('At the end of the game score points equal to your ${score}'),
-	'score_energy' => clienttranslate('remaining unspent Energy'),
-	'score_scores' => clienttranslate('victory point token count')
-);
-$this->misc_terms = array(
-	0 => clienttranslate('Gizmo'), // The game cards that represent inventions
-	1 => clienttranslate('Energy'), // Spendable colored resource for building Gizmos - may also be referred to as spheres or tokens
-	2 => clienttranslate('Level'), // Level I, II, or III Gizmos/Decks
-	3 => clienttranslate('the row'), // where Gizmos exist on the board to be Built or Filed
-	4 => clienttranslate('or'), // in the context of colors e.g. red or blue
-	5 => clienttranslate('and/or'), // in the context of colors e.g. red and/or blue
-);
-
 $this->mt_gizmos = array(
 	101 => array(
 		'id' => 101,
@@ -101,14 +19,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'yellow',
-      ),
-    ),
+    'from' => 'yellow',
     'to' => 'any',
   ),
 )	),
@@ -132,14 +43,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'red',
-      ),
-    ),
+    'from' => 'red',
     'to' => 'any',
   ),
 )	),
@@ -163,14 +67,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'black',
-      ),
-    ),
+    'from' => 'black',
     'to' => 'any',
   ),
 )	),
@@ -194,14 +91,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'blue',
-      ),
-    ),
+    'from' => 'blue',
     'to' => 'any',
   ),
 )	),
@@ -225,14 +115,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'red',
-      ),
-    ),
+    'from' => 'red',
     'to' => 'any',
   ),
 )	),
@@ -256,14 +139,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'yellow',
-      ),
-    ),
+    'from' => 'yellow',
     'to' => 'any',
   ),
 )	),
@@ -287,14 +163,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'blue',
-      ),
-    ),
+    'from' => 'blue',
     'to' => 'any',
   ),
 )	),
@@ -318,14 +187,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'black',
-      ),
-    ),
+    'from' => 'black',
     'to' => 'any',
   ),
 )	),
@@ -353,10 +215,10 @@ $this->mt_gizmos = array(
     'trigger' => 'When you Pick',
     'object' => 
     array (
-      'log' => '${c1_html}',
+      'log' => '${c1html}',
       'args' => 
       array (
-        'c1_html' => 'blue',
+        'c1html' => 'blue',
       ),
     ),
     'action' => 'draw',
@@ -386,10 +248,10 @@ $this->mt_gizmos = array(
     'trigger' => 'When you Pick',
     'object' => 
     array (
-      'log' => '${c1_html}',
+      'log' => '${c1html}',
       'args' => 
       array (
-        'c1_html' => 'red',
+        'c1html' => 'red',
       ),
     ),
     'action' => 'draw',
@@ -419,10 +281,10 @@ $this->mt_gizmos = array(
     'trigger' => 'When you Pick',
     'object' => 
     array (
-      'log' => '${c1_html}',
+      'log' => '${c1html}',
       'args' => 
       array (
-        'c1_html' => 'yellow',
+        'c1html' => 'yellow',
       ),
     ),
     'action' => 'draw',
@@ -452,10 +314,10 @@ $this->mt_gizmos = array(
     'trigger' => 'When you Pick',
     'object' => 
     array (
-      'log' => '${c1_html}',
+      'log' => '${c1html}',
       'args' => 
       array (
-        'c1_html' => 'black',
+        'c1html' => 'black',
       ),
     ),
     'action' => 'draw',
@@ -485,10 +347,10 @@ $this->mt_gizmos = array(
     'trigger' => 'When you Pick',
     'object' => 
     array (
-      'log' => '${c1_html}',
+      'log' => '${c1html}',
       'args' => 
       array (
-        'c1_html' => 'yellow',
+        'c1html' => 'yellow',
       ),
     ),
     'action' => 'draw',
@@ -518,10 +380,10 @@ $this->mt_gizmos = array(
     'trigger' => 'When you Pick',
     'object' => 
     array (
-      'log' => '${c1_html}',
+      'log' => '${c1html}',
       'args' => 
       array (
-        'c1_html' => 'black',
+        'c1html' => 'black',
       ),
     ),
     'action' => 'draw',
@@ -551,10 +413,10 @@ $this->mt_gizmos = array(
     'trigger' => 'When you Pick',
     'object' => 
     array (
-      'log' => '${c1_html}',
+      'log' => '${c1html}',
       'args' => 
       array (
-        'c1_html' => 'blue',
+        'c1html' => 'blue',
       ),
     ),
     'action' => 'draw',
@@ -584,10 +446,10 @@ $this->mt_gizmos = array(
     'trigger' => 'When you Pick',
     'object' => 
     array (
-      'log' => '${c1_html}',
+      'log' => '${c1html}',
       'args' => 
       array (
-        'c1_html' => 'red',
+        'c1html' => 'red',
       ),
     ),
     'action' => 'draw',
@@ -1646,16 +1508,16 @@ $this->mt_gizmos = array(
     'trigger' => 'When you Pick',
     'object' => 
     array (
-      'log' => '${c1_html} ${andor} ${c2_html}',
+      'log' => '${c1html} ${andor} ${c2html}',
       'args' => 
       array (
         'i18n' => 
         array (
           0 => 'andor',
         ),
-        'c1_html' => 'yellow',
+        'c1html' => 'yellow',
         'andor' => 'or',
-        'c2_html' => 'red',
+        'c2html' => 'red',
       ),
     ),
     'action' => 'draw',
@@ -1686,16 +1548,16 @@ $this->mt_gizmos = array(
     'trigger' => 'When you Pick',
     'object' => 
     array (
-      'log' => '${c1_html} ${andor} ${c2_html}',
+      'log' => '${c1html} ${andor} ${c2html}',
       'args' => 
       array (
         'i18n' => 
         array (
           0 => 'andor',
         ),
-        'c1_html' => 'yellow',
+        'c1html' => 'yellow',
         'andor' => 'or',
-        'c2_html' => 'black',
+        'c2html' => 'black',
       ),
     ),
     'action' => 'draw',
@@ -1726,16 +1588,16 @@ $this->mt_gizmos = array(
     'trigger' => 'When you Pick',
     'object' => 
     array (
-      'log' => '${c1_html} ${andor} ${c2_html}',
+      'log' => '${c1html} ${andor} ${c2html}',
       'args' => 
       array (
         'i18n' => 
         array (
           0 => 'andor',
         ),
-        'c1_html' => 'blue',
+        'c1html' => 'blue',
         'andor' => 'or',
-        'c2_html' => 'black',
+        'c2html' => 'black',
       ),
     ),
     'action' => 'draw',
@@ -1766,16 +1628,16 @@ $this->mt_gizmos = array(
     'trigger' => 'When you Pick',
     'object' => 
     array (
-      'log' => '${c1_html} ${andor} ${c2_html}',
+      'log' => '${c1html} ${andor} ${c2html}',
       'args' => 
       array (
         'i18n' => 
         array (
           0 => 'andor',
         ),
-        'c1_html' => 'red',
+        'c1html' => 'red',
         'andor' => 'or',
-        'c2_html' => 'blue',
+        'c2html' => 'blue',
       ),
     ),
     'action' => 'draw',
@@ -1897,14 +1759,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'yellow',
-      ),
-    ),
+    'from' => 'yellow',
     'to' => '2',
   ),
 )	),
@@ -1928,14 +1783,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'red',
-      ),
-    ),
+    'from' => 'red',
     'to' => '2',
   ),
 )	),
@@ -1959,14 +1807,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'blue',
-      ),
-    ),
+    'from' => 'blue',
     'to' => '2',
   ),
 )	),
@@ -1990,14 +1831,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'black',
-      ),
-    ),
+    'from' => 'black',
     'to' => '2',
   ),
 )	),
@@ -2021,14 +1855,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'red',
-      ),
-    ),
+    'from' => 'red',
     'to' => '2',
   ),
 )	),
@@ -2052,14 +1879,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'yellow',
-      ),
-    ),
+    'from' => 'yellow',
     'to' => '2',
   ),
 )	),
@@ -2083,14 +1903,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'black',
-      ),
-    ),
+    'from' => 'black',
     'to' => '2',
   ),
 )	),
@@ -2114,14 +1927,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'blue',
-      ),
-    ),
+    'from' => 'blue',
     'to' => '2',
   ),
 )	),
@@ -2917,14 +2723,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'any',
-      ),
-    ),
+    'from' => 'any',
     'to' => 'any',
   ),
 )	),
@@ -2948,14 +2747,7 @@ $this->mt_gizmos = array(
       2 => 'to',
     ),
     'number' => '1',
-    'from' => 
-    array (
-      'log' => '${c1_html}',
-      'args' => 
-      array (
-        'c1_html' => 'any',
-      ),
-    ),
+    'from' => 'any',
     'to' => 'any',
   ),
 )	),
@@ -2981,16 +2773,18 @@ $this->mt_gizmos = array(
     'number' => '1',
     'from' => 
     array (
-      'log' => '${c1_html} ${andor} ${c2_html}',
+      'log' => '${c1} ${andor} ${c2}',
       'args' => 
       array (
         'i18n' => 
         array (
-          0 => 'andor',
+          0 => 'c1',
+          1 => 'andor',
+          2 => 'c2',
         ),
-        'c1_html' => 'blue',
+        'c1' => 'blue',
         'andor' => 'and/or',
-        'c2_html' => 'yellow',
+        'c2' => 'yellow',
       ),
     ),
     'to' => '2',
@@ -3018,16 +2812,18 @@ $this->mt_gizmos = array(
     'number' => '1',
     'from' => 
     array (
-      'log' => '${c1_html} ${andor} ${c2_html}',
+      'log' => '${c1} ${andor} ${c2}',
       'args' => 
       array (
         'i18n' => 
         array (
-          0 => 'andor',
+          0 => 'c1',
+          1 => 'andor',
+          2 => 'c2',
         ),
-        'c1_html' => 'black',
+        'c1' => 'black',
         'andor' => 'and/or',
-        'c2_html' => 'red',
+        'c2' => 'red',
       ),
     ),
     'to' => '2',

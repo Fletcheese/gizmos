@@ -122,6 +122,8 @@ class Converter
                 $spend_power[$act_from_color]--;
                 break;
             case 'two':
+            case '2':
+            case 2:
                 if ($act_from_color != $act_to_color) {
                     throw new BgaVisibleSystemException( "Gizmo[$c_id] cannot convert colors: $act_from_color to $act_to_color" );	 
                 }

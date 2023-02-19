@@ -255,6 +255,10 @@ class DB
 				break;
 		}
 	}
+	public static function getUsedGizmos($player_id) {
+		$select_sql = "SELECT card_type_arg,is_used FROM gizmo_cards WHERE card_location = 'built' and card_location_arg=$player_id and is_used=1";
+		return Gizmos::getCollection( $select_sql );
+	}
     /*
     END GIZMO_CARDS
     */

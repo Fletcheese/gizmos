@@ -163,6 +163,10 @@ function (dojo, declare) {
 			
 			this.initPreferencesObserver();
 
+			if (Game.isColorblindFriendly(this)) {
+				dojo.query('.token').addClass('colorblind');
+			}
+
 			console.log( "Ending game setup" );
         },
 
@@ -182,6 +186,12 @@ function (dojo, declare) {
 				dojo.query('.half_selected').removeClass('half_selected');
 			}
 			dojo.query('.selected').removeClass('selected');
+
+			if (args && args.args && args.args.used_gizmos) {
+				for (var gizmo_id in args.args.used_gizmos) {
+					dojo.addClass(Gizmo.getEleId(gizmo_id), 'already_used' );
+				}
+			}
 			
 			Game.stateName = stateName;
             console.log( 'Entering state w args: '+stateName, args );
@@ -422,7 +432,8 @@ function (dojo, declare) {
                     args.processed = true;
                     // list of special keys we want to replace with images
                     var keys = ['vp_html','sphere_html','gizmo_html',
-						'html_file', 'html_pick', 'html_research'];
+						'html_file', 'html_pick', 'html_research', 
+						'c1_html', 'c2_html'];
                     for ( var i in keys) {
                         var key = keys[i];
 						if (key in args) {
@@ -431,8 +442,15 @@ function (dojo, declare) {
 								case 'vp_html':
 									val = '<div class="gzs_log_vp"></div>';
 									break;
+								case 'c1_html':
+								case 'c2_html':
+									if (args[key] == 'any')
+										continue;
+
+									val = "<div class='gzs_tooltip_token gzs_log_"+args[key]+(Game.isColorblindFriendly(this) ? ' colorblind' : '')+"'></div>";
+									break;
 								case 'sphere_html':
-									val = "<div class='gzs_log_token gzs_log_"+args['sphere_color']+"'></div>";
+									val = "<div class='gzs_log_token gzs_log_"+args['sphere_color']+(Game.isColorblindFriendly(this) ? ' colorblind' : '')+"'></div>";
 									break;
 								case 'gizmo_html':
 									val = "<div class='gzs_log_card gzs_log_card_"+args['purchased_card_id']+"'></div>";
@@ -666,14 +684,14 @@ function (dojo, declare) {
 			}			
 		},
 		insertNextSphere: function( sphere_id ) {
-			let sphere_ele = Energy.getEnergyHtml(sphere_id);
+			let sphere_ele = Energy.getEnergyHtml(sphere_id, null, this);
 			dojo.place( sphere_ele, 'sphere_row' );
 			dojo.addClass( Energy.getEleId(sphere_id), 'next_nrg' );
 			this.addTooltip( Energy.getEleId(sphere_id), this.format_string_recursive(Const.Tooltip_Next_Energy(), {i18n: ['color'], color: Energy.getColor(sphere_id)}), '' );
 			dojo.attr( Energy.getEleId(sphere_id), 'style', '');		
 		},
 		insertSphereInRow: function ( sphere_id ) {
-			let sphere_ele = Energy.getEnergyHtml(sphere_id);
+			let sphere_ele = Energy.getEnergyHtml(sphere_id, null, this);
 			dojo.place( sphere_ele, 'sphere_row' );
 			this.placeInZoneNoDestroy.call(Game.zones['sphere_row'], Energy.getEleId(sphere_id), Game.getNrgWeight() );
 			this.addTooltip( Energy.getEleId(sphere_id), '', this.format_string_recursive(Const.Tooltip_Row_Energy(), {i18n: ['color'], color: Energy.getColor(sphere_id)}));
@@ -689,7 +707,7 @@ function (dojo, declare) {
 						let sp_ele_id = Energy.getEleId(spid);
 						Game.zones['energy_ring'].removeFromZone(sp_ele_id);
 					} else {
-						dojo.place( Energy.getEnergyHtml(spid, Energy.getColor(spid), ''), $('player_board_'+player_id) );		
+						dojo.place( Energy.getEnergyHtml(spid, null, this), $('player_board_'+player_id) );		
 					}		
 					this.slideToObjectAndDestroy( $('sphere_'+spid), $('dispenser') );
 				}
@@ -745,7 +763,7 @@ function (dojo, declare) {
 			this.setUpgradeScores(this.gamedatas.upgrade_scores);					
 		},
 		addSphereToRing: function(spid, isConnect) {			
-			let sphere = Energy.getEnergyHtml(spid, 'ring');
+			let sphere = Energy.getEnergyHtml(spid, 'ring', this);
 			dojo.place( sphere, 'energy_ring' );
 			this.placeInZoneNoDestroy.call( Game.zones['energy_ring'], Energy.getEleId(spid) );			
 			this.addTooltip( Energy.getEleId(spid), '', this.format_string_recursive(Const.Tooltip_Ring_Energy(), {i18n: ['color'], color: Energy.getColor(spid)}));
@@ -779,7 +797,8 @@ function (dojo, declare) {
 				'archive': totalArch,
 				'archive_limit': limitArch,
 				'archive_full': totalArch >= limitArch ? 'full' : '',
-				'research': this.gamedatas.players[player_id].research_quantity
+				'research': this.gamedatas.players[player_id].research_quantity,
+				'colorblind': (Game.isColorblindFriendly(this) ? 'colorblind' : '')
 			}), $('player_board_'+player_id) );
 
 			if (player_id == this.player_id) {
@@ -1507,7 +1526,7 @@ function (dojo, declare) {
 			let player_id = notif.args.player_id;
 			//let player_name = notif.args.player_name;
 			Builder.incrementSphereCount(player_id, sphere_id);
-			let sp_html = Energy.getEnergyHtml(sphere_id);
+			let sp_html = Energy.getEnergyHtml(sphere_id, null, this);
 			let sp_ele_id = Energy.getEleId(sphere_id);
 			if (player_id == this.player_id) {
 				dojo.place( sp_html, 'sphere_row' );
@@ -1544,9 +1563,10 @@ function (dojo, declare) {
 			Game.repositionEnergyRing();
 		},
 		notif_scoreSpecial: function ( notif ) {
-			this.scoreCtrl[notif.args.player_id].setValue( notif.args.player_score );	
+			this.scoreCtrl[notif.args.player_id].setValue( notif.args.player_score );
+			dojo.query('.gzs_upgrade_score').style('display','none');
 		},
-		notif_research: function ( notif ) {			
+		notif_research: function ( notif ) {		
 			Game.updateDeckCounts(notif.args.deck_counts);
 		}
    });             

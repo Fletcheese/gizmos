@@ -30,6 +30,40 @@
 			// 	}
 			// }			
 		}
+	}function insertSmartCommasHtml($val, $is_converter) {
+		$andor = $is_converter ? 'and/or' : 'or';
+		$arr = explode(',', $val);
+		$size = sizeof($arr);
+		if ($size < 2) {
+			return [
+				'log' => '${c1_html}',
+				'args' => [
+					'c1_html' => $val
+				]
+			];;
+		} else if ($size == 2) {
+			return [
+				'log' => '${c1_html} ${andor} ${c2_html}',
+				'args' => [
+					'i18n' => ['andor'],
+					'c1_html' => $arr[0],
+					'andor' => $andor,
+					'c2_html' => $arr[1]
+				]
+			];
+			//return $arr[0]." $or_val ".$arr[1];
+		} else {
+			throw new Exception("ERROR in insertSmartCommas");
+			// $ret = "";
+			// $i = 1;
+			// foreach ($arr as $index => $value) {
+			// 	if ($i == $size) {
+			// 		$ret .= "$andor $value";
+			// 	} else {
+			// 		$ret .= "$value, ";
+			// 	}
+			// }			
+		}
 	}
 	function addUpgradeDesc($csv_row, $type) {
 		$upgrade_type = "upgrade_$type";
@@ -71,7 +105,14 @@
 					]
 				];
 			case 'draw_3':
-				return 'draw up to 3 times';
+				return [
+					'log' => '${draw} ${up_to_3}',
+					'args' => [
+						'draw' => 'draw',
+						'up_to_3' => 'up to 3 times',
+						'i18n' => ['draw','up_to_3']
+					]
+				];
 			default:
 				return str_replace('_', ' ', $action);			
 		}		
@@ -84,7 +125,7 @@
 				$to = $csv_row['convert_to'];
 				if ($to == 'any2') {
 					$tooltip = [
-						'log' => 'Convert ${number} ${from} Energy to ${to} Energy',
+						'log' => 'Convert ${number} ${from} energy to ${to} energy',
 						'args' => [
 							'i18n' => ['number', 'from', 'to'],
 							'number' => 'up to 2',
@@ -95,11 +136,11 @@
 					//$tooltip = "Convert up to two ".insertSmartCommas($csv_row['convert_from'], false)." energy to any energy";					
 				} else {
 					$tooltip = [
-						'log' => 'Convert ${number} ${from} Energy to ${to} Energy', // $this->tooltip_types['converter'],
+						'log' => 'Convert ${number} ${from} energy to ${to} energy', // $this->tooltip_types['converter'],
 						'args' => [
 							'i18n' => ['number', 'from', 'to'],
 							'number' => '1',
-							'from' => insertSmartCommas($csv_row['convert_from'], true),
+							'from' => insertSmartCommasHtml($csv_row['convert_from'], true),
 							'to' => $csv_row['convert_to']
 						]
 					];
@@ -108,13 +149,11 @@
 				break;
 			case 'trigger_pick':
 				$tooltip = [
-					'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
+					'log' => '${trigger} a ${object}: ${action}',
 					'args' => [
-						'i18n' => ['trigger', 'color', 'space', 'object', 'action'],
-						'trigger' => 'Pick',
-						'color' => insertSmartCommas($csv_row['trigger_color'], false),
-						'space' => ' ',
-						'object' => 'Energy',
+						'i18n' => ['trigger', 'object', 'action'],
+						'trigger' => 'When you Pick',
+						'object' => insertSmartCommasHtml($csv_row['trigger_color'], false),
 						'action' => 'draw'
 					]
 				];
@@ -122,10 +161,10 @@
 				break;
 			case 'trigger_file':
 				$tooltip = [
-					'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
+					'log' => '${trigger} a ${object}: ${action}',
 					'args' => [
-						'i18n' => ['trigger', 'color', 'space', 'object', 'action'],
-						'trigger' => 'File',
+						'i18n' => ['trigger', 'object', 'action'],
+						'trigger' => 'When you File',
 						'color' => '',
 						'space' => '',
 						'object' => 'Gizmo',
@@ -136,13 +175,18 @@
 				break;
 			case 'trigger_build':
 				$tooltip = [
-					'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
+					'log' => '${trigger} a ${object}: ${action}',
 					'args' => [
-						'i18n' => ['trigger', 'color', 'space', 'object', 'action'],
-						'trigger' => 'Build',
-						'color' => insertSmartCommas($csv_row['trigger_color'], false),
-						'space' => ' ',
-						'object' => 'Gizmo',
+						'i18n' => ['trigger', 'object', 'action'],
+						'trigger' => 'When you Build',
+						'object' => [
+							'log' => '${color} ${gizmo}',
+							'args' => [
+								'i18n' => ['color', 'gizmo'],
+								'gizmo' => 'Gizmo',
+								'color' => insertSmartCommas($csv_row['trigger_color'], false)
+							]
+						],
 						'action' => getTriggerAction($csv_row)
 					]
 				];
@@ -151,10 +195,10 @@
 			case 'trigger_build_from_file':
 			case 'trigger_buildfromfile':
 				$tooltip = [
-					'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}',
+					'log' => '${trigger} a ${object}: ${action}',
 					'args' => [
-						'i18n' => ['trigger', 'color', 'space', 'object', 'action'],
-						'trigger' => 'Build',
+						'i18n' => ['trigger', 'object', 'action'],
+						'trigger' => 'When you Build',
 						'color' => '',
 						'space' => '',
 						'object' => 'Gizmo from your Archive',
@@ -166,10 +210,10 @@
 			case 'trigger_build_level_2':
 			case 'trigger_buildlevel2':
 				$tooltip = [
-					'log' => 'When you ${trigger} a ${color}${space}${object}: ${action}', //$this->tooltip_types['trigger'],
+					'log' => '${trigger} a ${object}: ${action}', //$this->tooltip_types['trigger'],
 					'args' => [
-						'i18n' => ['trigger', 'color', 'space', 'object', 'action'],
-						'trigger' => 'Build',
+						'i18n' => ['trigger', 'object', 'action'],
+						'trigger' => 'When you Build',
 						'color' => '',
 						'space' => '',
 						'object' => 'Level II Gizmo',
@@ -303,7 +347,7 @@
 			// break;
     }
 	$to_write = substr($to_write, 0, -2)."\n);";
-	$myfile = fopen("2023-01-24v2_the_array.php", "w");
+	$myfile = fopen("php_array_v3.php", "w");
 	fwrite($myfile, $to_write);
 	fclose($myfile);
 ?>

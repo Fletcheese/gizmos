@@ -13,10 +13,10 @@
 <script type="text/javascript">
 // Javascript HTML templates
 var jstpl_player_board = '<div class="cp_board" id="token_counts_${id}">\
-    <div class="counter_pair count_${red_count}" id="pair_${id}_red"><div id="token_${id}_red" class="counter_token red_token"> <div class="counter" id="tokencount_${id}_red">${red_count}</div></div></div>\
-    <div class="counter_pair count_${black_count}" id="pair_${id}_black"><div id="token_${id}_black" class="counter_token black_token"><div class="counter" id="tokencount_${id}_black">${black_count}</div></div></div>\
-    <div class="counter_pair count_${blue_count}" id="pair_${id}_blue"><div id="token_${id}_blue" class="counter_token blue_token"><div class="counter" id="tokencount_${id}_blue">${blue_count}</div></div></div>\
-    <div class="counter_pair count_${yellow_count}" id="pair_${id}_yellow"><div id="token_${id}_yellow" class="counter_token yellow_token"><div class="counter" id="tokencount_${id}_yellow">${yellow_count}</div></div></div>\
+    <div class="counter_pair count_${red_count}" id="pair_${id}_red"><div id="token_${id}_red" class="counter_token red_token ${colorblind}"> <div class="counter" id="tokencount_${id}_red">${red_count}</div></div></div>\
+    <div class="counter_pair count_${black_count}" id="pair_${id}_black"><div id="token_${id}_black" class="counter_token black_token ${colorblind}"><div class="counter" id="tokencount_${id}_black">${black_count}</div></div></div>\
+    <div class="counter_pair count_${blue_count}" id="pair_${id}_blue"><div id="token_${id}_blue" class="counter_token blue_token ${colorblind}"><div class="counter" id="tokencount_${id}_blue">${blue_count}</div></div></div>\
+    <div class="counter_pair count_${yellow_count}" id="pair_${id}_yellow"><div id="token_${id}_yellow" class="counter_token yellow_token ${colorblind}"><div class="counter" id="tokencount_${id}_yellow">${yellow_count}</div></div></div>\
     <div class="counter_pair count_${all_count}" id="pair_${id}_all"><div id="token_${id}_all" class="counter_all"><div class="counter ${energy_full}" id="tokencount_${id}_all">${all_count}/${energy_limit}</div></div></div>\
     <div class="counter_pair2 count_${vp_count}" id="pair_${id}_vps"><div id="vp_${id}" class="vp"><div class="counter" id="tokencount_${id}_vp">${vp_count}</div></div></div>\
     <div class="counter_pair2 count_${gizmos_all}" id="pair_${id}_allgs"><div id="gizmos_all_${id}" class="gizmos_all"><div class="counter" id="tokencount_${id}_gizmos_all">${gizmos_all}</div></div></div>\

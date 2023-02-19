@@ -115,6 +115,17 @@ let Game = {
 				return isTouch;
 		}		
 	},
+	isColorblindFriendly: function(parent) {
+		let pref = parent.prefs[203].value;
+		console.log('isColorblindFriendly?', pref)
+		switch (pref) {
+			case '2': // Yes
+				return true;
+			case '1': // No (default)
+			default:
+				return false;
+		}		
+	},
 	showEnergyConfirm: function(parent) {
 		Game.resetDescription(parent);
 		Game.saved_desc = parent.gamedatas.gamestate.descriptionmyturn;
@@ -588,11 +599,11 @@ let Builder = {
 			return;
 		}	
 		let id1 = Energy.getTempId(gizmo_id, color);
-		let h1 = Energy.getTempEnergyHtml(id1, gizmo_id, color, 'convert_to');
+		let h1 = Energy.getTempEnergyHtml(id1, gizmo_id, color, 'convert_to', parent);
 		dojo.place(h1, Gizmo.getEleId(gizmo_id));
 		dojo.connect( $(id1), 'onclick', parent, 'onEnergySelect' );
 		let id2 = Energy.getTempId(gizmo_id, color);
-		let h2 = Energy.getTempEnergyHtml(id2, gizmo_id, color, 'convert_to');
+		let h2 = Energy.getTempEnergyHtml(id2, gizmo_id, color, 'convert_to', parent);
 		dojo.place(h2, Gizmo.getEleId(gizmo_id));
 		dojo.connect( $(id2), 'onclick', parent, 'onEnergySelect' );
 		this.temp_energy.push(id1, id2);
@@ -661,8 +672,8 @@ let Builder = {
 				console.log(energy);
 				if (energy.classList.contains('ring')) {
 					console.log('has ring');
-					Builder.returnEnergyToRing(parent, energy.id);
-				} else if (cdets[energy.id] && dojo.hasClass( Gizmo.getEleId(cdets[energy.id]), 'selected' )) {
+					Builder.returnEnergyToRing(parent, energy.id);					
+				} else if (cdets[energy.id] && energy.classList.contains('convert_from')) {
 					dojo.removeClass(energy, 'convert_from');
 					dojo.removeClass(energy, 'f2');
 					dojo.place(energy, Gizmo.getEleId( cdets[energy.id] ));
@@ -702,6 +713,7 @@ let Builder = {
 		let mtg = Gizmo.details(gizmo_id);
 		switch (mtg.convert_to) {
 			case 'two':
+			case '2':
 				if (mtg.convert_from.indexOf(',') > 0)
 					return !!this.active_converters[gizmo_id].second_convert;
 			case 'any':
@@ -747,9 +759,10 @@ let Builder = {
 	toggleConverter: function( gizmo_id, parent, picked_sphere_id ) {
 		this.parent = parent;
 		let mt_gizmo = Gizmo.details(gizmo_id);
-		//console.log("toggleConverter( " + gizmo_id + ", this, " + picked_sphere_id + ")");
-		//console.log(mt_gizmo);
-		if ( !picked_sphere_id && this.active_converters[gizmo_id] && (Builder.isConverterFullyOn(gizmo_id) || this.active_converters[gizmo_id].picking) ) {
+		
+		if ( this.picking > 0 && this.picking != gizmo_id ) {
+			this.deselectConverter(this.picking, parent);
+		} else if ( !picked_sphere_id && this.active_converters[gizmo_id] && (Builder.isConverterFullyOn(gizmo_id) || this.active_converters[gizmo_id].picking) ) {
 			//console.log("deselecting...");
 			this.deselectConverter( gizmo_id, parent );
 		} else {
@@ -822,7 +835,7 @@ let Builder = {
 							} else {
 								// Cost 1 -> automatically convert the selected energy to the color of the gizmo
 								let nrg_id = Energy.getTempId(gizmo_id, mt_sel_gizmo.color);
-								let nrg_html = Energy.getTempEnergyHtml(nrg_id, gizmo_id, mt_sel_gizmo.color, 'convert_to');
+								let nrg_html = Energy.getTempEnergyHtml(nrg_id, gizmo_id, mt_sel_gizmo.color, 'convert_to', parent);
 								dojo.place(nrg_html, Gizmo.getEleId(gizmo_id));
 								this.temp_energy.push(nrg_id);
 								dojo.connect( nrg_id, 'onclick', parent, 'onEnergySelect' );
@@ -831,7 +844,7 @@ let Builder = {
 								// }
 								Builder.applyColorConverter( gizmo_id, from_color, mt_sel_gizmo.color, null, parent );
 							}
-						} else if (c_to == 'two') {
+						} else if (c_to == 'two' || c_to == 2) {
 							if (cost < 2) {
 								this.showMessage( dojo.string.substitute( _("Selected gizmo only costs ${cost}; no reason to convert"), {cost: cost} ), "error");						
 							} else {								
@@ -860,31 +873,34 @@ let Builder = {
 			this.active_converters[gizmo_id] = {};
 		}
 		let sp_ele_id = Energy.getEleId(spid);
-		let parentGizmoId = Gizmo.getIdOfEle( $(sp_ele_id).parentNode.id );
-		parent.removeTooltip( sp_ele_id );
-		parent.attachToNewParentNoDestroy( sp_ele_id, Gizmo.getEleId(gizmo_id) );
-		if ( dojo.hasClass(sp_ele_id, 'convert_to') ) {
-			dojo.removeClass( sp_ele_id, 'convert_to' );
-			this.addSupportedGizmo(parentGizmoId, gizmo_id);
-			this.active_converters[gizmo_id][spid] = parentGizmoId;
-		} else {
-			this.spendEnergy(spid);
-			Game.zones['energy_ring'].removeFromZone(sp_ele_id);
-		}
-		
-		dojo.addClass( Energy.getEleId(spid), 'convert_from' );
-		// Edge case for supporting any2 converters (converts two energies to any)
-		if (Builder.active_converters[gizmo_id].to_number > 0) {
-			dojo.addClass( Energy.getEleId(spid), 'f2' );
-		}
+		console.log("Trying to slide: "+sp_ele_id, this.active_converters[gizmo_id])
+		//if ($(sp_ele_id)) {
+			let parentGizmoId = Gizmo.getIdOfEle( $(sp_ele_id).parentNode.id );
+			parent.removeTooltip( sp_ele_id );
+			parent.attachToNewParentNoDestroy( sp_ele_id, Gizmo.getEleId(gizmo_id) );
+			if ( dojo.hasClass(sp_ele_id, 'convert_to') ) {
+				dojo.removeClass( sp_ele_id, 'convert_to' );
+				this.addSupportedGizmo(parentGizmoId, gizmo_id);
+				this.active_converters[gizmo_id][spid] = parentGizmoId;
+			} else {
+				this.spendEnergy(spid);
+				Game.zones['energy_ring'].removeFromZone(sp_ele_id);
+			}
+			
+			dojo.addClass( Energy.getEleId(spid), 'convert_from' );
+			// Edge case for supporting any2 converters (converts two energies to any)
+			if (Builder.active_converters[gizmo_id].to_number > 0) {
+				dojo.addClass( Energy.getEleId(spid), 'f2' );
+			}
 
-		let anim = parent.slideToObjectPos( $(sp_ele_id), $(Gizmo.getEleId(gizmo_id)), 10, 10 );
-		anim.onEnd = function() {
-			dojo.attr( Energy.getEleId(spid), 'style', 'position:absolute;' );
-			Game.anim_lock = false;
-		};
-		Game.anim_lock = true;
-		anim.play();
+			let anim = parent.slideToObjectPos( $(sp_ele_id), $(Gizmo.getEleId(gizmo_id)), 10, 10 );
+			anim.onEnd = function() {
+				dojo.attr( Energy.getEleId(spid), 'style', 'position:absolute;' );
+				Game.anim_lock = false;
+			};
+			Game.anim_lock = true;
+			anim.play();
+		//}
 	},
 	
 	handleButtonDisabled: function() {
@@ -969,7 +985,7 @@ let Gizmo = {
 			id = Gizmo.getIdOfEle(id);
 		}
 		let gizmo = this.mt_gizmos[id];
-		return gizmo.convert_to && (gizmo.convert_to == 'any2' || gizmo.convert_to == 'two');
+		return gizmo.convert_to && (gizmo.convert_to == 'any2' || gizmo.convert_to == 'two' || gizmo.convert_to == 2);
 	},
 	hasFileDiscount: function() {
 		return Game.selected_card_id && $(Gizmo.getEleId(Game.selected_card_id)) && dojo.hasClass( Gizmo.getEleId(Game.selected_card_id), 'filed');
@@ -1039,14 +1055,14 @@ let Energy = {
 		}
 		return 'ERROR';
 	},
-	getPickerHtml: function (gid) {
+	getPickerHtml: function (gid, parent) {
 		let temps = dojo.query( dojo.string.substitute(".${gid}.tempnrg", {gid: gid}) ).length+1;
 		return dojo.string.substitute( '\<div id="color_picker">\
-					<div id="${gid}-${temps}_black" class="picker black_token token tempnrg convert_to ${gid} t${temps}"> </div>\
-					<div id="${gid}-${temps}_blue" class="picker blue_token token tempnrg convert_to ${gid} t${temps}"> </div>\
-					<div id="${gid}-${temps}_red" class="picker red_token token tempnrg convert_to ${gid} t${temps}"> </div>\
-					<div id="${gid}-${temps}_yellow" class="picker yellow_token token tempnrg convert_to ${gid} t${temps}"> </div>\
-				</div>', {gid: gid, temps: temps} );
+					<div id="${gid}-${temps}_black" class="picker black_token token tempnrg convert_to ${gid} t${temps} ${colorblind}"> </div>\
+					<div id="${gid}-${temps}_blue" class="picker blue_token token tempnrg convert_to ${gid} t${temps} ${colorblind}"> </div>\
+					<div id="${gid}-${temps}_red" class="picker red_token token tempnrg convert_to ${gid} t${temps} ${colorblind}"> </div>\
+					<div id="${gid}-${temps}_yellow" class="picker yellow_token token tempnrg convert_to ${gid} t${temps} ${colorblind}"> </div>\
+				</div>', {gid: gid, temps: temps, colorblind: (Game.isColorblindFriendly(parent) ? 'colorblind' : '')} );
 	},
 	hidePicker: function(parent) {
 		console.log("hide picker");
@@ -1058,7 +1074,7 @@ let Energy = {
 	showPicker: function(pid, gid, parent) {
 		console.log("show picker");
 		Energy.hidePicker(parent);
-		dojo.place( Energy.getPickerHtml(gid), 'converter_'+pid );
+		dojo.place( Energy.getPickerHtml(gid, parent), 'converter_'+pid );
 		let styleTop = $(Gizmo.getEleId(gid)).style.top;
 		let styleLeft = $(Gizmo.getEleId(gid)).offsetWidth;
 		dojo.style( $('color_picker'), 'top', styleTop );
@@ -1066,7 +1082,12 @@ let Energy = {
 		dojo.query('#color_picker .picker').connect('onclick', parent, 'onEnergySelect' );
 		console.log("show picker DONE");
 	},	
-	getEnergyHtml: function (sphere_id, classes) {
+	getEnergyHtml: function (sphere_id, classes, parent) {
+		if (!classes)
+			classes = "";
+		if (Game.isColorblindFriendly(parent))
+			classes += " colorblind";
+
 		return Energy.energyHtmlTplt(sphere_id, Energy.getColor(sphere_id), (classes ? classes : ''));
 	},
 	energyHtmlTplt: function(id, color, other_classes) {
@@ -1081,7 +1102,12 @@ let Energy = {
 		}
 		return id;
 	},
-	getTempEnergyHtml: function(id, gid, color, other_classes) {
+	getTempEnergyHtml: function(id, gid, color, other_classes, parent) {
+		if (!other_classes)
+			other_classes = "";
+		if (Game.isColorblindFriendly(parent))
+			other_classes += " colorblind";
+
 		let temps = dojo.query( dojo.string.substitute( '.${gid}.tempnrg', {gid: gid} )).length+1;
 		return dojo.string.substitute( '<div id="${id}" class="${color}_token token tempnrg ${other_classes} ${gid} t${temps}"> </div>', {id: id, color: color, other_classes: other_classes, gid: gid, temps: temps});
 	},

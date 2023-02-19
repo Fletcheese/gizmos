@@ -76,6 +76,16 @@ $game_preferences = array(
             2 => array( 'name' => totranslate( 'Always' ) )
         ),
         'default' => 1
+    ),
+    
+    203 => array(
+        'name' => totranslate('Colorblind Friendly Mode'),
+        'needReload' => true,
+        'values' => array(
+            1 => array( 'name' => totranslate( 'No (default)' ) ),
+            2 => array( 'name' => totranslate( 'Yes' ) )
+        ),
+        'default' => 1
     )
 );
 
