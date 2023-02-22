@@ -179,19 +179,28 @@ function (dojo, declare) {
         onEnteringState: function( stateName, args )
         {
 			Game.unlock();
-			if (args && args.args && args.args.tg_gizmo_id && $(Gizmo.getEleId(args.args.tg_gizmo_id) )) {
-				dojo.removeClass( Gizmo.getEleId(args.args.tg_gizmo_id), 'triggerable' );
-				dojo.addClass( Gizmo.getEleId(args.args.tg_gizmo_id), 'half_selected' );
+			if (args && args.args) {
+				if (args.args.tg_gizmo_id && $(Gizmo.getEleId(args.args.tg_gizmo_id) )) {
+					dojo.removeClass( Gizmo.getEleId(args.args.tg_gizmo_id), 'triggerable' );
+					dojo.addClass( Gizmo.getEleId(args.args.tg_gizmo_id), 'half_selected' );
+				} else {
+					dojo.query('.half_selected').removeClass('half_selected');
+				}
+
+				if (args.args.used_gizmos) {
+					for (var gizmo_id in args.args.used_gizmos) {
+						dojo.addClass(Gizmo.getEleId(gizmo_id), 'already_used' );
+					}
+				}
+				
+				if (args.args.deck_counts) {				
+					Game.updateDeckCounts(args.args.deck_counts);
+				}
 			} else {
 				dojo.query('.half_selected').removeClass('half_selected');
 			}
+			
 			dojo.query('.selected').removeClass('selected');
-
-			if (args && args.args && args.args.used_gizmos) {
-				for (var gizmo_id in args.args.used_gizmos) {
-					dojo.addClass(Gizmo.getEleId(gizmo_id), 'already_used' );
-				}
-			}
 			
 			Game.stateName = stateName;
             console.log( 'Entering state w args: '+stateName, args );
@@ -357,7 +366,7 @@ function (dojo, declare) {
 							this.format_string_recursive( _('Build (${energy})'), {
 								energy: {
 									log: '${x} / ${y} ${color}',
-									args: Builder.getSpendSpheresArgs()
+									args: Builder.getSpendSpheresArgs(this)
 								}
 							}), 
 							'buildSelectedCard' );
@@ -405,8 +414,10 @@ function (dojo, declare) {
         */
 
 		setUpgradeScores: function(player_scores) {
-			for (var player_id in player_scores) {
-				this.setUpgradeScore(player_id, player_scores[player_id]);
+			if (player_scores) {
+				for (var player_id in player_scores) {
+					this.setUpgradeScore(player_id, player_scores[player_id]);
+				}
 			}
 		},
 		setUpgradeScore: function(player_id, score) {
@@ -433,7 +444,7 @@ function (dojo, declare) {
                     // list of special keys we want to replace with images
                     var keys = ['vp_html','sphere_html','gizmo_html',
 						'html_file', 'html_pick', 'html_research', 
-						'c1_html', 'c2_html'];
+						'c1_html', 'c2_html', 'to'];
                     for ( var i in keys) {
                         var key = keys[i];
 						if (key in args) {
@@ -444,10 +455,14 @@ function (dojo, declare) {
 									break;
 								case 'c1_html':
 								case 'c2_html':
-									if (args[key] == 'any')
+									val = Energy.getHtmlForTooltip(args[key], this);
+									break;
+								case 'to':
+									if (args[key] == 'any') {
+										val = Energy.getHtmlForTooltip(args[key], this);
+									} else {
 										continue;
-
-									val = "<div class='gzs_tooltip_token gzs_log_"+args[key]+(Game.isColorblindFriendly(this) ? ' colorblind' : '')+"'></div>";
+									}
 									break;
 								case 'sphere_html':
 									val = "<div class='gzs_log_token gzs_log_"+args['sphere_color']+(Game.isColorblindFriendly(this) ? ' colorblind' : '')+"'></div>";
@@ -760,7 +775,8 @@ function (dojo, declare) {
 					this.addTooltip('gzs_first_player', _('This player went first'), '');
 				}
             }
-			this.setUpgradeScores(this.gamedatas.upgrade_scores);					
+			this.setUpgradeScores(this.gamedatas.upgrade_scores);
+				
 		},
 		addSphereToRing: function(spid, isConnect) {			
 			let sphere = Energy.getEnergyHtml(spid, 'ring', this);
@@ -984,7 +1000,7 @@ function (dojo, declare) {
 		},
 		setupDeckTooltips: function() {
 			for (var level=1; level<=3; level++) {
-				this.addTooltipHtml( 'deck_' + level, '<div id="deck_tooltip_${level}" style="text-align:center">🛈 '+
+				this.addTooltipHtml( 'deck_' + level, '<div id="deck_tooltip_${level}" style="text-align:center">'+
 					this.format_string_recursive(_('Click to Research Level ${level}'), {"level": Gizmo.levelNumerals(level)})+'</div>' );				
 			}
 			Game.updateDeckCounts(this.gamedatas.deck_counts);

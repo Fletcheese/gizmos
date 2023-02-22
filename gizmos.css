@@ -268,11 +268,12 @@
 .gzs_log_token {
 	background-size: 200% 200%;
 	background-image: url('img/marbles.jpg');
-	width: 15px;
-	height: 15px;
+	width: 20px;
+	height: 20px;
 	background-repeat: none;
 	border-radius: 100%;
 	display: inline-block;
+	vertical-align: middle;
 }
 .gzs_tooltip_token {
 	background-size: 200% 200%;
@@ -337,8 +338,15 @@
 	height: 30px;
 	border-radius: 100%;
 }
-#player_boards .counter_all {
+#player_boards .counter_all, .gzs_log_any {
 	background-image: url('img/multimarble.jpg');
+	background-size: 100% 100%;
+	width: 30px;
+	height: 30px;
+	border-radius: 100%;
+}
+#player_boards .counter_all.colorblind, .gzs_log_any.colorblind {
+	background-image: url('img/multi_symbol.jpg');
 	background-size: 100% 100%;
 	width: 30px;
 	height: 30px;

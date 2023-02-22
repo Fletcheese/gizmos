@@ -129,7 +129,7 @@
 						'args' => [
 							'i18n' => ['number', 'from', 'to'],
 							'number' => 'up to 2',
-							'from' => insertSmartCommas($csv_row['convert_from'], false),
+							'from' => insertSmartCommasHtml($csv_row['convert_from'], false),
 							'to' => 'any'
 						]
 					];
@@ -347,7 +347,7 @@
 			// break;
     }
 	$to_write = substr($to_write, 0, -2)."\n);";
-	$myfile = fopen("php_array_v3.php", "w");
+	$myfile = fopen("php_array_v4.php", "w");
 	fwrite($myfile, $to_write);
 	fclose($myfile);
 ?>

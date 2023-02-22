@@ -280,7 +280,7 @@ let Builder = {
 			} else {
 				dojo.addClass( 'button_build', 'disabled');//disable the button						
 			}
-			let args = Builder.getSpendSpheresArgs();
+			let args = Builder.getSpendSpheresArgs(parent);
 			console.log("args: ", args);
 			$('button_build').innerHTML = parent.format_string_recursive( _('Build (${energy})'), {
 				energy: {
@@ -320,7 +320,7 @@ let Builder = {
 			this.selected_spheres.splice( this.selected_spheres.indexOf(spid), 1);			
 		}
 	},
-	getSpendSpheresArgs: function() {
+	getSpendSpheresArgs: function(parent) {
 		if (Game.selected_card_id < 100) {
 			return {};
 		} else {
@@ -339,28 +339,25 @@ let Builder = {
 			} else {
 				total = (this.spending_power[sel_color] ?? 0);
 				// Ensure that extra energies of different colors are not being spent - show if they are
-				var adtlColors = {args:{i18n:[]}};
+				var adtlColors = {args:{}};
 				var arrColors = [];
 				for (var i in Energy.colors) {
 					let aColor = Energy.colors[i];
 					if (aColor != sel_color && this.spending_power[aColor] > 0) {
 						arrColors.push("+"+this.spending_power[aColor]+" ${"+aColor+"}");
-						adtlColors.args.i18n.push(aColor);
-						adtlColors.args[aColor] = aColor;
+						adtlColors.args[aColor] = Energy.getHtmlForTooltip(aColor, parent, true);
 					}
 				}
 				if (arrColors.length > 0) {
 					adtlColors.log = "${"+sel_color+"} | "+arrColors.join(' | ');
-					adtlColors.args[sel_color] = sel_color;
-					adtlColors.args.i18n.push(sel_color);
+					adtlColors.args[sel_color] = Energy.getHtmlForTooltip(sel_color, parent, true);
 					color = adtlColors;
 				} else {
-					color = sel_color;
+					color = Energy.getHtmlForTooltip(sel_color, parent, true);
 				}
 			}
 			console.log("getSpendSpheresArgs",color);
 			return {
-				i18n: ['color'],
 				color: color,
 				x: total,
 				y: cost
@@ -1138,23 +1135,10 @@ let Energy = {
 		} else {
 			return "getColorsArrStr(UNEXPECTED): " + arr;
 		}
+	},
+
+	getHtmlForTooltip: function(color, parent, isLogSize) {
+		var tClass = isLogSize ? 'gzs_log_token' : 'gzs_tooltip_token';
+		return "<div class='"+tClass+" gzs_log_"+color+(Game.isColorblindFriendly(parent) ? ' colorblind' : '')+"'></div>";
 	}
-	// makeTooltip: function(gizmo_id, parent) {
-	// 	let mt_gizmo = Gizmo.details(gizmo_id);
-	// 	let efftype = mt_gizmo['effect_type'];
-	// 	switch (efftype) {
-	// 		case 'trigger_pick':
-	// 		case 'trigger_build':
-	// 		case 'trigger_build_from_file':
-	// 		case 'trigger_pick':
-	// 			return parent.format_string_recursive('When you ${trigger} a ${color}${object}: ${action}',
-	// 				{
-	// 					i18n: ['trigger', 'color', 'object', 'action'],
-	// 					trigger: ''
-	// 				}
-	// 			);
-	// 		default:
-	// 			Builder.showNotification('Unhandled makeTooltip effect_type: ' + efftype, 'error');
-	// 	}
-	// }
 };

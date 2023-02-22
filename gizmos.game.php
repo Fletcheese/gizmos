@@ -220,7 +220,9 @@ class Gizmos extends Table
 		$result['selected_card_id'] = self::getGameStateValue('selected_card_id');
 		$result['is_last_round'] = self::getGameStateValue('is_last_round');
         $result['spheres'] = DB::getRowEnergy();
-		$result['upgrade_scores'] = self::getUpgradeScores($result['players']);
+		if ($this->getStateName() != 'gameEnd') {
+			$result['upgrade_scores'] = self::getUpgradeScores($result['players']);
+		}
 		
 		$gizmo_cards = array(
 			1 => $this->gizmo_cards->getCardsInLocation( 'row_1' ),
@@ -892,6 +894,7 @@ class Gizmos extends Table
 			'html_file' => "File",
 			'html_pick' => "Pick",
 			'html_research' => "Research",
+			'deck_counts' => DB::getDeckCounts(),
 			'i18n' => ['html_file','html_pick','html_research']
 		);
 	}
