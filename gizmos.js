@@ -855,7 +855,7 @@ function (dojo, declare) {
 		},
 		buildLevel1For0: function ( evt ) {
 			this.ajaxcall( "/gizmos/gizmos/buildLevel1For0.html", {
-				"gizmo_id": this.selected_card_id,
+				"gizmo_id": Game.selected_card_id,
 				lock: true
 			}, this, function( result ) {} );
 		},
@@ -889,7 +889,7 @@ function (dojo, declare) {
 				// Archive limit checked server-side		
 				this.ajaxcall( "/gizmos/gizmos/fileSelectedCard.html", {
 					lock: true,
-					"selected_card_id": this.selected_card_id ?? 0,
+					"selected_card_id": Game.selected_card_id ?? 0,
 					research_order: Game.getOrderedResearch()
 				}, this, function( result ) {} );
 			}
@@ -1294,15 +1294,15 @@ function (dojo, declare) {
 				} else if (selected_card_id < 100 || selected_card_id > 200) {
 					this.showMessage( _("Must select a Level I Gizmo"), "error" );
 				} else {				
-					if (this.selected_card_id == selected_card_id) {
-						this.selected_card_id = 0;
+					if (Game.selected_card_id == selected_card_id) {
+						Game.selected_card_id = 0;
 						dojo.removeClass(card_ele.id, 'selected');
 						dojo.addClass('button_build', 'disabled');
 					} else {
-						if (this.selected_card_id) {
-							dojo.removeClass(Gizmo.getEleId(this.selected_card_id), 'selected');
+						if (Game.selected_card_id) {
+							dojo.removeClass(Gizmo.getEleId(Game.selected_card_id), 'selected');
 						}
-						this.selected_card_id = selected_card_id;
+						Game.selected_card_id = selected_card_id;
 						dojo.addClass(card_ele.id, 'selected');
 						dojo.removeClass('button_build', 'disabled');
 					}
@@ -1313,15 +1313,15 @@ function (dojo, declare) {
 				} else if (dojo.hasClass(card_ele.id, 'filed')) {
 					this.showMessage( _("Cannot File an already filed card!"), "error" );
 				} else {				
-					if (this.selected_card_id == selected_card_id) {
-						this.selected_card_id = 0;
+					if (Game.selected_card_id == selected_card_id) {
+						Game.selected_card_id = 0;
 						dojo.removeClass(card_ele.id, 'selected');
 						dojo.addClass('button_file', 'disabled');
 					} else {
-						if (this.selected_card_id) {
-							dojo.removeClass(Gizmo.getEleId(this.selected_card_id), 'selected');
+						if (Game.selected_card_id) {
+							dojo.removeClass(Gizmo.getEleId(Game.selected_card_id), 'selected');
 						}
-						this.selected_card_id = selected_card_id;
+						Game.selected_card_id = selected_card_id;
 						dojo.addClass(card_ele.id, 'selected');
 						dojo.removeClass('button_file', 'disabled');
 					}

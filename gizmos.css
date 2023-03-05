@@ -517,6 +517,7 @@
 }
 #gizmos_board .half_selected {
 	outline: 5px dotted #5dff35;
+	margin-left: 10px;
 }
 #gizmos_board .highlighted {
 	box-shadow: -10px -10px 8px orange, -10px 10px 8px orange, 10px -10px 8px orange, 10px 10px 8px orange;
@@ -647,7 +648,7 @@
 #gizmos_board .triggerable {
 	outline: 5px solid #0f0;
 	cursor: pointer;
-	border-radius: 3%;
+	margin-left: 10px;
 }
 #gizmos_board .already_used {
 	filter: grayscale(0.8);
