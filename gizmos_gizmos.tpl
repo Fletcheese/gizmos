@@ -43,7 +43,11 @@ var jstpl_cardTooltip = '<div id="card_tooltip_${id}">\
 	<div class="tooltip_desc"><span class="tooltip_desc">${tooltip}</span></div>\
 	<div id="card_${id}" class="card tooltipcard"></div></div>';
 
-var jstpl_trackTooltip = '<div class="gzs_track_tooltip track_tooltip_${type}" style="background-position-x:-${offset}px"></div>';
+var jstpl_trackTooltip = '<div class="gzs_track_tootlip_container gzs_track_tooltip_container_${type}">\
+	<span class="gzs_track_tooltip_desc">${text}</span>\
+	<div class="gzs_track_tooltip track_tooltip_${type}" style="background-position-x:-${offset}px"></div>\
+</div>';
+
 </script>
 
 <div id="gzs_end_banner" class="gzs_end_banner" style="display:none"></div>

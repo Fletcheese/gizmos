@@ -481,6 +481,13 @@
 	width: 280px;
 	padding: 10px;
 }
+.gzs_track_tooltip_desc {
+	font-size: 24px;
+	text-align: left;
+	margin: auto;
+	padding: 10px;
+	max-width: 400px;
+}
 
 #gizmos_board .row_1, #gizmos_board #deck_1 {
 	width: 18%;
@@ -620,6 +627,12 @@
 	margin-right:1%;
 	vertical-align: middle;
     cursor: help;
+}
+.gzs_track_tooltip_container {
+	width: 600px;
+}
+.gzs_track_tooltip_container.gzs_track_tooltip_container_archive {
+	width: 286.4px;
 }
 .gzs_track_tooltip {
     background-image: url('img/playerboard.png');

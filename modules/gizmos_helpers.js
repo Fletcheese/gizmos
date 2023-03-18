@@ -12,7 +12,12 @@ let Const = {
 	// Black: _('black')
 	VP_Html: '<div class="gzs_log_vp"></div>',
 	TrackSeg_Width: 572.7,
-	Breakpoint: 1800
+	Breakpoint: 1800,
+	Tooltip_Converters: function() {return _("Gizmos that convert Energy into different types or different quantities.")},
+	Tooltip_File: function() {return _("Choose a faceup Gizmo from the Display Area and add it to your Archive.")},
+	Tooltip_Pick: function() {return _("Take 1 Energy from the 6 available in the Energy Row.")},
+	Tooltip_Build: function() {return _("Choose a faceup Gizmo from the Display Area or your Archive.  Spend Energy to add it to your Active Gizmo Area.")},
+	Tooltip_Research: function() {return _("Draw cards from 1 of the facedown Level Decks equal to your Research Amount.  You may choose 1 to Build or File.")},
 }
 
 let Game = {

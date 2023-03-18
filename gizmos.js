@@ -150,12 +150,12 @@ function (dojo, declare) {
 			dojo.query( '.deck' ).connect( 'onclick', this, 'onCardSelect' );
 			//dojo.query( '.card' ).connect( 'onclick', this, 'onCardSelect' );
 
-			this.addTooltipHtmlToClass('track_upgrades', this.format_block('jstpl_trackTooltip', {type: 'upgrades', offset: 0 }));
-			this.addTooltipHtmlToClass('track_converters', this.format_block('jstpl_trackTooltip', {type: 'converters', offset: Const.TrackSeg_Width }));
-			this.addTooltipHtmlToClass('track_trigger_file', this.format_block('jstpl_trackTooltip', {type: 'trigger_file', offset: Const.TrackSeg_Width*2 }));
-			this.addTooltipHtmlToClass('track_trigger_pick', this.format_block('jstpl_trackTooltip', {type: 'trigger_pick', offset: Const.TrackSeg_Width*3 }));
-			this.addTooltipHtmlToClass('track_trigger_build', this.format_block('jstpl_trackTooltip', {type: 'trigger_build', offset: Const.TrackSeg_Width*4 }));
-			this.addTooltipHtmlToClass('track_archive', this.format_block('jstpl_trackTooltip', {type: 'archive', offset: Const.TrackSeg_Width*5 }));
+			this.addTooltipHtmlToClass('track_upgrades', this.format_block('jstpl_trackTooltip', {type: 'upgrades', offset: 0, text: "" }));
+			this.addTooltipHtmlToClass('track_converters', this.format_block('jstpl_trackTooltip', {type: 'converters', offset: Const.TrackSeg_Width, text: Const.Tooltip_Converters() }));
+			this.addTooltipHtmlToClass('track_trigger_file', this.format_block('jstpl_trackTooltip', {type: 'trigger_file', offset: Const.TrackSeg_Width*2, text: Const.Tooltip_File() }));
+			this.addTooltipHtmlToClass('track_trigger_pick', this.format_block('jstpl_trackTooltip', {type: 'trigger_pick', offset: Const.TrackSeg_Width*3, text: Const.Tooltip_Pick() }));
+			this.addTooltipHtmlToClass('track_trigger_build', this.format_block('jstpl_trackTooltip', {type: 'trigger_build', offset: Const.TrackSeg_Width*4, text: Const.Tooltip_Build() }));
+			this.addTooltipHtmlToClass('track_archive', this.format_block('jstpl_trackTooltip', {type: 'archive', offset: Const.TrackSeg_Width*5, text: Const.Tooltip_Research() }));
 			this.addTooltip('research_help', _('Researched Gizmos will be returned to the bottom of the deck in the order shown starting with the first card on top. You may use the arrows to adjust this order'), '');
 			 
             // Setup game notifications to handle (see "setupNotifications" method below)
@@ -1299,7 +1299,7 @@ function (dojo, declare) {
 						dojo.removeClass(card_ele.id, 'selected');
 						dojo.addClass('button_build', 'disabled');
 					} else {
-						if (Game.selected_card_id) {
+						if (Game.selected_card_id > 0) {
 							dojo.removeClass(Gizmo.getEleId(Game.selected_card_id), 'selected');
 						}
 						Game.selected_card_id = selected_card_id;
@@ -1318,7 +1318,7 @@ function (dojo, declare) {
 						dojo.removeClass(card_ele.id, 'selected');
 						dojo.addClass('button_file', 'disabled');
 					} else {
-						if (Game.selected_card_id) {
+						if (Game.selected_card_id > 0) {
 							dojo.removeClass(Gizmo.getEleId(Game.selected_card_id), 'selected');
 						}
 						Game.selected_card_id = selected_card_id;
