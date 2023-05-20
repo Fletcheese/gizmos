@@ -288,6 +288,11 @@ function (dojo, declare) {
 						dojo.query(Game.getPlayerArchive() + " .card_1").addClass('selectable');
 					}
 					break;
+				case 'gameEnd':
+					dojo.query('.triggerable').removeClass('triggerable');
+					dojo.query('.gzs_illegal').removeClass('gzs_illegal');
+					dojo.query('.already_used').removeClass('already_used');
+					break;
 				default:
 					//console.log('ERROR: UNEXPECTED STATE: ' + stateName);
 					break;
@@ -345,6 +350,13 @@ function (dojo, declare) {
             {            
                 switch( stateName )
                 {
+					case 'playerTurn':
+						if (args?.can_research === false
+							&& args?.can_file === false
+							&& args?.can_pick === false) {
+							this.addActionButton( 'button_pass', _('Pass'), 'passTurn' );							
+						}
+						break;
 					case 'deckSelected':
 						this.addActionButton( 'button_research', 
 							this.format_string_recursive( _('Research Level ${level} (${quantity})'), {
@@ -355,7 +367,10 @@ function (dojo, declare) {
 						this.addActionButton( 'button_cancel', _('Cancel'), 'cancelSelectedCard' );
 						break;
 					case 'triggerSphereSelect':
-						this.addActionButton( 'button_cancel', _('Cancel'), 'cancel' );
+						this.addActionButton( 'button_cancel', 
+							args?.is_skip ? _('Skip') : _('Cancel'), 
+							'cancel'
+						);
 						break;
 					case 'research':
 						this.addActionButton( 'button_pass', _('Pass'), 'passResearch' );
@@ -379,7 +394,10 @@ function (dojo, declare) {
 						break;
 					case 'triggerDraw':
 						this.addActionButton( 'button_draw', _('Draw'), 'drawEnergy' );
-						this.addActionButton( 'button_cancel', _('Cancel'), 'cancel' );					
+						this.addActionButton( 'button_cancel', 
+							args?.is_skip ? _('Skip') : _('Cancel'), 
+							'cancel' 
+						);					
 						break;
 					case 'triggerResearch':
 						this.addActionButton( 'button_cancel', _('Cancel'), 'cancel' );
@@ -688,14 +706,23 @@ function (dojo, declare) {
 		},
 		passTriggers: function() {
 			this.pass(
-				_("Are you sure you want to pass without using your triggered gizmo(s)?")
+				Game.hasUsableGizmos() ? _("Are you sure you want to pass without using your triggered gizmo(s)?") : undefined
 			);			
+		},
+		passTurn: function() {
+			this.pass(
+				_("Are you sure you want to pass without building (may not be possible)?")
+			);
 		},
 		pass: function(msg) {
 			if (this.checkAction( "pass" )) {
-				this.confirmationDialog(msg, () => {
-					this.ajaxcall( "/gizmos/gizmos/pass.html", {lock: true, research_order: Game.getOrderedResearch()}, this, function( result ) {} );					
-				});
+				if (!msg) {
+					this.ajaxcall( "/gizmos/gizmos/pass.html", {lock: true, research_order: Game.getOrderedResearch()}, this, function( result ) {} );	
+				} else {
+					this.confirmationDialog(msg, () => {
+						this.ajaxcall( "/gizmos/gizmos/pass.html", {lock: true, research_order: Game.getOrderedResearch()}, this, function( result ) {} );					
+					});
+				}
 			}			
 		},
 		insertNextSphere: function( sphere_id ) {
@@ -1308,7 +1335,9 @@ function (dojo, declare) {
 					}
 				}
 			} else if (Game.stateName == 'triggerFile') {
-				if (dojo.hasClass(card_ele.id, 'built')) {
+				if (Gizmo.getIdOfEle(card_ele.id) < 100) {
+					// Do nothing - this is a deck and cannot be filed
+				} else if (dojo.hasClass(card_ele.id, 'built')) {
 					this.showMessage( _("Cannot File an already built card!"), "error");
 				} else if (dojo.hasClass(card_ele.id, 'filed')) {
 					this.showMessage( _("Cannot File an already filed card!"), "error" );

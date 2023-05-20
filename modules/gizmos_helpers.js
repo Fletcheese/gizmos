@@ -157,6 +157,11 @@ let Game = {
 			dojo.removeClass( ele_id, 'selected' );
 			
 		Game.selected_energy = -1;
+	},
+	hasUsableGizmos: function() {		
+		let q_trg = dojo.query('.triggerable');
+		let q_ill = dojo.query('.gzs_illegal');
+		return q_trg && q_trg.length > 0 && (!q_ill || q_trg.length > q_ill.length);
 	}
 }
 

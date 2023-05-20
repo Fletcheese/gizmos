@@ -973,8 +973,10 @@ class Gizmos extends Table
 	function arg_triggerSphereSelect() {
 		$uses = self::getGameStateValue('triggering_multiple_uses');
 		$desc;
+		$is_skip = false;
 		if ($uses > 0) {
-			$desc = clienttranslate('may pick a second energy or cancel to skip');			
+			$desc = clienttranslate('may pick a second energy or cancel to skip');	
+			$is_skip = true;		
 		} else {
 			$desc = clienttranslate('may pick an available energy from the row');
 		}
@@ -983,16 +985,20 @@ class Gizmos extends Table
 			//'triggering_multiple_uses' => $uses,
 			'i18n' => ['desc'],
 			'desc' => $desc,
-			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id')
+			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id'),
+			'is_skip' => $is_skip
 		);
 	}
 	function arg_triggerDraw() {
 		$uses = self::getGameStateValue('triggering_multiple_uses');
 		$desc;
+		$is_skip = false;
 		if ($uses == 1) {
 			$desc = clienttranslate('may draw a second energy or cancel to skip');
+			$is_skip = true;
 		} else if ($uses == 2) {
-			$desc = clienttranslate('may draw a third energy or cancel to skip');			
+			$desc = clienttranslate('may draw a third energy or cancel to skip');	
+			$is_skip = true;		
 		} else {
 			throw new BgaVisibleSystemException( "arg_triggerDraw has unexpected triggering_multiple_uses: $uses" );						
 		}
@@ -1001,7 +1007,8 @@ class Gizmos extends Table
 			//'triggering_multiple_uses' => $uses,
 			'i18n' => ['desc'],
 			'desc' => $desc,
-			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id')
+			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id'),
+			'is_skip' => $is_skip
 		);		
 	}
 	function arg_triggeringGizmo() {		

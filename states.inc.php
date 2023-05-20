@@ -32,8 +32,8 @@ $machinestates = array(
     		"descriptionmyturn" => clienttranslate('${you} may ${html_file}, ${html_pick}, Build, or ${html_research}'),
     		"type" => "activeplayer",
 			"args" => "arg_playerTurn",
-    		"possibleactions" => array( "cardSelected", "deckSelected", "sphereSelect", "zombiePass" ),
-    		"transitions" => array( "cardSelected" => 10, "deckSelected" => 14, "sphereSelect" => 30, "zombiePass" => 3 )
+    		"possibleactions" => array( "cardSelected", "deckSelected", "sphereSelect", "pass", "zombiePass" ),
+    		"transitions" => array( "cardSelected" => 10, "deckSelected" => 14, "sphereSelect" => 30, "pass" => 30, "zombiePass" => 3 )
     ),
     3 => array(
     		"name" => "nextPlayer",
