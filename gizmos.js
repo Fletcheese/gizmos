@@ -411,6 +411,7 @@ function (dojo, declare) {
 						this.addActionButton( 'button_file', _('File'), 'fileSelectedCard' );
 						this.addActionButton( 'button_cancel', _('Cancel'), 'cancel' );
 						dojo.addClass( 'button_file', 'disabled');
+						dojo.query('.selectable').removeClass('selectable');
 						dojo.query('.row_card').addClass('selectable');
 						break;					
 					default:
