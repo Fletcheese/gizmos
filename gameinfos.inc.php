@@ -15,15 +15,6 @@ $gameinfos = array(
 // Name of the game in English (will serve as the basis for translation) 
 'game_name' => "Gizmos",
 
-// Game designer (or game designers, separated by commas)
-'designer' => 'Phil Walker-Harding',       
-
-// Game artist (or game artists, separated by commas)
-'artist' => 'Hannah Cardoso, Julia Ferrari, Giovanna BC Guimaraes...',         
-
-// Year of FIRST publication of this game. Can be negative.
-'year' => 2018,                 
-
 // Game publisher (use empty string if there is no publisher)
 'publisher' => 'CMON Global Limited',                     
 
@@ -86,18 +77,6 @@ $gameinfos = array(
 // NB: the default will be the first language in this list spoken by the player, so you should list them by popularity/preference.
 'language_dependency' => false,
 
-// Complexity of the game, from 0 (extremely simple) to 5 (extremely complex)
-'complexity' => 2,
-
-// Luck of the game, from 0 (absolutely no luck in this game) to 5 (totally luck driven)
-'luck' => 2,
-
-// Strategy of the game, from 0 (no strategy can be setup) to 5 (totally based on strategy)
-'strategy' => 3,
-
-// Diplomacy of the game, from 0 (no interaction in this game) to 5 (totally based on interaction and discussion between players)
-'diplomacy' => 1,
-
 // Colors attributed to players
 'player_colors' => array( "ff0000", "008000", "0000ff", "ffa500", "773300" ),
 
@@ -125,27 +104,6 @@ $gameinfos = array(
     //  minimum possible value: 740
     'max' => null
 ),
-
-// Game presentation
-// Short game presentation text that will appear on the game description page, structured as an array of paragraphs.
-// Each paragraph must be wrapped with totranslate() for translation and should not contain html (plain text without formatting).
-// A good length for this text is between 100 and 150 words (about 6 to 9 lines on a standard display)
-'presentation' => array(
-	totranslate("The smartest minds of our generation are gathering together at the Great Science Fair. Everyone's been working hard on their creations, but only one will be crowned champion. Contestants have to think on the fly to build their machines quickly and efficiently. Whose project will be the best?"),	
-	totranslate("In Gizmos, you win the game by gaining victory points from building engines. And engines help you get things done faster. Whoever builds the greatest machine and collects the most victory points wins!"),	
-	totranslate("Machines give you victory points, and allow you to do more actions when conditions are met. As you build, new attachments can trigger chain reactions, letting you do even more on your turn.")
-),
-
-// Games tags (categories)
-//  You can attribute a maximum of ten "tags" for your game.
-//  Each tag has a specific ID (ex: 22 for the category "Prototype", 101 for the tag "Science-fiction theme game")
-//  Please see the "Game meta information" entry in the BGA Studio documentation for a full list of available tags:
-//  https://en.doc.boardgamearena.com/Game_meta-information:_gameinfos.inc.php#Tags
-//  IMPORTANT: this list should be ORDERED, with the most important tag first.
-//  NOTE: tags are only read during the first deploy from the file gameinfos.inc.php; afterwards, BGA is responsible for setting tags for a game.
-
-'tags' => array( 22, 3, 200, 207, 221, 228 ),
-
 
 //////// BGA SANDBOX ONLY PARAMETERS (DO NOT MODIFY)
 

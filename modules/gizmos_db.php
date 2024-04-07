@@ -12,7 +12,7 @@ class DB
     /*
     UTILS
     */
-	public function LevelAsNumerals($level) {
+	static public function LevelAsNumerals($level) {
 		$s = "I";
 		$i = 1;
 		while ($i < $level) {
@@ -22,7 +22,7 @@ class DB
 		return $s;
 	}
 
-	public function scoreAndUpgradeBuiltCard($player_id, $built_mt_gizmo) {		
+	static public function scoreAndUpgradeBuiltCard($player_id, $built_mt_gizmo) {
 		$card_score;
 		// All level 1s are worth 1 point
 		if ($built_mt_gizmo['level'] == 1) {
@@ -58,7 +58,7 @@ class DB
 		return $score;
 	}
 	// Returns TRUE if player CAN hold more energy
-	public static function checkPlayerEnergyCapacity($player_id) {		
+	public static function checkPlayerEnergyCapacity($player_id) {
         $sql = "SELECT player_energy_limit FROM player WHERE player_id=$player_id";
 		$limit = Gizmos::getUniqueValue( $sql );
 		
@@ -69,7 +69,7 @@ class DB
 			return true;
 		}
 	}
-    public function getGameProgress() {
+    static public function getGameProgress() {
         // Get number of gizmos built for each player
 		$select_sql = "SELECT card_type_arg, card_location_arg FROM gizmo_cards WHERE card_location = 'built'";
         $cards = Gizmos::getCollection( $select_sql );
@@ -107,7 +107,7 @@ class DB
 			return array('progress' => $prog_3s, '3s' => true);
 		}
     }
-	public function getSpecialUpgradeGizmos($player_id = null) {
+	static public function getSpecialUpgradeGizmos($player_id = null) {
 		$card_sql = "SELECT card_type_arg,card_location_arg FROM gizmo_cards WHERE card_type_arg IN (333,334,335,336) AND card_location = 'built'";
 		if ($player_id) {
 			$card_sql .= " AND card_location_arg = $player_id";
@@ -115,7 +115,7 @@ class DB
 		return Gizmos::getCollection($card_sql);
 	}
 
-    public function isFirstPlayer($pid) {
+    static public function isFirstPlayer($pid) {
         $sql = "SELECT player_no FROM player WHERE player_id = '$pid'";
         return 1 == Gizmos::getUniqueValue($sql);
     }
@@ -181,7 +181,7 @@ class DB
 		$select_sql = "SELECT card_type_arg,card_id FROM gizmo_cards WHERE is_triggered=1 AND is_used=0 AND card_location='built' AND card_location_arg='$player_id'";	
         return Gizmos::getCollection( $select_sql );
 	}
-	public function getDiscount($gid, $pid) {
+	public static function getDiscount($gid, $pid) {
 		$valid_ids = array();
 		$mtg = self::$game->mt_gizmos[$gid];
 

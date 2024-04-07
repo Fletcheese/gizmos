@@ -38,9 +38,9 @@
         $players_nbr = count( $players );
 
         /*********** Place your code below:  ************/
-		
+
         // $this->page->begin_block( "gizmos_gizmos", "tokens" );
-        
+
 		// $colors = array("red","black","blue","yellow");
         // $hor_scale = 30;
         // for( $x=0; $x<6; $x++ )
@@ -56,10 +56,10 @@
 			// 'LEFT' => $x*$hor_scale,
 			// 'COLOR' => 'random')
 		// );
-		
-		
+
+
         // $this->page->begin_block( "gizmos_gizmos", "cards" );
-        
+
 		// // level 3 has 2 cards, level 2 has 3 cards, level 1 has 4 cards
 		// $num_cards = 2;
         // $hor_scale = 110;
@@ -79,7 +79,7 @@
 		// }
 
         /*
-        
+
         // Examples: set the value of some element defined in your tpl file like this: {MY_VARIABLE_ELEMENT}
 
         // Display a specific number / string
@@ -90,17 +90,17 @@
 
         // Display some HTML content of your own:
         $this->tpl['MY_VARIABLE_ELEMENT'] = self::raw( $some_html_code );
-        
+
         */
-        
+
         /*
-        
+
         // Example: display a specific HTML block for each player in this game.
         // (note: the block is defined in your .tpl file like this:
         //      <!-- BEGIN myblock --> 
         //          ... my HTML code ...
         //      <!-- END myblock --> 
-        
+
 
         $this->page->begin_block( "gizmos_gizmos", "myblock" );
         foreach( $players as $player )
@@ -111,7 +111,7 @@
                                                     ...
                                                      ) );
         }
-        
+
         */
 
 

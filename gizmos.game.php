@@ -26,7 +26,7 @@ class Gizmos extends Table
 	function __construct( )
 	{
         parent::__construct();
-        
+
         self::initGameStateLabels( array(
 			"selected_card_id" => 50,
 			"triggering_gizmo_id" => 51,
@@ -39,7 +39,7 @@ class Gizmos extends Table
 		Converter::init( $this );
 		DB::init( $this );
 	}
-	
+
     protected function getGameName( )
     {
 		// Used for translations and stuff. Please do not modify.
@@ -48,7 +48,7 @@ class Gizmos extends Table
 
     /*
         setupNewGame:
-        
+
         This method is called only once, when a new game is launched.
         In this method, you must setup the game according to the game rules, so that
         the game is ready to be played.
@@ -60,7 +60,7 @@ class Gizmos extends Table
         // The number of colors defined here must correspond to the maximum number of players allowed for the gams
         $gameinfos = self::getGameinfos();
         $default_colors = $gameinfos['player_colors'];
- 
+
         // Create players
         // Note: if you added some extra field on "player" table in the database (dbmodel.sql), you can initialize it there.
         $sql = "INSERT INTO player (player_id, player_color, player_canal, player_name, player_avatar) VALUES ";
@@ -80,18 +80,18 @@ class Gizmos extends Table
 			}
 			$pref_values[] = "($player_id, 202, $pref_val)";
         }
-        $sql .= implode( $values, ',' );
+        $sql .= implode( ',', $values );
         self::DbQuery( $sql );
         self::reattributeColorsBasedOnPreferences( $players, $gameinfos['player_colors'] );
         self::reloadPlayersBasicInfos();
 
 		// Create player preferences
 		$sql = "INSERT INTO user_preferences (player_id, pref_id, pref_value) VALUES ";		
-        $sql .= implode( $pref_values, ',' );
+        $sql .= implode( ',', $pref_values );
 		self::DbQuery( $sql );
-        
+
         /************ Start the game initialization *****/
-		
+
 		// Create the spheres / energies / tokens
 		// Pick 7 spheres at random for starting row + NEXT:
 		$start_spheres = array();
@@ -102,7 +102,7 @@ class Gizmos extends Table
 			}
 			$start_spheres[$i] = $r;
 		}
-		
+
         $sql = "INSERT INTO sphere (location) VALUES ";
         $sql_values = array();
 		$next = true;
@@ -121,9 +121,9 @@ class Gizmos extends Table
             }
 			$sql_values[] = "('$location')";
         }
-        $sql .= implode( $sql_values, ',' );
+        $sql .= implode( ',', $sql_values );
         self::DbQuery( $sql );		
-		
+
 		$create_gizmos = array(
 			0 => array(),
 			1 => array(),
@@ -164,10 +164,10 @@ class Gizmos extends Table
 		$this->gizmo_cards->shuffle( 'deck_1' );
 		$this->gizmo_cards->createCards( $create_gizmos[2], 'deck_2' );
 		$this->gizmo_cards->shuffle( 'deck_2' );
-		
+
 		$this->gizmo_cards->createCards( $create_gizmos[3], 'deck_3' );
 		$this->gizmo_cards->shuffle( 'deck_3' );
-		
+
 		// Place cards from decks in rows
 		$this->gizmo_cards->pickCardsForLocation( 4, 'deck_1', 'row_1' );
 		$this->gizmo_cards->pickCardsForLocation( 3, 'deck_2', 'row_2' );
@@ -181,7 +181,7 @@ class Gizmos extends Table
 
         // Init global values with their initial values
         //self::setGameStateInitialValue( 'my_first_global_variable', 0 );
-        
+
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
         //self::initStat( 'table', 'table_teststat1', 0 );    // Init a table statistics
@@ -195,9 +195,9 @@ class Gizmos extends Table
 
     /*
         getAllDatas: 
-        
+
         Gather all informations about current game situation (visible by the current player).
-        
+
         The method is called each time the game interface is displayed to a player, ie:
         _ when the game starts
         _ when a player refreshes the game page (F5)
@@ -205,25 +205,27 @@ class Gizmos extends Table
     protected function getAllDatas()
     {
         $result = array();
-    
+
 		// All information for gizmos is public :)
         $current_player_id = self::getCurrentPlayerId();
-    
+
         // Get information about players
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
         $result['players'] = DB::getPlayers();
-		$current_player = $result['players'][$current_player_id];
-		$result['energy_limit'] = $current_player['energy_limit'];
-		$result['archive_limit'] = $current_player['archive_limit'];
-		$result['research_quantity'] = $current_player['research_quantity'];		
-		
+		if (array_key_exists($current_player_id, $result['players'])) {
+			$current_player = $result['players'][$current_player_id];
+			$result['energy_limit'] = $current_player['energy_limit'];
+			$result['archive_limit'] = $current_player['archive_limit'];
+			$result['research_quantity'] = $current_player['research_quantity'];		
+		}
+
 		$result['selected_card_id'] = self::getGameStateValue('selected_card_id');
 		$result['is_last_round'] = self::getGameStateValue('is_last_round');
         $result['spheres'] = DB::getRowEnergy();
 		if ($this->getStateName() != 'gameEnd') {
 			$result['upgrade_scores'] = self::getUpgradeScores($result['players']);
 		}
-		
+
 		$gizmo_cards = array(
 			1 => $this->gizmo_cards->getCardsInLocation( 'row_1' ),
 			2 => $this->gizmo_cards->getCardsInLocation( 'row_2' ),
@@ -234,7 +236,7 @@ class Gizmos extends Table
 		// 	2 => count( $this->gizmo_cards->getCardsInLocation( 'deck_2' ) ),
 		// 	3 => count( $this->gizmo_cards->getCardsInLocation( 'deck_3' ) )
 		// );
-		
+
 		$built_filed_gizmos = DB::getBuiltOrFiledCards();
 		//var_dump( $built_filed_gizmos );
 		//foreach ($result['players'] as $player_id => $player) {
@@ -247,7 +249,7 @@ class Gizmos extends Table
 					'built_by_type' => array()
 				);
 			}
-			
+
 			if ($gizmo['card_location'] == 'filed') {
 				array_push($gizmo_cards[$player_id]['filed'], $gizmo);				
 			} else {
@@ -263,7 +265,7 @@ class Gizmos extends Table
 		$result['mt_colors'] = $this->mt_colors;
 		$result['gizmo_cards'] = $gizmo_cards;
 		$result['deck_counts'] = DB::getDeckCounts();
-  
+
         return $result;
     }
 
@@ -280,10 +282,10 @@ class Gizmos extends Table
     /*
         In this space, you can put any utility methods useful for your game logic
     */
-	public static function getCollection( $sql ) { return self::getCollectionFromDb( $sql ); }
-	public static function getObject( $sql ) { return self::getObjectFromDB( $sql ); }
+	public static function getCollection( $sql ) { return (new self)->getCollectionFromDb( $sql ); }
+	public static function getObject( $sql ) { return (new self)->getObjectFromDB( $sql ); }
 	public static function getUniqueValue( $sql ) { return self::getUniqueValueFromDB( $sql ); }
-	public static function getDoubleKeyCollection( $sql ) { return self::getDoubleKeyCollectionFromDB( $sql );}
+	public static function getDoubleKeyCollection( $sql ) { return (new self)->getDoubleKeyCollectionFromDB( $sql );}
 	public function getSphereColor( $sid ) {
 		$color_index = $sid % 4;
 		return $this->mt_colors[$color_index];
@@ -307,7 +309,7 @@ class Gizmos extends Table
 		$player_id = self::getActivePlayerId();
 		$select_sql = "SELECT card_type_arg,card_type FROM gizmo_cards WHERE is_triggered=0 AND card_location='built' AND card_location_arg='$player_id' AND card_type='trigger_pick'";	
         $potential_triggers = self::getCollectionFromDb( $select_sql );
-		
+
 		$sphere_color = self::getSphereColor($sphere_id);
 		$triggered_card_ids = array();
 		foreach ( $potential_triggers as $pt_gizmo_id => $pt_gizmo) {
@@ -323,10 +325,10 @@ class Gizmos extends Table
 	}
 	function checkBuildTriggers($built_card_id, $built_from_file) {
 		$player_id = self::getActivePlayerId();
-		
+
 		$select_sql = "SELECT card_type_arg,card_type FROM gizmo_cards WHERE is_triggered=0 AND card_location='built' AND card_location_arg='$player_id' AND card_type='trigger_build'";	
         $potential_triggers = self::getCollectionFromDb( $select_sql );	
-		
+
 		$triggered_card_ids = array();
 		$built_mt_gizmo = $this->mt_gizmos[$built_card_id];
 		$built_color = $built_mt_gizmo['color'];
@@ -364,7 +366,7 @@ class Gizmos extends Table
 			$debug .= "\t color[$color] == 'multi' => return true";
 			$ret = true;
 		} else if (in_array( $color, $trigger_mt_gizmo['trigger_color'] )) {
-			$debug .= "\t color[$color] is in ".implode( $trigger_mt_gizmo['trigger_color'], ',')." => return true";
+			$debug .= "\t color[$color] is in ".implode( ',', $trigger_mt_gizmo['trigger_color'])." => return true";
 			$ret = true;
 		} else {
 			$debug .= "\t else return false";
@@ -373,7 +375,7 @@ class Gizmos extends Table
 		//var_dump( $debug );
 		return $ret;
 	}
-	
+
 	public function getStateName() {
        $state = $this->gamestate->state();
        return $state['name'];
@@ -466,7 +468,7 @@ class Gizmos extends Table
         Each time a player is doing some game action, one of the methods below is called.
         (note: each method below must match an input method in gizmos.action.php)
     */
-	
+
 	function cardSelected( $selected_card_id, $research )
     {
 		// Deck IDs are 1,2,3
@@ -521,7 +523,7 @@ class Gizmos extends Table
 		}
 		self::setGameStateValue('triggering_multiple_uses', 0);
 		self::setSelectedCardId(0);
-		
+
 		// Do not clear triggering gizmo if player is researching
 		$state = self::getStateName();
 		if ($state != 'researchedCardSelected') {
@@ -535,13 +537,13 @@ class Gizmos extends Table
 		if (!DB::checkPlayerEnergyCapacity($player_id)) {			
 			throw new BgaUserException( self::_("You cannot hold more energy"));	
 		}
-		
+
 		// ensure sphere is actually in the row to prevent cheaters:
 		$sp_location = DB::getSphereLocation($sphere_id);
 		if ($sp_location != 'row') {
 			throw new BgaVisibleSystemException( "Cannot pick energy sphere $sphere_id from $sp_location" );				
 		}
-		
+
 		DB::moveSphereToPlayer($sphere_id, $player_id);
 		DB::moveNextToRow();
 		$new_sphere = DB::randomDispenserNext();
@@ -581,9 +583,9 @@ class Gizmos extends Table
 		}
 
 		Converter::validateBuild($converters, explode(',', $sphere_ids), $selected_card_id, $player_id);
-		
+
 		DB::putSpheresInDispenser($sphere_ids);
-		
+
 		self::doBuildCard($selected_card_id, $player_id, $sphere_ids);
 
         $this->incStat( count($converters), 'conversion_number', $player_id);
@@ -601,7 +603,7 @@ class Gizmos extends Table
 
 		// move card to player
 		$this->gizmo_cards->moveCard( $built_card['card_id'], 'built', $player_id );
-		
+
 		// add the top card of the deck to the row IF card was not from file NOR research
 		$new_card_id = null;
 		$level = $this->mt_gizmos[$selected_card_id]['level'];
@@ -621,9 +623,9 @@ class Gizmos extends Table
 		$built_mt_gizmo = $this->mt_gizmos[$selected_card_id];
 		// Increment score and apply upgrades (if applicable)
 		$new_score = DB::scoreAndUpgradeBuiltCard($player_id, $built_mt_gizmo );
-		
+
 		self::handleResearchReturn();
-		
+
 		// clear selected card
 		self::setSelectedCardId(0);
 		// notify everyone
@@ -668,7 +670,7 @@ class Gizmos extends Table
 		$this->incStat($card_score, "level$level".'_score', $player_id);
 		$this->incStat($card_score, "level$level".'_score');
 	}
-	
+
 	function fileSelectedCard($selected_card_id, $research) {
 		self::checkAction( 'cardFile' );
 		$this->handleResearchOrder($research);
@@ -679,7 +681,7 @@ class Gizmos extends Table
 		if (DB::checkArchiveLimit($player_id)) {
 			throw new BgaUserException( self::_("Your archive is full!"));
 		}
-		
+
 		// card was already selected (playerTurn)
 		if (!$selected_card_id) {
 			$selected_card_id = self::getGameStateValue('selected_card_id');
@@ -693,7 +695,7 @@ class Gizmos extends Table
 		$card_sql = "SELECT card_id FROM gizmo_cards WHERE card_type_arg='".$selected_card_id."'";
 		$db_id = self::getUniqueValueFromDB($card_sql);
 		$this->gizmo_cards->moveCard( $db_id, 'filed', $player_id );
-		
+
 		// add the top card of the deck to the row
 		$mt_gizmo = $this->mt_gizmos[$selected_card_id];
 		$level = $mt_gizmo['level'];
@@ -740,7 +742,7 @@ class Gizmos extends Table
         $this->incStat(1, 'filed_number');
 		$this->gamestate->nextState( 'cardFile' );		
 	}
-	
+
 	function triggerGizmo($gizmo_id) {
 		$card_sql = "SELECT card_id,card_type,card_type_arg,card_location,card_location_arg,is_used,is_triggered FROM gizmo_cards WHERE card_type_arg='".$gizmo_id."'";
 		$gizmo = self::getObjectFromDB($card_sql);
@@ -805,7 +807,7 @@ class Gizmos extends Table
 			}
 		}
 	}
-	
+
 	function pass($research) {
 		self::checkAction( 'pass' );
 		$this->handleResearchOrder($research);
@@ -815,7 +817,7 @@ class Gizmos extends Table
 		self::checkAction( 'triggerSphereRandom' );
 		$this->gamestate->nextState( 'triggerSphereRandom' );		
 	}
-	
+
 	function research() {
 		if (DB::checkResearch(self::getActivePlayerId())) {
 			throw new BgaUserException( self::_("Cannot research due to upgrade!"));
@@ -826,7 +828,7 @@ class Gizmos extends Table
 			throw new BgaVisibleSystemException( "Unexpected research level: $level" );			
 		}
 		$deck_id = "deck_$level";
-		
+
 		$player_id = self::getActivePlayerId();
 		$card_sql = "SELECT player_research_quantity FROM player WHERE player_id=$player_id";
 		$research_quantity = self::getUniqueValueFromDB($card_sql);
@@ -849,10 +851,10 @@ class Gizmos extends Table
         $this->incStat(1, 'research_number');
 		$this->incStat(1, "level$level"."_research", $player_id);
 		$this->incStat(1, "level$level"."_research");
-		
+
 		$this->gamestate->nextState( 'research' );
 	}
-	
+
 	function buildLevel1For0($gizmo_id) {
 		// validate state
 		self::checkAction( 'buildLevel1For0' );
@@ -864,7 +866,7 @@ class Gizmos extends Table
 
 		// identical to building a card just without spending or validating any spheres
 		self::doBuildCard( $gizmo_id, self::getActivePlayerId(), null);
-		
+
 		$this->gamestate->nextState( 'buildLevel1For0' ); 
 	}
 
@@ -872,7 +874,7 @@ class Gizmos extends Table
 		DB::setPlayerPref($this->getCurrentPlayerId(), $pref_id, $pref_val);
 	}
 
-    
+
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state arguments
 ////////////
@@ -898,7 +900,7 @@ class Gizmos extends Table
 			'i18n' => ['html_file','html_pick','html_research']
 		);
 	}
-	
+
 	function arg_getSelectedCard() {
 		$player_id = self::getActivePlayerId();
 		$limits = DB::getPlayerLimits( $player_id );
@@ -980,7 +982,7 @@ class Gizmos extends Table
 		} else {
 			$desc = clienttranslate('may pick an available energy from the row');
 		}
-		
+
 		return array(
 			//'triggering_multiple_uses' => $uses,
 			'i18n' => ['desc'],
@@ -1002,7 +1004,7 @@ class Gizmos extends Table
 		} else {
 			throw new BgaVisibleSystemException( "arg_triggerDraw has unexpected triggering_multiple_uses: $uses" );						
 		}
-		
+
 		return array(
 			//'triggering_multiple_uses' => $uses,
 			'i18n' => ['desc'],
@@ -1016,16 +1018,16 @@ class Gizmos extends Table
 			'tg_gizmo_id' => self::getGameStateValue('triggering_gizmo_id')
 		);		
 	}
-	
+
 
     /*
-    
+
     Example for game state "MyGameState":
-    
+
     function argMyGameState()
     {
         // Get some values from the current game situation in database...
-    
+
         // return values:
         return array(
             'variable1' => $value1,
@@ -1043,7 +1045,7 @@ class Gizmos extends Table
         Here, you can create methods defined as "game state actions" (see "action" property in states.inc.php).
         The action method of state X is called everytime the current game state is set to X.
     */
-	
+
 	function st_nextPlayer()
 	{
 		// First do something with stats to increment number of triggers?
@@ -1052,7 +1054,7 @@ class Gizmos extends Table
         $next_player_id = $this->getPlayerAfter($player_id);
         $this->incStat(1, 'turns_number', $next_player_id);
         $this->incStat(1, 'turns_number');
-		
+
 		$res = DB::getGameProgress();
 		if ($res['progress'] >= 100) {
 			if (!self::getGameStateValue('is_last_round')) {
@@ -1107,12 +1109,12 @@ class Gizmos extends Table
 				return;
 			}
 		}
-		
+
         $this->giveExtraTime($next_player_id);
         $this->gamestate->changeActivePlayer($next_player_id);
 		$this->gamestate->nextState('nextTurn');
 	}
-		
+
 	function st_triggerSphereRandom() 
 	{
 		$player_id = self::getActivePlayerId();
@@ -1132,7 +1134,7 @@ class Gizmos extends Table
 		// update sphere.status -> player, sphere.belngs-to-player -> current player
 		$sql_new = "UPDATE sphere SET location='".$player_id."' WHERE sphere_id='$new_sphere_id'";
 		self::DbQuery( $sql_new );
-		
+
 		$sphere_color = self::getSphereColor($new_sphere_id);
 		$player_name = self::getPlayerNameForNotification($player_id);
 		// send notification to indicate what sphere was drawn
@@ -1150,10 +1152,10 @@ class Gizmos extends Table
 		);
         $this->incStat(1, 'drawn_number', $player_id);
         $this->incStat(1, 'drawn_number');
-		
+
 		$this->gamestate->nextState('triggerCheck');					
 	}
-	
+
 	function st_triggerCheck() 
 	{
 		$debug = 'st_triggerCheck:\n';
@@ -1203,7 +1205,7 @@ class Gizmos extends Table
 					break;				
 			}			
 		}
-		
+
 		$player_id = self::getActivePlayerId();
 
 		// TODO: if player option for auto-pass is turned on, check if all remaining triggers are legal
@@ -1287,7 +1289,7 @@ class Gizmos extends Table
 			$this->gamestate->nextState('triggerSelect');					
 		}
 	}
-	
+
 	function st_gainVictoryPoint() {
 		$gizmo_id = self::getGameStateValue('triggering_gizmo_id');
 		$mt_gizmo = $this->mt_gizmos[$gizmo_id];
@@ -1322,7 +1324,7 @@ class Gizmos extends Table
 				'upgrade_score' => self::getPlayerUpgradeScores($player_id)
 			)
 		);
-		
+
 		$this->gamestate->nextState('triggerCheck');
 	}
 
@@ -1332,11 +1334,11 @@ class Gizmos extends Table
 
     /*
         zombieTurn:
-        
+
         This method is called each time it is the turn of a player who has quit the game (= "zombie" player).
         You can do whatever you want in order to make sure the turn of this player ends appropriately
         (ex: pass).
-        
+
         Important: your zombie code will be called when the player leaves the game. This action is triggered
         from the main site and propagated to the gameserver from a server, not from a browser.
         As a consequence, there is no current player associated to this action. In your zombieTurn function,
@@ -1346,7 +1348,7 @@ class Gizmos extends Table
     function zombieTurn( $state, $active_player )
     {
     	$statename = $state['name'];
-    	
+
         if ($state['type'] === "activeplayer") {
             switch ($statename) {
                 default:
@@ -1363,22 +1365,22 @@ class Gizmos extends Table
 
         throw new feException( "Zombie mode not supported at this game state: ".$statename );
     }
-    
+
 ///////////////////////////////////////////////////////////////////////////////////:
 ////////// DB upgrade
 //////////
 
     /*
         upgradeTableDb:
-        
+
         You don't have to care about this until your game has been published on BGA.
         Once your game is on BGA, this method is called everytime the system detects a game running with your old
         Database scheme.
         In this case, if you change your Database scheme, you just have to apply the needed changes in order to
         update the game database and allow the game to continue to run with your new version.
-    
+
     */
-    
+
     function upgradeTableDb( $from_version )
     {        
 		$changes = [
@@ -1409,7 +1411,7 @@ class Gizmos extends Table
 				foreach ($this->loadPlayersBasicInfos() as $player_id => $info) {
 					$values[] = "($player_id, 202, 1)";
 				}
-				$sql .= implode( $values, ',' )." ON DUPLICATE KEY UPDATE player_id=VALUES(player_id),pref_id=VALUES(pref_id),pref_value=VALUES(pref_value)";
+				$sql .= implode( ',', $values )." ON DUPLICATE KEY UPDATE player_id=VALUES(player_id),pref_id=VALUES(pref_id),pref_value=VALUES(pref_value)";
 				//var_dump($sql);
 				self::DbQuery( $sql ); // default all players to Never auto-pass
 			}
@@ -1431,20 +1433,20 @@ class Gizmos extends Table
       'urls' => [
         // Emulates "load bug report" in control panel
         "https://studio.boardgamearena.com/admin/studio/getSavedGameStateFromProduction.html?game=$game&report_id=$reportId&table_id=$tableId",
-        
+
         // Emulates "load 1" at this table
         "https://studio.boardgamearena.com/table/table/loadSaveState.html?table=$tableId&state=1",
-        
+
         // Calls the function below to update SQL
         "https://studio.boardgamearena.com/1/$game/$game/loadBugSQL.html?table=$tableId&report_id=$reportId",
-        
+
         // Emulates "clear PHP cache" in control panel
         // Needed at the end because BGA is caching player info
         "https://studio.boardgamearena.com/admin/studio/clearGameserverPhpCache.html?game=$game",
       ]
     ]);
   }
-  
+
   /*
    * loadBugSQL: in studio, this is one of the URLs triggered by loadBug() above
    */
@@ -1452,7 +1454,7 @@ class Gizmos extends Table
   {
     $studioPlayer = self::getCurrentPlayerId();
     $players = self::getObjectListFromDb("SELECT player_id FROM player", true);
-  
+
     // Change for your game
     // We are setting the current state to match the start of a player's turn if it's already game over
     $sql = [
@@ -1466,7 +1468,7 @@ class Gizmos extends Table
       $sql[] = "UPDATE gamelog SET gamelog_player=$studioPlayer WHERE gamelog_player=$pId";
       $sql[] = "UPDATE gamelog SET gamelog_current_player=$studioPlayer WHERE gamelog_current_player=$pId";
       $sql[] = "UPDATE gamelog SET gamelog_notification=REPLACE(gamelog_notification, $pId, $studioPlayer)";
-  
+
       // TODO Add game-specific SQL updates for the tables, everywhere players ids are used in your game 
       $sql[] = "UPDATE gizmo_cards SET card_location_arg=$studioPlayer WHERE card_location_arg=$pId";
       $sql[] = "UPDATE sphere SET location='$studioPlayer' WHERE location='$pId'";
@@ -1479,7 +1481,7 @@ class Gizmos extends Table
     $msg = "<b>Loaded <a href='https://boardgamearena.com/bug?id=$reportId' target='_blank'>bug report $reportId</a></b><hr><ul><li>" . implode(';</li><li>', $sql) . ';</li></ul>';
     self::warn($msg);
     self::notifyAllPlayers('message', $msg, []);
-  
+
     foreach ($sql as $q) {
       self::DbQuery($q);
     }

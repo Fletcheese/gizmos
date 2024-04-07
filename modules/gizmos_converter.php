@@ -8,7 +8,7 @@ class Converter
         self::$game = $theGame;
     }
 
-    public static function validateBuild( $converters, $energies, $gid, $pid ) {
+    public static function validateBuild( $converters, $energies, $built_gid, $pid ) {
         $orders = array();
         foreach ($converters as $c_id => $c) {
             $o = $c['order'];
@@ -58,7 +58,6 @@ class Converter
 		}
 
         // Ensure that spend_power is within the discount threshold i.e. spent color >= cost-discount AND spent color <= cost
-        $built_gid = self::$game->getGameStateValue('selected_card_id');
         $mt_built = self::$game->mt_gizmos[$built_gid];
         $built_color = $mt_built['color'];
         $built_cost = $mt_built['cost'];
@@ -90,7 +89,7 @@ class Converter
         }
     }
 
-    function validateConvert($mt_c, $c_action, &$spend_power) {
+    static function validateConvert($mt_c, $c_action, &$spend_power) {
         $c_id = $mt_c['id'];
         self::debug("[$]$c_id converts ".$c_action['from']." to ".$c_action['to_number'].$c_action['to_color']."\n");
        // self::debug($c_action);
@@ -142,7 +141,7 @@ class Converter
         self::debug($spend_power);
     }
 
-    function debug($o) {
+    static function debug($o) {
         if (false) {
             var_dump($o);
         }
