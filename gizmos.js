@@ -27,7 +27,8 @@ function (dojo, declare) {
 	
     return declare("bgagame.gizmos", ebg.core.gamegui, {
         constructor: function() {
-            console.log('gizmos constructor');
+            console.log('gizmos constructor: 2024-08-23');
+			//this.default_viewport = 'width=400';
 			Game.zones = {};              
 			this.card_width = 170.5;
 			this.card_height = 170.5;
@@ -38,7 +39,7 @@ function (dojo, declare) {
 			this.gamedatas = {};
 			
 			// Set mobile viewport for portrait orientation based on gameinfos.inc.php
-			//this.default_viewport = "width=" + this.interface_min_width;
+			this.default_viewport = "width=" + this.interface_min_width;
 			this.onScreenWidthChange();
 			
 			// Load production bug report handler

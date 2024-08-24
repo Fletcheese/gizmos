@@ -47,6 +47,14 @@
 		display:none;
 	}
 }
+#gizmos_board {
+	margin-left:unset !important;
+}
+
+
+#page-content, #right-side-first-part {
+	zoom: 1 !important;
+}
 
 
 #button_cancel, #button_pass, #button_cancelPick {

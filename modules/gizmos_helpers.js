@@ -122,7 +122,7 @@ let Game = {
 	},
 	isColorblindFriendly: function(parent) {
 		let pref = parent.prefs[203].value;
-		console.log('isColorblindFriendly?', pref)
+		//console.log('isColorblindFriendly?', pref)
 		switch (pref) {
 			case '2': // Yes
 				return true;
