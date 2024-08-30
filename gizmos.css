@@ -13,6 +13,54 @@
  *
  */
 
+ /* CSS from GTSchemer to theoretically fix button sizing on mobile */
+ .mobile_version #chatbardock {
+	top: -8.1vw !important;
+	right: -1.4vw !important;
+	width: auto !important;
+	height: 8.1vw !important;
+ }
+ .mobile_version .chatwindowcollapsed {
+	width: 15.4vw !important;
+	margin-right: 2.7vw !important;
+ }
+ .mobile_version .chatwindowavatar {
+	width: 13.3vw !important;
+	height: 13.3vw !important;
+	top: -9.5vw !important;
+	border-radius: 50% !important;
+ }
+ .mobile_version .avatarwrap {
+	left: -1.2vw !important;
+	top: -1.5vw !important;
+	width: 14vw !important;
+	height: 14vw !important;
+	margin: 0.4vw !important;
+ }
+ .chatwindowavatar .fa-history {
+	left: 3.4vw !important;
+	top: 2.8vw !important;
+	font-size: 9vw !important;
+ }
+ .chatwindowavatar .fa-comment {
+	left: 2.8vw !important;
+	top: 2.8vw !important;
+	font-size: 9vw !important;
+ }
+ .mobile_version.chatbar_ontop #chatbar {
+	top: 19vw !important;
+ }
+ .mobile_version .chatwindowlogs {
+	top: 19vw !important;
+	bottom: 0vw !important;
+ }
+ .mobile_version .chatwindowavatar .bubblecaret {
+	left: 4.1vw !important;
+	top: 12vw !important;
+	font-size: 9vw !important;
+ }
+ /* END GTSchemer */
+
 /* make space between buttons on touch devices */
 @media (hover: none) {
   #page-title .action-button.bgabutton, #page-title .bgabutton {
@@ -49,11 +97,6 @@
 }
 #gizmos_board {
 	margin-left:unset !important;
-}
-
-
-#page-content, #right-side-first-part {
-	zoom: 1 !important;
 }
 
 
@@ -230,12 +273,6 @@
 	border-radius: 10px;
 }
 
-/* float:right;
-	height:50px;
-	width:50px;
-	background-image: url('img/dispenser.png');
-	background-size: 50px 50px;
- */
 
 #gizmos_board #energy_ring {
 	background-image: url('img/energy_ring1.png');
