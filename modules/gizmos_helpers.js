@@ -104,7 +104,7 @@ let Game = {
 		}
 	},	
 	isShowEnergyConfirm: function(parent) {
-		let pref = parent.prefs[201].value;
+		let pref = parent.bga.userPreferences.get(201);
 		console.log('isShowEnergyConfirm?', pref)
 		switch (pref) {
 			case '2': // never
@@ -121,7 +121,7 @@ let Game = {
 		}		
 	},
 	isColorblindFriendly: function(parent) {
-		let pref = parent.prefs[203].value;
+		let pref = parent.bga.userPreferences.get(203);
 		//console.log('isColorblindFriendly?', pref)
 		switch (pref) {
 			case '2': // Yes

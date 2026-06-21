@@ -23,7 +23,7 @@ class DB
 	}
 
 	static public function scoreAndUpgradeBuiltCard($player_id, $built_mt_gizmo) {
-		$card_score;
+		$card_score = null;
 		// All level 1s are worth 1 point
 		if ($built_mt_gizmo['level'] == 1) {
 			$card_score = 1;
@@ -372,18 +372,6 @@ class DB
         $limit = Gizmos::getUniqueValue( $sql );
 		$filed = self::getPlayerFiledCount($player_id);
 		return $filed >= $limit;
-	}
-	
-	public static function setPlayerPref($player_id, $pref_id, $pref_val) {
-		$sql = "INSERT INTO user_preferences (player_id,pref_id,pref_value) VALUES ($player_id,$pref_id,$pref_val) ON DUPLICATE KEY UPDATE player_id=VALUES(player_id),pref_id=VALUES(pref_id),pref_value=VALUES(pref_value)"; 
-			//"UPDATE user_preferences SET pref_value=$pref_val WHERE player_id=$player_id AND pref_id=$pref_id";
-		//var_dump($sql);
-		Gizmos::DbQuery( $sql );
-	}
-	public static function isAutoPassTriggers($player_id) {
-		$sql = "SELECT pref_value FROM user_preferences WHERE player_id=$player_id AND pref_id=202";
-		$val = Gizmos::getUniqueValue( $sql );
-		return $val && $val == 2;
 	}
     /*
     END PLAYERS

@@ -14,17 +14,7 @@
  *
  */
  
-$machinestates = array(
-
-    // The initial state. Please do not modify.
-    1 => array(
-        "name" => "gameSetup",
-        "description" => "",
-        "type" => "manager",
-        "action" => "st_GameSetup",
-        "transitions" => array( "" => 2 )
-    ),
-    
+$machinestates = array(    
     // Note: ID=2 => your first state
     2 => array(
     		"name" => "playerTurn",
@@ -156,17 +146,6 @@ $machinestates = array(
 			"action" => "st_triggerCheck",
     		"transitions" => array( "triggerSelect" => 13, "nextTurn" => 3, "triggerSphereSelect" => 11, "triggerDraw" => 16 )
     ),
-   
-    // Final state.
-    // Please do not modify (and do not overload action/args methods).
-    99 => array(
-        "name" => "gameEnd",
-        "description" => clienttranslate("End of game"),
-        "type" => "manager",
-        "action" => "stGameEnd",
-        "args" => "argGameEnd"
-    )
-
 );
 
 

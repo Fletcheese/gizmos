@@ -41,52 +41,6 @@ function (dojo, declare) {
 			// Set mobile viewport for portrait orientation based on gameinfos.inc.php
 			this.default_viewport = "width=" + this.interface_min_width;
 			this.onScreenWidthChange();
-			
-			// Load production bug report handler
-			const self = this; // save the `this` context in a variable
-			dojo.subscribe("loadBug", this, function loadBug(n) {
-				function fetchNextUrl() {
-				var url = n.args.urls.shift();
-				console.log("Fetching URL", url, "...");
-				// all the calls have to be made with ajaxcall in order to add the csrf token, otherwise you'll get "Invalid session information for this action. Please try reloading the page or logging in again"
-				self.ajaxcall(url,
-				{
-					lock: true,
-				},
-				self,
-				function (success) {
-					console.log("=> Success ", success);
-			
-					if (n.args.urls.length > 1) {
-						fetchNextUrl();
-					}
-					else if (n.args.urls.length > 0) {
-					//except the last one, clearing php cache
-					url = n.args.urls.shift();
-					dojo.xhrGet({
-						url: url,
-						load: function (success) {
-						console.log("Success for URL", url, success);
-						console.log("Done, reloading page");
-						window.location.reload();
-						},
-						handleAs: "text",
-						error: function (error) {
-						console.log("Error while loading : ", error);
-						}
-					});
-				}
-				}
-				,
-				function (error) {
-				if (error)
-					console.log("=> Error ", error);
-				}
-				);
-			}
-			console.log("Notif: load bug", n.args);
-			fetchNextUrl();
-			});
         },		
 
 		onScreenWidthChange: function() {
@@ -161,8 +115,6 @@ function (dojo, declare) {
 			 
             // Setup game notifications to handle (see "setupNotifications" method below)
             this.setupNotifications();
-			
-			this.initPreferencesObserver();
 
 			if (Game.isColorblindFriendly(this)) {
 				dojo.query('.token').addClass('colorblind');
@@ -583,28 +535,6 @@ function (dojo, declare) {
 								};
 			this.items.sort( sort_function );				
 			this.updateDisplay();        
-		},
-		onPreferenceChange(prefId, prefValue) {
-			prefId = parseInt(prefId);
-			if (prefId == 202) { // Auto-Pass Unusable Triggers
-				this.ajaxcall( "/gizmos/gizmos/updatePlayerPref.html", {
-					pref_id: prefId,
-					pref_val: prefValue
-				}, this, function( result ) {} );				
-			}
-		},
-		initPreferencesObserver: function () {      
-			// Call onPreferenceChange() when any value changes
-			dojo.query('.preference_control').on('change', (e) => {
-				const match = e.target.id.match(/^preference_[cf]ontrol_(\d+)$/);
-				if (!match) {
-					return;
-				}
-				const pref = match[1];
-				const newValue = e.target.value;
-				this.prefs[pref].value = newValue;
-				this.onPreferenceChange(pref, newValue);
-			});
 		},
 		selectDeck: function (level) {
 			if (this.checkAction( 'deckSelected' )) 
